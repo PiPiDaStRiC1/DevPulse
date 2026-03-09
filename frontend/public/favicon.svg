@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- offset shadow (brutalist style) -->
+  <rect x="4" y="4" width="25" height="25" rx="3" fill="#1a2e1a"/>
+  <!-- main card -->
+  <rect x="1" y="1" width="25" height="25" rx="3" fill="#fffef8" stroke="#1a2e1a" stroke-width="2"/>
+  <!-- activity / EKG line (matches ActivityIcon from lucide) -->
+  <polyline
+    points="24,14 21,14 18,23 12,6 9,14 5,14"
+    fill="none"
+    stroke="#1a2e1a"
+    stroke-width="2.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>

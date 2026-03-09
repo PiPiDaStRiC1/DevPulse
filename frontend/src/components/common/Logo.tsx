@@ -1,11 +1,17 @@
-import { Link } from "react-router-dom";
 import { ActivityIcon } from "lucide-react";
 
 export const Logo = () => {
     return (
-        <Link to="/" aria-label="DevPulse Logo" className="cursor-pointer flex items-center gap-2">
-            <ActivityIcon size={16} className="text-black" />
-            <span className="select-none text-lg text-gray-900 font-semibold">DevPulse</span>
-        </Link>
+        <div className="flex items-center gap-2">
+            <div
+                className="border-2 border-ink p-1 rounded-[var(--radius)]"
+                style={{ boxShadow: "2px 2px 0 var(--ink)" }}
+            >
+                <ActivityIcon size={16} className="text-ink" />
+            </div>
+            <span className="text-xl font-bold tracking-tight select-none text-text-base">
+                DevPulse
+            </span>
+        </div>
     );
 };

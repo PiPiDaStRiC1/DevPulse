@@ -1,18 +1,18 @@
 @import "tailwindcss";
 
 :root {
-  --bg:           #f0f0f0;
-  --surface:      #ffffff;
+  --bg:           #f5f2eb; 
+  --surface:      #fffef8;   
 
-  --ink:          #0f0f0f;
-  --ink-soft:     #d4d4d4;
+  --ink:          #1a2e1a;  
+  --ink-soft:     #c2d4c0;  
 
-  --text:         #0f0f0f;
-  --muted:        #6b7280;
-  --subtle:       #9ca3af;
+  --text:         #1a2e1a;
+  --muted:        #5c7a58;   
+  --subtle:       #8fab89;  
 
-  --accent:       #0f0f0f;
-  --accent-fg:    #ffffff;
+  --accent:       #1a2e1a;
+  --accent-fg:    #fffef8;
 
   --av-purple:    #7c5cbf;
   --av-blue:      #2563eb;
@@ -23,10 +23,10 @@
 
   --font:         "Space Grotesk", system-ui, sans-serif;
 
-  --radius:       4px;
+  --radius:       6px;     
 
   --shadow-card:       3px 3px 0 var(--ink);
-  --shadow-card-hover: 5px 5px 0 var(--ink);
+  --shadow-card-hover: 6px 6px 0 var(--ink);  
   --shadow-btn:        2px 2px 0 var(--ink);
   --shadow-btn-hover:  3px 3px 0 var(--ink);
 }
@@ -54,6 +54,14 @@
 
 html { scroll-behavior: smooth; } */
 
+/* Override browser native outline on inputs/textareas — Tailwind utilities
+   live in @layer utilities which yields to unlayered styles, so we need this
+   explicit rule outside any layer to win the cascade. */
+input:focus-visible,
+textarea:focus-visible {
+  outline: none;
+}
+
 body {
   background: var(--bg);
   color: var(--text);
@@ -66,14 +74,8 @@ body {
 
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: #c4c4c4; border-radius: 99px; }
-::-webkit-scrollbar-thumb:hover { background: #999; }
-
-*:focus-visible {
-  outline: 2px solid var(--ink);
-  outline-offset: 2px;
-  border-radius: var(--radius);
-}
+::-webkit-scrollbar-thumb { background: #b8ceaf; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #7a9e74; }
 
 .card {
   background: var(--surface);
@@ -171,10 +173,10 @@ body {
   transition: color 0.12s,
 }
 .action-btn:hover           { color: var(--text); background: var(--bg); }
-.action-btn.liked           { color: #e11d48; }
-.action-btn.liked:hover     { background: #fff1f2; }
-.action-btn.bookmarked      { color: #d97706; }
-.action-btn.bookmarked:hover { background: #fffbeb; }
+.action-btn.liked           { color: #dc2626; }
+.action-btn.liked:hover     { background: #fef3f2; }
+.action-btn.bookmarked      { color: #c2690a; }
+.action-btn.bookmarked:hover { background: #fef9f0; }
 
 .sq-avatar {
   display: flex;
@@ -204,7 +206,7 @@ body {
 .tag-badge:hover { background: var(--ink); color: var(--accent-fg); }
 
 .code-block {
-  background: #fafafa;
+  background: #f0ede3;
   border: 2px solid var(--ink);
   border-radius: var(--radius);
   overflow-x: auto;
@@ -214,5 +216,5 @@ body {
   font-family: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
   font-size: 12.5px;
   line-height: 1.6;
-  color: #1e1e1e;
+  color: var(--ink);
 }

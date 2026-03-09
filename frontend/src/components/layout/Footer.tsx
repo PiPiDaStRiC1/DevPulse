@@ -1,11 +1,7 @@
-import { ActivityIcon, Github, Twitter, Rss, Zap, Code2, Globe } from "lucide-react";
-
-const navLinks = [
-    { label: "Feed", href: "/" },
-    { label: "Explore", href: "#" },
-    { label: "Whispers", href: "#" },
-    { label: "Bookmarks", href: "#" },
-];
+import { Logo } from "@/components/common";
+import { Github, Twitter, Rss, Zap, Code2, Globe } from "lucide-react";
+import { navLinks } from "@/lib/constants";
+import { Link } from "react-router-dom";
 
 const social = [
     { Icon: Github, label: "GitHub" },
@@ -23,23 +19,13 @@ export const Footer = () => {
         >
             <div className="max-w-7xl mx-auto pt-10 pb-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
-                    <div>
-                        <div className="flex items-center gap-2 mb-4">
-                            <div
-                                className="border-2 border-ink p-1 rounded-[var(--radius)]"
-                                style={{ boxShadow: "2px 2px 0 var(--ink)" }}
-                            >
-                                <ActivityIcon size={16} className="text-ink" />
-                            </div>
-                            <span className="text-xl font-bold tracking-tight select-none text-text-base">
-                                DevPulse
-                            </span>
-                        </div>
+                    <div className="flex flex-col gap-5">
+                        <Logo />
                         <p className="text-sm text-muted leading-relaxed max-w-[220px]">
                             A place for developers to share ideas, snippets, and builds. Built by
                             devs, for devs.
                         </p>
-                        <div className="flex gap-3 mt-5">
+                        <div className="flex gap-3">
                             {social.map(({ Icon, label }) => (
                                 <button
                                     key={label}
@@ -57,15 +43,15 @@ export const Footer = () => {
                             Navigate
                         </h4>
                         <ul className="flex flex-col gap-2.5">
-                            {navLinks.map(({ label, href }) => (
+                            {navLinks.map(({ label, path }) => (
                                 <li key={label}>
-                                    <a
-                                        href={href}
+                                    <Link
+                                        to={path}
                                         className="text-sm text-muted hover:text-text-base transition-colors font-medium flex items-center gap-1.5 group"
                                     >
                                         <span className="w-3 h-px bg-ink-soft group-hover:w-4 group-hover:bg-ink transition-all duration-150" />
                                         {label}
-                                    </a>
+                                    </Link>
                                 </li>
                             ))}
                         </ul>
@@ -98,8 +84,7 @@ export const Footer = () => {
 
                 <div className="border-t-2 border-ink-soft pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
                     <p className="text-xs text-subtle font-medium">
-                        © {new Date().getFullYear()} DevPulse — made with{" "}
-                        <span className="text-ink">Love</span> and too much coffee
+                        © {new Date().getFullYear()} DevPulse
                     </p>
                     <p className="text-xs text-subtle font-mono">v0.1.0</p>
                 </div>

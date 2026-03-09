@@ -1,36 +1,27 @@
-import { Link } from "react-router-dom";
-import { useState } from "react";
+import { Link, NavLink } from "react-router-dom";
 import { Logo, Avatar } from "@/components/common";
+import { navLinks } from "@/lib/constants";
 import type { User } from "@/types";
-
-type NavId = "feed" | "explore" | "whispers" | "bookmarks";
-
-const navItems: { id: NavId; label: string; path: string }[] = [
-    { id: "feed", label: "Feed", path: "/" },
-    { id: "explore", label: "Explore", path: "/explore" },
-    { id: "whispers", label: "Whispers", path: "/whispers" },
-];
 
 interface HeaderProps {
     currentUser: User;
 }
 
 export const Header = ({ currentUser }: HeaderProps) => {
-    const [active, setActive] = useState<NavId>("feed");
-
     return (
         <header className="border-b-2 z-100 px-2 border-ink sticky bg-bg top-0 flex items-center px-5 gap-6 h-12">
-            <Logo />
+            <Link to="/">
+                <Logo />
+            </Link>
             <nav className="flex gap-2 flex-1">
-                {navItems.map(({ id, label, path }) => (
-                    <Link
+                {navLinks.map(({ id, label, path }) => (
+                    <NavLink
                         key={id}
                         to={path}
-                        onClick={() => setActive(id)}
-                        className={`nav-btn${active === id ? " active" : ""}`}
+                        className={({ isActive }) => `nav-btn${isActive ? " active" : ""}`}
                     >
                         {label}
-                    </Link>
+                    </NavLink>
                 ))}
             </nav>
 

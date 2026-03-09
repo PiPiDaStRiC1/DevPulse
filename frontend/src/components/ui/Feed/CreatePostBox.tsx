@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { Smile } from "lucide-react";
+import { Avatar } from "@/components/common";
 import type { User } from "@/types";
-import { Avatar } from "../../common/Avatar";
 
 interface CreatePostBoxProps {
     currentUser: User;
@@ -50,7 +51,7 @@ export const CreatePostBox = ({ currentUser }: CreatePostBoxProps) => {
                                   : "What are you building? Share with the community..."
                         }
                         rows={3}
-                        className="w-full resize-none text-sm font-medium leading-relaxed bg-transparent outline-none border-0 text-text-base font-[inherit]"
+                        className="w-full resize-none text-sm font-medium leading-relaxed bg-transparent outline-none focus:outline-none border-0 text-text-base font-[inherit]"
                     />
 
                     <div className="flex items-center justify-between mt-2 pt-2 border-t border-ink-soft">
@@ -58,20 +59,13 @@ export const CreatePostBox = ({ currentUser }: CreatePostBoxProps) => {
                             className="text-base opacity-45 bg-transparent border-0 cursor-pointer hover:opacity-100 transition-opacity"
                             aria-label="attachment"
                         >
-                            #️⃣
+                            <Smile />
                         </button>
 
                         <div className="flex items-center gap-3">
                             {text.length > 0 && (
                                 <span
-                                    className={[
-                                        "text-xs font-bold tabular-nums",
-                                        isOverLimit
-                                            ? "text-red-600"
-                                            : isNearLimit
-                                              ? "text-amber-600"
-                                              : "text-muted",
-                                    ].join(" ")}
+                                    className={`text-xs font-bold tabular-nums ${isOverLimit ? "text-red-600" : isNearLimit ? "text-amber-600" : "text-muted"}`}
                                 >
                                     {remaining}
                                 </span>

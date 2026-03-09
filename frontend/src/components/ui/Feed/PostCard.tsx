@@ -24,7 +24,7 @@ function RichContent({ text }: { text: string }) {
                             return (
                                 <span
                                     key={ti}
-                                    className="text-[#6d28d9] font-semibold cursor-pointer"
+                                    className="text-[#b45309] font-semibold cursor-pointer"
                                 >
                                     {token}
                                 </span>
