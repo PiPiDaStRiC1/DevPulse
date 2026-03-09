@@ -11,6 +11,9 @@
         "skipLibCheck": true,
         "composite": true,
 
+        "baseUrl": ".",
+        "paths": { "@/*": ["./src/*"], "@shared": ["../shared/src/*"] },
+
         "moduleResolution": "bundler",
         "allowImportingTsExtensions": true,
         "verbatimModuleSyntax": true,
