@@ -12,7 +12,7 @@
         "composite": true,
 
         "baseUrl": ".",
-        "paths": { "@/*": ["./src/*"], "@shared": ["../shared/src/*"] },
+        "paths": { "@/*": ["./src/*"], "@shared/*": ["../shared/*"] },
 
         "moduleResolution": "bundler",
         "allowImportingTsExtensions": true,

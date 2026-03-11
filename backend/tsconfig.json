@@ -11,7 +11,7 @@
         "composite": true,
 
         "baseUrl": ".",
-        "paths": { "@/*": ["./src/*"], "@shared": ["../shared/*"] },
+        "paths": { "@/*": ["./src/*"], "@shared/*": ["../shared/*"] },
 
         "moduleResolution": "bundler",
         "allowImportingTsExtensions": true,
@@ -25,6 +25,5 @@
         "erasableSyntaxOnly": true,
         "noFallthroughCasesInSwitch": true,
         "noUncheckedSideEffectImports": true
-    },
-    "include": ["vite.config.ts"]
+    }
 }
