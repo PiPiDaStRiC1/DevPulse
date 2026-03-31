@@ -1,15 +1,13 @@
-import { Link, NavLink } from "react-router-dom";
-import { Logo, Avatar } from "@/components/common";
+import { Link, NavLink, useLocation } from "react-router-dom";
+import { Logo } from "@/components/common";
 import { navLinks } from "@/lib/constants";
-import type { User } from "@/types";
+import { LogIn } from "lucide-react";
 
-interface HeaderProps {
-    currentUser: User;
-}
+export const Header = () => {
+    const location = useLocation();
 
-export const Header = ({ currentUser }: HeaderProps) => {
     return (
-        <header className="border-b-2 z-100 px-2 border-ink sticky bg-bg top-0 flex items-center px-5 gap-6 h-12">
+        <header className="border-b-2 z-50 px-2 border-ink sticky bg-bg top-0 flex items-center px-5 gap-6 p-2">
             <Link to="/">
                 <Logo />
             </Link>
@@ -24,11 +22,14 @@ export const Header = ({ currentUser }: HeaderProps) => {
                     </NavLink>
                 ))}
             </nav>
-
-            <div className="flex items-center gap-2 flex-shrink-0">
-                <span className="text-md text-muted">@{currentUser.handle}</span>
-                <Avatar user={currentUser} size="sm" />
-            </div>
+            <Link
+                to="/auth"
+                state={{ background: location }}
+                className="btn-solid flex gap-2 text-sm"
+            >
+                <LogIn size={20} />
+                Sign Up
+            </Link>
         </header>
     );
 };

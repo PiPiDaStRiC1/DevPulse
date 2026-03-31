@@ -140,14 +140,6 @@ export const Whispers = () => {
         setDraft("");
     };
 
-    useEffect(() => {
-        document.body.style.overflow = "hidden";
-
-        return () => {
-            document.body.style.overflow = "auto";
-        };
-    }, []);
-
     const filtered = convos.filter(
         (c) =>
             c.user.username.toLowerCase().includes(search.toLowerCase()) ||

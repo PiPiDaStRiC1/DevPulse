@@ -40,19 +40,21 @@ export const CreatePostBox = ({ currentUser }: CreatePostBoxProps) => {
                         ))}
                     </div>
 
-                    <textarea
-                        value={text}
-                        onChange={(e) => setText(e.target.value)}
-                        placeholder={
-                            activeTab === "Code"
-                                ? "Share a code snippet, tip, or clever trick..."
-                                : activeTab === "Image"
-                                  ? "Add a caption for your image..."
-                                  : "What are you building? Share with the community..."
-                        }
-                        rows={3}
-                        className="w-full resize-none text-sm font-medium leading-relaxed bg-transparent outline-none focus:outline-none border-0 text-text-base font-[inherit]"
-                    />
+                    <form action="post" method="post">
+                        <textarea
+                            value={text}
+                            onChange={(e) => setText(e.target.value)}
+                            placeholder={
+                                activeTab === "Code"
+                                    ? "Share a code snippet, tip, or clever trick..."
+                                    : activeTab === "Image"
+                                      ? "Add a caption for your image..."
+                                      : "What are you building? Share with the community..."
+                            }
+                            rows={3}
+                            className="w-full resize-none text-sm font-medium leading-relaxed bg-transparent outline-none focus:outline-none border-0 text-text-base font-[inherit]"
+                        />
+                    </form>
 
                     <div className="flex items-center justify-between mt-2 pt-2 border-t border-ink-soft">
                         <button
@@ -71,6 +73,7 @@ export const CreatePostBox = ({ currentUser }: CreatePostBoxProps) => {
                                 </span>
                             )}
                             <button
+                                type="submit"
                                 disabled={text.trim().length === 0 || isOverLimit}
                                 className="btn-solid py-1.5 px-4 text-sm"
                             >

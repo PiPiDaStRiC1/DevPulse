@@ -1,8 +1,7 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 import { Header, Main, Footer } from "@/components/layout";
-import { Feed, Explore, Whispers } from "@/pages";
+import { Feed, Explore, Whispers, Auth, AuthModal, NotFound } from "@/pages";
 import { ScrollToTop } from "@/lib/utils";
-import { currentUser } from "@/lib/constants/mockData";
 
 // ToDo:
 // 1) сделать отправку сообщений на сервер
@@ -31,20 +30,28 @@ import { currentUser } from "@/lib/constants/mockData";
 
 function App() {
     const location = useLocation();
-    const isWhispersPage = location.pathname === "/whispers";
+    const state = location.state as { background?: Location };
+    const isWhispersPage = location.pathname.includes("/whispers");
 
     return (
         <>
-            <Header currentUser={currentUser} />
+            <Header />
             <ScrollToTop />
-            <Routes>
+            <Routes location={state?.background || location}>
                 <Route element={<Main />}>
-                    <Route path="/" element={<Feed />} />
+                    <Route path="/" index element={<Feed />} />
                     <Route path="/explore" element={<Explore />} />
                     <Route path="/whispers" element={<Whispers />} />
+                    <Route path="*" element={<NotFound />} />
+                    {!state?.background && <Route path="/auth" element={<Auth />} />}
                 </Route>
             </Routes>
             {!isWhispersPage && <Footer />}
+            {state?.background && (
+                <Routes>
+                    <Route path="/auth" element={<AuthModal />} />
+                </Routes>
+            )}
         </>
     );
 }

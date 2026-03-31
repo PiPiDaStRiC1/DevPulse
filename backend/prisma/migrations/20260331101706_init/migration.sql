@@ -1,7 +1,7 @@
 -- CreateTable
 CREATE TABLE "TechStack" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "name" TEXT NOT NULL,
+    "name" TEXT DEFAULT '',
     "postId" INTEGER NOT NULL,
     CONSTRAINT "TechStack_postId_fkey" FOREIGN KEY ("postId") REFERENCES "Post" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
@@ -9,7 +9,7 @@ CREATE TABLE "TechStack" (
 -- CreateTable
 CREATE TABLE "Tags" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "name" TEXT NOT NULL,
+    "name" TEXT DEFAULT '',
     "postId" INTEGER NOT NULL,
     CONSTRAINT "Tags_postId_fkey" FOREIGN KEY ("postId") REFERENCES "Post" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
@@ -17,16 +17,19 @@ CREATE TABLE "Tags" (
 -- CreateTable
 CREATE TABLE "PostComment" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "name" TEXT NOT NULL,
+    "text" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "postId" INTEGER NOT NULL,
-    CONSTRAINT "PostComment_postId_fkey" FOREIGN KEY ("postId") REFERENCES "Post" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    "authorId" INTEGER NOT NULL,
+    CONSTRAINT "PostComment_postId_fkey" FOREIGN KEY ("postId") REFERENCES "Post" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "PostComment_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "CodeSnippet" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "language" TEXT NOT NULL,
-    "code" TEXT NOT NULL,
+    "language" TEXT,
+    "code" TEXT,
     "postId" INTEGER NOT NULL,
     CONSTRAINT "CodeSnippet_postId_fkey" FOREIGN KEY ("postId") REFERENCES "Post" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
@@ -47,13 +50,16 @@ CREATE TABLE "Post" (
     "likes" INTEGER NOT NULL,
     "reposts" INTEGER NOT NULL,
     "bookmarks" INTEGER NOT NULL,
-    "createdAt" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "isLiked" BOOLEAN NOT NULL,
     "isBookmarked" BOOLEAN NOT NULL,
     "isReposted" BOOLEAN NOT NULL,
-    "image" TEXT NOT NULL,
+    "image" TEXT,
     CONSTRAINT "Post_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "CodeSnippet_postId_key" ON "CodeSnippet"("postId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
