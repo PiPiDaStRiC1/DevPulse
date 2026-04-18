@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import { Logo } from "@/components/common";
 import { useNavigate } from "react-router-dom";
-import { Form } from "@/components/ui";
+import { LoginForm, RegisterForm } from "@/components/ui";
 
 type Tab = "login" | "register";
 
@@ -14,11 +14,11 @@ export const AuthModal = () => {
     const modalRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const handler = (e: KeyboardEvent) => {
+        const handleEscape = (e: KeyboardEvent) => {
             if (e.key === "Escape") navigate(-1);
         };
-        window.addEventListener("keydown", handler);
-        return () => window.removeEventListener("keydown", handler);
+        window.addEventListener("keydown", handleEscape);
+        return () => window.removeEventListener("keydown", handleEscape);
     }, [navigate]);
 
     useEffect(() => {
@@ -57,7 +57,7 @@ export const AuthModal = () => {
             >
                 <button
                     onClick={() => navigate(-1)}
-                    className="absolute top-4 right-4 text-muted hover:text-text-base bg-transparent border-0 cursor-pointer transition-colors"
+                    className="cursor-pointer absolute top-4 right-4 text-muted hover:text-text-base bg-transparent border-0 transition-colors"
                     aria-label="Close"
                 >
                     <X size={16} />
@@ -94,11 +94,7 @@ export const AuthModal = () => {
                     </p>
                 </div>
 
-                <Form tab={tab} />
-
-                <button className="btn-solid w-full justify-center py-2.5">
-                    {tab === "login" ? "Sign in" : "Create account"}
-                </button>
+                {tab === "login" ? <LoginForm /> : <RegisterForm />}
 
                 <p className="text-[11px] text-center text-muted -mt-1">
                     {tab === "login" ? "Don't have an account? " : "Already have an account? "}

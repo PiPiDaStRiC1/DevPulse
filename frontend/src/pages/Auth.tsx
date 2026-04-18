@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ActivityIcon, Zap, Users, Hash } from "lucide-react";
-import { Form } from "@/components/ui";
+import { LoginForm, RegisterForm } from "@/components/ui";
 
 type Tab = "login" | "register";
 
@@ -127,7 +127,7 @@ export const Auth = () => {
                         ))}
                     </div>
 
-                    <Form tab={tab} />
+                    {tab === "login" ? <LoginForm /> : <RegisterForm />}
 
                     <div className="flex flex-col gap-3">
                         <button className="btn-solid w-full justify-center py-3 text-[15px]">

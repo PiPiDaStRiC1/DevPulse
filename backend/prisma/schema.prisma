@@ -40,11 +40,17 @@ model CodeSnippet {
 
 model User {
   id Int @id @default(autoincrement())
-  name String
+  username String
+  handle String @unique
   email String @unique
   password String
-  cards Post[]
+  posts Post[]
   comments PostComment[]
+  bio String?
+  isVerified Boolean @default(false)
+  followers Int @default(0)
+  following Int @default(0)
+  role String @default("USER")
 }
 
 model Post {
@@ -54,14 +60,14 @@ model Post {
   content String
   tags Tags[]
   techStack TechStack[]
-  likes Int
+  likes Int @default(0)
   comments PostComment[]
-  reposts Int
-  bookmarks Int
+  reposts Int @default(0)
+  bookmarks Int @default(0)
   createdAt DateTime @default(now())
-  isLiked Boolean
-  isBookmarked Boolean
-  isReposted Boolean
+  isLiked Boolean @default(false)
+  isBookmarked Boolean @default(false)
+  isReposted Boolean @default(false)
   image String?
   codeSnippet CodeSnippet?
 }

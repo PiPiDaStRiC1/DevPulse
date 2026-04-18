@@ -10,7 +10,6 @@
         "skipLibCheck": true,
         "composite": true,
 
-        "baseUrl": ".",
         "paths": { "@/*": ["./src/*"], "@shared/*": ["../shared/*"] },
 
         "moduleResolution": "bundler",

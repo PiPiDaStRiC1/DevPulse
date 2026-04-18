@@ -1,9 +1,8 @@
 import { Router } from "express";
+import { loginUser, registerUser } from "@/services";
 
 const authRouter = Router();
 
-authRouter.post("/login", (_req, res) => {
-    res.json({ success: true, message: "Login successful" });
-});
+authRouter.post("/login", loginUser).post("/register", registerUser);
 
 export { authRouter };

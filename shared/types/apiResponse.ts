@@ -1,3 +1,5 @@
+import type { User } from "./index";
+
 interface ApiResponseSuccess<T> {
     success: true;
     data: T;
@@ -5,7 +7,8 @@ interface ApiResponseSuccess<T> {
 
 interface ApiResponseError {
     success: false;
-    data: string;
+    error: string;
 }
 
 export type ApiResponse<T> = ApiResponseSuccess<T> | ApiResponseError;
+export type AuthResponse = ApiResponse<{ token: string; user: User }>;

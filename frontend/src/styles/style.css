@@ -8,6 +8,7 @@
   --ink-soft:     #c2d4c0;  
 
   --text:         #1a2e1a;
+  --text-danger:  #dc2626;
   --muted:        #5c7a58;   
   --subtle:       #8fab89;  
 
@@ -216,4 +217,8 @@ body {
   font-size: 12.5px;
   line-height: 1.6;
   color: var(--ink);
+}
+
+.text-danger {
+  color: var(--text-danger);
 }

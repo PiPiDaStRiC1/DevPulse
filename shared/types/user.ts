@@ -1,9 +1,9 @@
 export interface User {
-    id: string;
+    id: number;
     username: string;
+    email: string;
     handle: string;
-    avatarColor: string;
-    bio: string;
+    bio: string | null;
     isVerified: boolean;
     followers: number;
     following: number;

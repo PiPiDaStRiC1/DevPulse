@@ -9,7 +9,7 @@ export const getPosts = async (_req: Request, res: Response<ApiResponse<unknown>
         const posts = await prisma.post.findMany();
         res.status(200).json({ success: true, data: posts });
     } catch (error) {
-        res.status(500).json({ success: false, data: "Failed to fetch posts" });
+        res.status(500).json({ success: false, error: "Failed to fetch posts" });
     }
 };
 
@@ -22,7 +22,7 @@ export const getOnePost = async (req: Request, res: Response<ApiResponse<unknown
         const post = await prisma.post.findFirstOrThrow({ where: { id: postId } });
         res.status(200).json({ success: true, data: post });
     } catch (error) {
-        res.status(500).json({ success: false, data: "Failed to fetch post" });
+        res.status(500).json({ success: false, error: "Failed to fetch post" });
     }
 };
 
@@ -50,6 +50,6 @@ export const postPost = async (
 
         res.status(201).json({ success: true, data: "Post created successfully" });
     } catch (error) {
-        res.status(500).json({ success: false, data: "Failed to create post" });
+        res.status(500).json({ success: false, error: "Failed to create post" });
     }
 };
