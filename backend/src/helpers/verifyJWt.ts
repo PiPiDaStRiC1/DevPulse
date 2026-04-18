@@ -4,15 +4,9 @@ import type { ApiResponse, JWTPayload } from "@shared/types";
 
 export const verifyJWT = (req: Request, res: Response<ApiResponse<string>>, next: NextFunction) => {
     try {
-        const token = req.headers["authorization"];
+        const token = req.headers["authorization"]?.split(" ")?.[1];
 
         if (!token) {
-            throw new Error("Failed to get token");
-        }
-
-        const jwtToken = token.split(" ")[0];
-
-        if (!jwtToken) {
             throw new Error("Failed to get token");
         }
 

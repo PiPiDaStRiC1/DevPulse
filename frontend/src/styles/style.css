@@ -83,7 +83,6 @@ body {
   border-radius: var(--radius);
   box-shadow: var(--shadow-card);
   transition: box-shadow 0.15s ease, transform 0.15s ease;
-  padding: 20px;
 }
 .card:hover {
   box-shadow: var(--shadow-card-hover);

@@ -22,7 +22,7 @@ export const RightPanel = ({ trending, suggested }: RightPanelProps) => {
 
     return (
         <aside className="max-w-[300px] sticky top-16 shrink-0 flex flex-col gap-4">
-            <div className="card flex flex-col gap-2">
+            <div className="card flex flex-col gap-2 p-4">
                 <div className="flex items-center gap-2">
                     <Users size={15} className="text-ink shrink-0" />
                     <h2 className="text-sm font-bold tracking-tight">People to Follow</h2>

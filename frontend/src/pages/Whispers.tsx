@@ -117,10 +117,6 @@ export const Whispers = () => {
 
     const active = convos.find((c) => c.id === activeId)!;
 
-    useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [activeId, active.messages.length]);
-
     const handleSend = () => {
         const text = draft.trim();
         if (!text) return;
@@ -148,9 +144,20 @@ export const Whispers = () => {
 
     const totalUnread = convos.reduce((n, c) => n + c.unread, 0);
 
+    useEffect(() => {
+        document.body.style.overflow = "hidden";
+        return () => {
+            document.body.style.overflow = "auto";
+        };
+    }, []);
+
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [activeId, active.messages.length]);
+
     return (
         <div
-            className="flex-1 min-w-0 flex border-2 border-ink rounded-[var(--radius)] overflow-hidden"
+            className="flex-1 mt-10 min-w-0 flex border-2 border-ink rounded-[var(--radius)] overflow-hidden"
             style={{ boxShadow: "var(--shadow-card)", height: "calc(100vh - 7rem)" }}
         >
             <div className="w-[280px] shrink-0 border-r-2 border-ink bg-surface flex flex-col">

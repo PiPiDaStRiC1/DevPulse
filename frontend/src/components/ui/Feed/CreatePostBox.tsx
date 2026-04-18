@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Smile } from "lucide-react";
+import { PenLine, Sparkles, FileText, Code2, Image as ImageIcon, ArrowRight } from "lucide-react";
 import { Avatar } from "@/components/common";
+import { PostComposerModal } from "./PostComposerModal.tsx";
 import type { User } from "@/types";
 
 interface CreatePostBoxProps {
@@ -10,79 +11,82 @@ interface CreatePostBoxProps {
 const tabs = ["Post", "Code", "Image"] as const;
 
 export const CreatePostBox = ({ currentUser }: CreatePostBoxProps) => {
-    const [activeTab, setActiveTab] = useState<(typeof tabs)[number]>("Post");
-    const [text, setText] = useState("");
-    const maxChars = 280;
-
-    const remaining = maxChars - text.length;
-    const isOverLimit = remaining < 0;
-    const isNearLimit = remaining <= 40;
+    const [isComposerOpen, setIsComposerOpen] = useState(false);
 
     return (
-        <div className="card mb-4">
-            <div className="flex gap-3">
-                <Avatar user={currentUser} size="md" />
+        <>
+            <div className="card mb-2 overflow-hidden">
+                <div className="flex flex-col gap-4 p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
+                    <div className="flex items-start gap-3 sm:gap-4 min-w-0">
+                        <Avatar user={currentUser} size="md" />
 
-                <div className="flex-1">
-                    <div className="flex gap-1.5 mb-2.5">
-                        {tabs.map((tab) => (
-                            <button
-                                key={tab}
-                                onClick={() => setActiveTab(tab)}
-                                className={`text-xs font-bold px-3 py-1 border-2 border-ink rounded-[var(--radius)] cursor-pointer font-[inherit] transition-all duration-100 ${
-                                    activeTab === tab
-                                        ? "bg-ink text-white"
-                                        : "bg-transparent text-muted"
-                                }`}
-                            >
-                                {tab}
-                            </button>
-                        ))}
-                    </div>
+                        <div className="min-w-0">
+                            <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.24em] text-muted">
+                                <Sparkles size={12} />
+                                Writing space
+                            </div>
+                            <h3 className="mt-1 text-[20px] sm:text-[23px] font-extrabold tracking-[-0.03em] text-text-base">
+                                Open a distraction-free editor
+                            </h3>
+                            <p className="mt-1 max-w-[42ch] text-[13px] leading-relaxed text-muted">
+                                Keep the feed clean. Open a separate composer for posts, code, and
+                                longer thoughts without breaking your reading flow.
+                            </p>
 
-                    <form action="post" method="post">
-                        <textarea
-                            value={text}
-                            onChange={(e) => setText(e.target.value)}
-                            placeholder={
-                                activeTab === "Code"
-                                    ? "Share a code snippet, tip, or clever trick..."
-                                    : activeTab === "Image"
-                                      ? "Add a caption for your image..."
-                                      : "What are you building? Share with the community..."
-                            }
-                            rows={3}
-                            className="w-full resize-none text-sm font-medium leading-relaxed bg-transparent outline-none focus:outline-none border-0 text-text-base font-[inherit]"
-                        />
-                    </form>
-
-                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-ink-soft">
-                        <button
-                            className="text-base opacity-45 bg-transparent border-0 cursor-pointer hover:opacity-100 transition-opacity"
-                            aria-label="attachment"
-                        >
-                            <Smile />
-                        </button>
-
-                        <div className="flex items-center gap-3">
-                            {text.length > 0 && (
-                                <span
-                                    className={`text-xs font-bold tabular-nums ${isOverLimit ? "text-red-600" : isNearLimit ? "text-amber-600" : "text-muted"}`}
-                                >
-                                    {remaining}
-                                </span>
-                            )}
-                            <button
-                                type="submit"
-                                disabled={text.trim().length === 0 || isOverLimit}
-                                className="btn-solid py-1.5 px-4 text-sm"
-                            >
-                                Post
-                            </button>
+                            <div className="mt-3 flex flex-wrap gap-2">
+                                {tabs.map((tab, index) => (
+                                    <span key={tab} className="tag-badge !cursor-default">
+                                        {index === 0 ? (
+                                            <FileText
+                                                size={12}
+                                                className="inline-block mr-1 -mt-0.5"
+                                            />
+                                        ) : null}
+                                        {index === 1 ? (
+                                            <Code2
+                                                size={12}
+                                                className="inline-block mr-1 -mt-0.5"
+                                            />
+                                        ) : null}
+                                        {index === 2 ? (
+                                            <ImageIcon
+                                                size={12}
+                                                className="inline-block mr-1 -mt-0.5"
+                                            />
+                                        ) : null}
+                                        {tab}
+                                    </span>
+                                ))}
+                            </div>
                         </div>
                     </div>
+
+                    <div className="flex items-center gap-3 lg:shrink-0">
+                        <div className="hidden lg:block h-12 w-px bg-ink-soft" />
+                        <button
+                            type="button"
+                            onClick={() => setIsComposerOpen(true)}
+                            className="btn-solid whitespace-nowrap py-2.5 px-4"
+                        >
+                            <PenLine size={15} />
+                            Open editor
+                            <ArrowRight size={15} />
+                        </button>
+                    </div>
+                </div>
+
+                <div className="border-t border-ink-soft bg-bg/60 px-4 py-2.5 sm:px-5 flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-muted">
+                    <span>Full-screen writing mode</span>
+                    <span>Markdown-ready layout</span>
+                    <span>Private drafts later</span>
                 </div>
             </div>
-        </div>
+
+            <PostComposerModal
+                open={isComposerOpen}
+                onClose={() => setIsComposerOpen(false)}
+                currentUser={currentUser}
+            />
+        </>
     );
 };

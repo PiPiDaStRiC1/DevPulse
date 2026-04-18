@@ -88,7 +88,7 @@ export const mockPosts: Post[] = [
         id: "p1",
         author: u(0),
         content:
-            "just rewrote our entire forms layer using #TanStackForm and honestly? game changer. no more controlled input hell, no more re-render waterfalls 🔥 if you're still using react-hook-form you owe it to yourself to try it\n\n(yes i know i said the same thing about rqf 6 months ago, i evolve)",
+            "How we cut form bugs by 40% in 2 sprints\n\nWe replaced our old form setup with a schema-first approach and isolated field components. The biggest win was consistency across validation and UI states.\n\nIf your forms feel fragile, start by standardizing error and loading patterns.",
         tags: ["#TanStackForm", "#React"],
         techStack: ["React", "TypeScript", "TanStack"],
         likes: 284,
@@ -104,7 +104,7 @@ export const mockPosts: Post[] = [
         id: "p2",
         author: u(1),
         content:
-            "hot take: your docker-compose.yml IS your documentation. if a new dev can't spin up your entire stack with one command you have failed them\n\nhere's the compose file we use at work — postgres, redis, the app, and a local smtp server all wired up:",
+            "Your docker-compose file is your onboarding document\n\nA new teammate should run one command and get the whole stack up. If they need 12 README steps, your DX is leaking time.\n\nHere is the compose baseline we use in every project:",
         tags: ["#Docker", "#DevOps"],
         techStack: ["Docker", "Kubernetes", "Redis"],
         likes: 512,
@@ -141,7 +141,7 @@ export const mockPosts: Post[] = [
         id: "p3",
         author: u(2),
         content:
-            "redesigned our dashboard from scratch. the old one had 14 different shades of grey and 0 visual hierarchy 😭\n\nnew one follows 8px grid, 3-color palette, and every interactive element has a clear hover/focus state. user testing scores went from 6.2 → 8.9 ✨\n\n#UIDesign #Figma #React",
+            "I redesigned our dashboard and users finally scan it in seconds\n\nThe old version had visual noise everywhere. We moved to a strict spacing scale, one accent color, and clear action hierarchy.\n\nResult: usability score from 6.2 to 8.9 in two rounds of tests.",
         tags: ["#UIDesign", "#Figma"],
         techStack: ["Figma", "React", "CSS"],
         likes: 731,
@@ -158,7 +158,7 @@ export const mockPosts: Post[] = [
         id: "p4",
         author: u(3),
         content:
-            "Rust's ownership model just clicked for me and now i look at my old TypeScript code like 👁️👄👁️\n\nborrowing literally prevents an entire class of bugs at compile time. no runtime nulls, no race conditions, no use-after-free. the borrow checker is your best pair programmer\n\n#Rust #SystemsProgramming",
+            "Rust ownership finally clicked for me\n\nBorrowing is not just strictness for strictness sake. It removes whole classes of runtime bugs before code even ships.\n\nI wish I had this feedback loop years ago.",
         tags: ["#Rust", "#SystemsProgramming"],
         techStack: ["Rust", "WebAssembly"],
         likes: 1042,
@@ -184,7 +184,7 @@ export const mockPosts: Post[] = [
         id: "p5",
         author: u(4),
         content:
-            "fine-tuned a small LLM on our codebase for autocomplete suggestions and the results are... surprisingly good? 74% of suggestions accepted in user testing vs 61% for GitHub Copilot on our domain-specific code\n\nkey insight: smaller model + domain data >> larger generic model\n\n#MachineLearning #LLM #AI",
+            "Small model, domain data, better suggestions\n\nWe fine-tuned a compact LLM on our internal code style. In testing, accepted suggestions jumped from 61% to 74%.\n\nTakeaway: alignment to your codebase beats raw model size in many workflows.",
         tags: ["#MachineLearning", "#LLM"],
         techStack: ["Python", "PyTorch", "HuggingFace"],
         likes: 2183,
@@ -200,7 +200,7 @@ export const mockPosts: Post[] = [
         id: "p6",
         author: u(5),
         content:
-            "shipped my first open source library today!! 🎉 it's a tiny Next.js middleware for rate limiting with Redis — zero config, ~200 bytes gzipped\n\nstarted as internal tooling, figured other people might need it too. if it helps even 10 people that's a win 🙏\n\n#OSS #NextJS #OpenSource",
+            "I shipped my first open-source package today\n\nIt started as internal middleware for rate limiting and evolved into a tiny reusable helper.\n\nIf this helps even a small team avoid one outage, that is enough.",
         tags: ["#OSS", "#NextJS"],
         techStack: ["Next.js", "TypeScript", "Redis"],
         likes: 387,
