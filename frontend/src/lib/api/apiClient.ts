@@ -4,6 +4,28 @@ import type { Post, AuthResponse } from "@shared/types";
 
 const API_URL = import.meta.env["VITE_API_URL"];
 
+const initJWT = () => {
+    try {
+        const raw = localStorage.getItem("access-token");
+        const parsed = raw ? JSON.parse(raw) : null;
+
+        if (typeof parsed === "string") {
+            return parsed;
+        }
+
+        return null;
+    } catch (error) {
+        console.error("Failed to parse JWT from localStorage:", error);
+        localStorage.removeItem("access-token");
+        return null;
+    }
+};
+
+const JWTheaders = () => {
+    const token = initJWT();
+    return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 export const apiClient = {
     async me() {},
     async register(registerData: Omit<RegisterSchema, "confirmPassword">) {
@@ -17,8 +39,6 @@ export const apiClient = {
             if (!response.success) {
                 throw new Error(response.error);
             }
-
-            console.log("Registration successful:", response?.data);
 
             return response.data;
         } catch (error) {
@@ -44,7 +64,9 @@ export const apiClient = {
     },
     async getAllPosts() {
         try {
-            const data = await genericFetch<Post[]>(`${API_URL}/posts`);
+            const data = await genericFetch<Post[]>(`${API_URL}/posts`, {
+                headers: { ...JWTheaders() },
+            });
             return data;
         } catch (error) {
             throw new Error(error instanceof Error ? error.message : "Failed to fetch posts");
@@ -52,7 +74,9 @@ export const apiClient = {
     },
     async getOnePost(id: string) {
         try {
-            const data = await genericFetch<Post>(`${API_URL}/posts/${id}`);
+            const data = await genericFetch<Post>(`${API_URL}/posts/${id}`, {
+                headers: { ...JWTheaders() },
+            });
             return data;
         } catch (error) {
             throw new Error(error instanceof Error ? error.message : "Failed to fetch post");
@@ -62,7 +86,7 @@ export const apiClient = {
         try {
             const data = await genericFetch<Post>(`${API_URL}/posts`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json", ...JWTheaders() },
                 body: JSON.stringify(postData),
             });
             return data;

@@ -22,7 +22,7 @@ export const loginUser = async (
         const user = await prisma.user.findUnique({ where: { email } });
 
         if (!user) {
-            return res.status(404).json({ success: false, error: "User not found" });
+            return res.status(401).json({ success: false, error: "Invalid email or password" });
         }
 
         const isPasswordValid = await compare(password, user.password);

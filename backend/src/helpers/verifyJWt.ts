@@ -23,7 +23,7 @@ export const verifyJWT = (req: Request, res: Response<ApiResponse<string>>, next
         next();
     } catch (error) {
         if (error instanceof Error) {
-            res.status(400).json({ success: false, data: error.message });
+            res.status(400).json({ success: false, error: error.message });
         }
     }
 };
