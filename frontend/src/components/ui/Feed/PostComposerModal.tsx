@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { useNavigate } from "react-router-dom";
 import {
     X,
     Sparkles,
@@ -15,37 +16,38 @@ import {
     Quote,
     List,
 } from "lucide-react";
-import type { User } from "@/types";
 import { Avatar } from "@/components/common";
+import { currentUser } from "@/lib/constants/mockData";
 import type { ReactNode } from "react";
 
 type ComposerTab = "Post" | "Code" | "Article";
 
-interface PostComposerModalProps {
-    open: boolean;
-    onClose: () => void;
-    currentUser: User;
-}
-
 const composerTabs: ComposerTab[] = ["Post", "Code", "Article"];
 
-export const PostComposerModal = ({ open, onClose, currentUser }: PostComposerModalProps) => {
+export const PostComposerModal = () => {
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState<ComposerTab>("Article");
     const [title, setTitle] = useState("");
     const [body, setBody] = useState("");
 
-    useEffect(() => {
-        if (!open) return;
+    const onClose = useCallback(() => navigate(-1), [navigate]);
 
+    useEffect(() => {
         const onKeyDown = (event: KeyboardEvent) => {
             if (event.key === "Escape") onClose();
         };
 
         window.addEventListener("keydown", onKeyDown);
         return () => window.removeEventListener("keydown", onKeyDown);
-    }, [open, onClose]);
+    }, [onClose]);
 
-    if (!open) return null;
+    useEffect(() => {
+        document.body.style.overflow = "hidden";
+
+        return () => {
+            document.body.style.overflow = "auto";
+        };
+    }, []);
 
     const previewTitle = title.trim() || "Your headline goes here";
     const previewBody =
@@ -76,13 +78,13 @@ export const PostComposerModal = ({ open, onClose, currentUser }: PostComposerMo
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <button className="btn-outline !py-2 !px-3">
+                        <button className="cursor-pointer btn-outline !py-2 !px-3">
                             <Bookmark size={14} />
                             Save draft
                         </button>
                         <button
                             onClick={onClose}
-                            className="rounded-[var(--radius)] border-2 border-ink bg-bg p-2 text-muted transition-colors hover:text-text-base"
+                            className="cursor-pointer rounded-[var(--radius)] border-2 border-ink bg-bg p-2 text-muted transition-colors hover:text-text-base"
                             aria-label="Close composer"
                         >
                             <X size={16} />

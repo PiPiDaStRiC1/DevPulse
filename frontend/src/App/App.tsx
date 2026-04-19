@@ -1,5 +1,6 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 import { Header, Main, Footer } from "@/components/layout";
+import { PostComposerModal } from "@/components/ui";
 import { Feed, Explore, Whispers, Auth, AuthModal, NotFound, Profile } from "@/pages";
 import { ScrollToTop } from "@/lib/utils";
 import { Toaster } from "react-hot-toast";
@@ -29,6 +30,7 @@ function App() {
                     <Route path="/explore" element={<Explore />} />
                     <Route path="/whispers" element={<Whispers />} />
                     <Route path="/profile" element={<Profile />} />
+                    <Route path="/editor" element={<PostComposerModal />} />
                     <Route path="*" element={<NotFound />} />
                     {!state?.background && <Route path="/auth" element={<Auth />} />}
                 </Route>
@@ -37,6 +39,7 @@ function App() {
             {state?.background && (
                 <Routes>
                     <Route path="/auth" element={<AuthModal />} />
+                    <Route path="/editor" element={<PostComposerModal />} />
                 </Routes>
             )}
         </>
