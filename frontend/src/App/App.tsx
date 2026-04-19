@@ -1,6 +1,6 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 import { Header, Main, Footer } from "@/components/layout";
-import { Feed, Explore, Whispers, Auth, AuthModal, NotFound } from "@/pages";
+import { Feed, Explore, Whispers, Auth, AuthModal, NotFound, Profile } from "@/pages";
 import { ScrollToTop } from "@/lib/utils";
 import { Toaster } from "react-hot-toast";
 
@@ -28,6 +28,7 @@ function App() {
                     <Route path="/" index element={<Feed />} />
                     <Route path="/explore" element={<Explore />} />
                     <Route path="/whispers" element={<Whispers />} />
+                    <Route path="/profile" element={<Profile />} />
                     <Route path="*" element={<NotFound />} />
                     {!state?.background && <Route path="/auth" element={<Auth />} />}
                 </Route>

@@ -51,6 +51,7 @@ model User {
   followers Int @default(0)
   following Int @default(0)
   role String @default("USER")
+  createdAt DateTime @default(now())
 }
 
 model Post {

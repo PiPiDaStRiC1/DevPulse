@@ -1,33 +1,31 @@
 import { genericFetch } from "@/lib/utils";
+import { getAuthToken } from "@/lib/store";
 import type { RegisterSchema, LoginSchema } from "@shared/schemas";
-import type { Post, AuthResponse } from "@shared/types";
+import type { Post, AuthResponse, MeResponse } from "@shared/types";
 
 const API_URL = import.meta.env["VITE_API_URL"];
 
-const initJWT = () => {
-    try {
-        const raw = localStorage.getItem("access-token");
-        const parsed = raw ? JSON.parse(raw) : null;
-
-        if (typeof parsed === "string") {
-            return parsed;
-        }
-
-        return null;
-    } catch (error) {
-        console.error("Failed to parse JWT from localStorage:", error);
-        localStorage.removeItem("access-token");
-        return null;
-    }
-};
-
 const JWTheaders = () => {
-    const token = initJWT();
+    const token = getAuthToken();
     return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
 export const apiClient = {
-    async me() {},
+    async me() {
+        try {
+            const response = await genericFetch<MeResponse>(`${API_URL}/auth/me`, {
+                headers: { ...JWTheaders() },
+            });
+
+            if (!response.success) {
+                throw new Error(response.error);
+            }
+
+            return response.data;
+        } catch (error) {
+            throw new Error(error instanceof Error ? error.message : "Failed to register");
+        }
+    },
     async register(registerData: Omit<RegisterSchema, "confirmPassword">) {
         try {
             const response = await genericFetch<AuthResponse>(`${API_URL}/auth/register`, {

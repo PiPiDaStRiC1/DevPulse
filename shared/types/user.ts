@@ -8,6 +8,7 @@ export interface User {
     followers: number;
     following: number;
     role: string;
+    createdAt: Date;
 }
 
 export interface SuggestedUser extends User {

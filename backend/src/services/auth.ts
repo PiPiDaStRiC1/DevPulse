@@ -2,7 +2,7 @@ import { compare, genSalt, hash } from "bcrypt";
 import { prisma } from "@/helpers";
 import { createAccessToken } from "@/helpers";
 import { Prisma } from "@prisma/client";
-import type { AuthResponse } from "@shared/types";
+import type { AuthResponse, MeResponse } from "@shared/types";
 import type { LoginSchema, RegisterSchema } from "@shared/schemas";
 import type { Request, Response } from "express";
 
@@ -10,6 +10,25 @@ const hashedPassword = async (password: string) => {
     const SALT = await genSalt(12);
 
     return await hash(password, SALT);
+};
+
+export const fetchMe = async (req: Request, res: Response<MeResponse>) => {
+    try {
+        const { userId } = req.user!;
+
+        const currentUser = await prisma.user.findUnique({ where: { id: userId } });
+
+        if (!currentUser) {
+            return res.status(404).json({ success: false, error: "User not found" });
+        }
+
+        const { password: _, ...userWithoutPassword } = currentUser;
+
+        return res.status(200).json({ success: true, data: userWithoutPassword });
+    } catch (error) {
+        console.error("Fetch user error:", error);
+        return res.status(500).json({ success: false, error: "Failed to fetch user" });
+    }
 };
 
 export const loginUser = async (
