@@ -8,7 +8,7 @@ export const createAccessToken = (userId: number) => {
             throw new Error("SECRET_KEY is not defined");
         }
 
-        const token = jwt.sign({ userId }, SECRET_KEY, { expiresIn: "1h" });
+        const token = jwt.sign({ userId }, SECRET_KEY, { expiresIn: "10s" });
 
         return token;
     } catch (error) {

@@ -1,23 +1,15 @@
 import { PenLine, Sparkles, FileText, Code2, Image as ImageIcon, ArrowRight } from "lucide-react";
-import { Avatar } from "@/components/common";
-import type { User } from "@/types";
 import { Link, useLocation } from "react-router-dom";
-
-interface CreatePostBoxProps {
-    currentUser: User;
-}
 
 const tabs = ["Post", "Code", "Image"] as const;
 
-export const CreatePostBox = ({ currentUser }: CreatePostBoxProps) => {
+export const CreatePostBox = () => {
     const location = useLocation();
 
     return (
         <div className="card mb-2 overflow-hidden">
             <div className="flex flex-col gap-4 p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex items-start gap-3 sm:gap-4 min-w-0">
-                    <Avatar user={currentUser} size="md" />
-
                     <div className="min-w-0">
                         <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.24em] text-muted">
                             <Sparkles size={12} />

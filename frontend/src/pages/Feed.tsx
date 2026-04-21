@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { currentUser, mockPosts, suggestedUsers, trendingTopics } from "@/lib/constants/mockData";
+import { mockPosts, suggestedUsers, trendingTopics } from "@/lib/constants/mockData";
 import { CreatePostBox, PostCard, RightPanel } from "@/components/ui";
 
 const feedTabs = ["For You", "Following", "Trending"] as const;
@@ -26,7 +26,7 @@ export const Feed = () => {
                 </div>
 
                 <div className="flex flex-col gap-5">
-                    <CreatePostBox currentUser={currentUser} />
+                    <CreatePostBox />
                     {mockPosts.map((post) => (
                         <PostCard key={post.id} post={post} />
                     ))}

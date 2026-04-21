@@ -1,9 +1,13 @@
 import { Router } from "express";
 import { verifyJWT } from "@/helpers";
-import { loginUser, registerUser, fetchMe } from "@/services";
+import { loginUser, registerUser, fetchMe, refreshToken } from "@/services";
 
 const authRouter = Router();
 
-authRouter.get("/me", verifyJWT, fetchMe).post("/login", loginUser).post("/register", registerUser);
+authRouter
+    .get("/refresh", verifyJWT, refreshToken)
+    .get("/me", verifyJWT, fetchMe)
+    .post("/login", loginUser)
+    .post("/register", registerUser);
 
 export { authRouter };

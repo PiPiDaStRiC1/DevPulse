@@ -13,3 +13,4 @@ interface ApiResponseError {
 export type ApiResponse<T> = ApiResponseSuccess<T> | ApiResponseError;
 export type AuthResponse = ApiResponse<{ token: string; user: User }>;
 export type MeResponse = ApiResponse<User>;
+export type RefreshResponse = ApiResponse<string>;

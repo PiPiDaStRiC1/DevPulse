@@ -4,6 +4,7 @@ import { PostComposerModal } from "@/components/ui";
 import { Feed, Explore, Whispers, Auth, AuthModal, NotFound, Profile } from "@/pages";
 import { ScrollToTop } from "@/lib/utils";
 import { Toaster } from "react-hot-toast";
+import { useAuthBootstrap } from "@/hooks";
 
 // ToDo:
 // WebSocket — последним (только когда REST работает)
@@ -15,6 +16,9 @@ import { Toaster } from "react-hot-toast";
 // Всё остальное — обычные запросы. Не трогай WS, пока не работает пункт 4 — это сэкономит много времени.
 
 function App() {
+    // initial hook for "me" request at mount of App
+    useAuthBootstrap();
+
     const location = useLocation();
     const state = location.state as { background?: Location };
     const isWhispersPage = location.pathname.includes("/whispers");

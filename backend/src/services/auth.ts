@@ -99,3 +99,21 @@ export const registerUser = async (
         return res.status(500).json({ success: false, error: "Failed to register user" });
     }
 };
+
+export const refreshToken = async (req: Request, res: Response) => {
+    // try {
+    //     const { token } = req.user!;
+    //     if (!token) {
+    //         throw new Error("Failed to get token");
+    //     }
+    //     const decoded = jwt.decode(token, { json: true });
+    //     const expirationTime = decoded?.exp;
+    //     if (!expirationTime) {
+    //         throw new Error("Failed to get expriration time");
+    //     }
+    // } catch (error) {
+    //     if (error instanceof Error) {
+    //         res.status(400).json({ success: false, error: error.message });
+    //     }
+    // }
+};

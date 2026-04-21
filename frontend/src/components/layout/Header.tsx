@@ -6,7 +6,7 @@ import { useSession } from "@/hooks";
 
 export const Header = () => {
     const location = useLocation();
-    const { isAuthenticated } = useSession();
+    const { isAuthenticated, isHydrated } = useSession();
 
     return (
         <header className="border-b-2 z-50 px-2 border-ink sticky bg-bg top-0 flex items-center px-5 gap-6 p-2">
@@ -24,7 +24,9 @@ export const Header = () => {
                     </NavLink>
                 ))}
             </nav>
-            {isAuthenticated ? (
+            {!isHydrated ? (
+                <div className="animate-pulse bg-[var(--ink-soft)] px-20 py-5" />
+            ) : isAuthenticated ? (
                 <>
                     <Link
                         to="/editor"

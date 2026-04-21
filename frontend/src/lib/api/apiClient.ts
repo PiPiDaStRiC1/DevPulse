@@ -1,7 +1,7 @@
 import { genericFetch } from "@/lib/utils";
 import { getAuthToken } from "@/lib/store";
 import type { RegisterSchema, LoginSchema } from "@shared/schemas";
-import type { Post, AuthResponse, MeResponse } from "@shared/types";
+import type { Post, AuthResponse, MeResponse, RefreshResponse } from "@shared/types";
 
 const API_URL = import.meta.env["VITE_API_URL"];
 
@@ -23,7 +23,7 @@ export const apiClient = {
 
             return response.data;
         } catch (error) {
-            throw new Error(error instanceof Error ? error.message : "Failed to register");
+            throw new Error(error instanceof Error ? error.message : "Failed to fetch profile");
         }
     },
     async register(registerData: Omit<RegisterSchema, "confirmPassword">) {
@@ -58,6 +58,19 @@ export const apiClient = {
             return response.data;
         } catch (error) {
             throw new Error(error instanceof Error ? error.message : "Failed to login");
+        }
+    },
+    async refresh() {
+        try {
+            const response = await genericFetch<RefreshResponse>(`${API_URL}/auth/refresh`);
+
+            if (!response.success) {
+                throw new Error(response.error);
+            }
+
+            return response.data;
+        } catch (error) {
+            throw new Error(error instanceof Error ? error.message : "Failed to refresh token");
         }
     },
     async getAllPosts() {
