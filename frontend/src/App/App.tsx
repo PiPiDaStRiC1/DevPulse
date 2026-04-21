@@ -22,6 +22,7 @@ function App() {
     const location = useLocation();
     const state = location.state as { background?: Location };
     const isWhispersPage = location.pathname.includes("/whispers");
+    const isProfilePage = location.pathname.includes("/profile");
 
     return (
         <>
@@ -39,7 +40,7 @@ function App() {
                     {!state?.background && <Route path="/auth" element={<Auth />} />}
                 </Route>
             </Routes>
-            {!isWhispersPage && <Footer />}
+            {!isWhispersPage && !isProfilePage && <Footer />}
             {state?.background && (
                 <Routes>
                     <Route path="/auth" element={<AuthModal />} />

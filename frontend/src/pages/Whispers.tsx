@@ -145,13 +145,6 @@ export const Whispers = () => {
     const totalUnread = convos.reduce((n, c) => n + c.unread, 0);
 
     useEffect(() => {
-        document.body.style.overflow = "hidden";
-        return () => {
-            document.body.style.overflow = "auto";
-        };
-    }, []);
-
-    useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [activeId, active.messages.length]);
 

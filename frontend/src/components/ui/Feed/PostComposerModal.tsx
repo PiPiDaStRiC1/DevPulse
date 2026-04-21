@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import {
@@ -9,26 +9,41 @@ import {
     Send,
     FileText,
     Code2,
-    Image as ImageIcon,
-    Link2,
-    Bold,
-    Italic,
-    Quote,
-    List,
+    BookOpenText,
+    Maximize2,
 } from "lucide-react";
 import { Avatar } from "@/components/common";
 import { currentUser } from "@/lib/constants/mockData";
-import type { ReactNode } from "react";
+import type { LucideIcon } from "lucide-react";
 
 type ComposerTab = "Post" | "Code" | "Article";
 
-const composerTabs: ComposerTab[] = ["Post", "Code", "Article"];
+interface ComposerTabInfo {
+    label: ComposerTab;
+    icon: LucideIcon;
+}
+
+const composerTabs: ComposerTabInfo[] = [
+    { label: "Post", icon: FileText },
+    { label: "Code", icon: Code2 },
+    { label: "Article", icon: BookOpenText },
+];
 
 export const PostComposerModal = () => {
     const navigate = useNavigate();
+    const postModalRef = useRef<HTMLDivElement>(null);
+    const fullPreviewModalRef = useRef<HTMLDivElement>(null);
     const [activeTab, setActiveTab] = useState<ComposerTab>("Article");
-    const [title, setTitle] = useState("");
     const [body, setBody] = useState("");
+    const [showTips, setShowTips] = useState(false);
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
+    const markdownHints = [
+        { token: "#", label: "H1 heading" },
+        { token: "**text**", label: "Bold text" },
+        { token: "- item", label: "Bullet list" },
+        { token: "```", label: "Code block" },
+    ];
 
     const onClose = useCallback(() => navigate(-1), [navigate]);
 
@@ -49,19 +64,48 @@ export const PostComposerModal = () => {
         };
     }, []);
 
-    const previewTitle = title.trim() || "Your headline goes here";
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (isPreviewOpen) {
+                if (
+                    fullPreviewModalRef.current &&
+                    !fullPreviewModalRef.current.contains(event.target as Node)
+                ) {
+                    setIsPreviewOpen(false);
+                }
+
+                return;
+            }
+
+            if (postModalRef.current && !postModalRef.current.contains(event.target as Node)) {
+                onClose();
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [onClose, setIsPreviewOpen, isPreviewOpen]);
+
+    const firstHeading = body
+        .split("\n")
+        .find((line) => line.trim().startsWith("# "))
+        ?.replace(/^#\s*/, "")
+        .trim();
+    const previewTitle = firstHeading || "Start your post with # Heading";
     const previewBody =
         body.trim() ||
         "Write a few paragraphs here. The editor is intentionally quiet so the title stays in focus.";
+    const previewExcerpt =
+        previewBody.length > 250 ? `${previewBody.slice(0, 250).trimEnd()}...` : previewBody;
 
     return createPortal(
-        <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(26,46,26,0.62)] px-4 py-4 backdrop-blur-[2px]"
-            onMouseDown={(event) => {
-                if (event.target === event.currentTarget) onClose();
-            }}
-        >
-            <div className="flex h-[min(88vh,920px)] w-full max-w-[1200px] flex-col overflow-hidden rounded-[var(--radius)] border-2 border-ink bg-surface shadow-[10px_10px_0_var(--ink)]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(26,46,26,0.62)] px-4 py-4 backdrop-blur-[2px]">
+            <div
+                ref={postModalRef}
+                className="flex h-[min(88vh,920px)] w-full max-w-[1200px] flex-col overflow-hidden rounded-[var(--radius)] border-2 border-ink bg-surface shadow-[10px_10px_0_var(--ink)]"
+            >
                 <div className="flex items-center justify-between border-b-2 border-ink px-5 py-4">
                     <div className="flex items-center gap-3">
                         <div className="border-2 border-ink rounded-[var(--radius)] bg-bg p-1.5 shadow-[2px_2px_0_var(--ink)]">
@@ -78,7 +122,7 @@ export const PostComposerModal = () => {
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <button className="cursor-pointer btn-outline !py-2 !px-3">
+                        <button className="cursor-pointer btn-outline !py-1 !px-3">
                             <Bookmark size={14} />
                             Save draft
                         </button>
@@ -87,7 +131,7 @@ export const PostComposerModal = () => {
                             className="cursor-pointer rounded-[var(--radius)] border-2 border-ink bg-bg p-2 text-muted transition-colors hover:text-text-base"
                             aria-label="Close composer"
                         >
-                            <X size={16} />
+                            <X size={14} />
                         </button>
                     </div>
                 </div>
@@ -97,69 +141,81 @@ export const PostComposerModal = () => {
                         <div className="border-b border-ink-soft px-5 py-4">
                             <div className="flex flex-wrap gap-2">
                                 {composerTabs.map((tab) => {
-                                    const active = activeTab === tab;
+                                    const active = activeTab === tab.label;
                                     return (
                                         <button
-                                            key={tab}
+                                            key={tab.label}
                                             type="button"
-                                            onClick={() => setActiveTab(tab)}
+                                            onClick={() => setActiveTab(tab.label)}
                                             className={[
-                                                "inline-flex items-center gap-2 rounded-[var(--radius)] border-2 border-ink px-3 py-1.5 text-[12px] font-bold transition-colors",
+                                                "cursor-pointer inline-flex items-center gap-2 rounded-[var(--radius)] border-2 border-ink px-3 py-1.5 text-[12px] font-bold transition-colors",
                                                 active
                                                     ? "bg-ink text-accent-fg"
                                                     : "bg-transparent text-muted hover:text-text-base",
                                             ].join(" ")}
                                         >
-                                            {tab === "Post" && <FileText size={13} />}
-                                            {tab === "Code" && <Code2 size={13} />}
-                                            {tab === "Article" && <ImageIcon size={13} />}
-                                            {tab}
+                                            {tab.icon && <tab.icon size={13} />}
+                                            {tab.label}
                                         </button>
                                     );
                                 })}
                             </div>
                         </div>
 
-                        <div className="grid flex-1 min-h-0 grid-rows-[auto,1fr,auto] px-5 py-5">
-                            <div className="mb-5">
-                                <label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.24em] text-muted">
-                                    Title
-                                </label>
-                                <input
-                                    value={title}
-                                    onChange={(event) => setTitle(event.target.value)}
-                                    placeholder="Write a headline that makes people stop scrolling"
-                                    className="w-full border-0 bg-transparent text-[2.4rem] font-extrabold leading-[1.05] tracking-[-0.04em] text-text-base outline-none placeholder:text-subtle"
-                                />
-                            </div>
-
-                            <div className="flex min-h-0 flex-col rounded-[var(--radius)] border-2 border-ink bg-bg shadow-[2px_2px_0_var(--ink)]">
-                                <div className="flex flex-wrap items-center gap-1 border-b border-ink-soft px-3 py-2">
-                                    <ToolButton label="H1" />
-                                    <ToolButton label="H2" />
-                                    <ToolButton icon={<Bold size={13} />} label="Bold" />
-                                    <ToolButton icon={<Italic size={13} />} label="Italic" />
-                                    <ToolButton icon={<Link2 size={13} />} label="Link" />
-                                    <ToolButton icon={<Quote size={13} />} label="Quote" />
-                                    <ToolButton icon={<List size={13} />} label="List" />
+                        <div className="h-full flex flex-col justify-between px-5 py-5">
+                            <div className="flex-grow-1 relative flex min-h-0 flex-col rounded-[var(--radius)] border-2 border-ink bg-bg shadow-[2px_2px_0_var(--ink)]">
+                                <div className="flex items-center justify-between border-b border-ink-soft px-3 py-2">
+                                    <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-muted">
+                                        Markdown editor
+                                    </p>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowTips((prev) => !prev)}
+                                        className="cursor-pointer inline-flex items-center gap-1.5 rounded-[var(--radius)] border border-ink-soft bg-surface px-2.5 py-1 text-[11px] font-semibold text-muted transition-colors hover:border-ink hover:text-text-base"
+                                    >
+                                        <BookOpenText size={12} />
+                                        {showTips ? "Hide tips" : "Show tips"}
+                                    </button>
                                 </div>
+
+                                {showTips && (
+                                    <div className="border-b border-ink-soft bg-surface/85 px-3 py-2">
+                                        <div className="flex flex-wrap gap-2">
+                                            {markdownHints.map((hint) => (
+                                                <span
+                                                    key={hint.token}
+                                                    className="inline-flex items-center gap-1.5 rounded-[var(--radius)] border border-ink-soft bg-bg px-2 py-1"
+                                                >
+                                                    <span className="font-mono text-[11px] font-bold text-text-base">
+                                                        {hint.token}
+                                                    </span>
+                                                    <span className="text-[11px] text-muted">
+                                                        {hint.label}
+                                                    </span>
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
 
                                 <textarea
                                     value={body}
                                     onChange={(event) => setBody(event.target.value)}
                                     placeholder={
                                         activeTab === "Code"
-                                            ? "Share a code-focused post with context, a snippet, and a takeaway..."
+                                            ? "Try:\n# What I learned today\n\n```ts\nconst result = await prisma.user.findMany();\n```\n\n- Why this works\n- Where it can fail"
                                             : activeTab === "Post"
-                                              ? "Start with the point you want to make, then expand it in short sections."
-                                              : "Write your article here. Think in headings, paragraphs, and short blocks."
+                                              ? "Try:\n# Main point\n\nShort intro paragraph.\n\n## Key takeaways\n- First insight\n- Second insight"
+                                              : "Write your article in Markdown. Start with # Heading and break ideas into short sections."
                                     }
                                     className="min-h-0 flex-1 resize-none border-0 bg-transparent px-4 py-4 text-[15px] leading-[1.72] text-text-base outline-none placeholder:text-subtle"
                                 />
                             </div>
 
                             <div className="mt-4 flex items-center justify-between text-[12px] text-muted">
-                                <span>Markdown-friendly layout is already prepared visually.</span>
+                                <span>
+                                    Tip: add "# " at the beginning to define your post title.
+                                </span>
                                 <span>{body.length} chars</span>
                             </div>
                         </div>
@@ -189,8 +245,18 @@ export const PostComposerModal = () => {
                                         {previewTitle}
                                     </h3>
                                     <p className="text-[13px] leading-[1.7] text-text-base whitespace-pre-line">
-                                        {previewBody}
+                                        {previewExcerpt}
                                     </p>
+                                    {previewBody.length > 420 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsPreviewOpen(true)}
+                                            className="cursor-pointer inline-flex items-center gap-1.5 rounded-[var(--radius)] border border-ink-soft bg-bg px-2.5 py-1 text-[12px] font-semibold text-muted transition-colors hover:border-ink hover:text-text-base"
+                                        >
+                                            <Maximize2 size={12} />
+                                            Open full preview
+                                        </button>
+                                    )}
                                     <div className="flex flex-wrap gap-2 pt-1">
                                         <span className="tag-badge !cursor-default">#DEV</span>
                                         <span className="tag-badge !cursor-default">#Markdown</span>
@@ -226,7 +292,10 @@ export const PostComposerModal = () => {
 
                         <div className="border-t-2 border-ink bg-surface px-4 py-4">
                             <div className="flex gap-2">
-                                <button className="btn-outline flex-1 justify-center">
+                                <button
+                                    onClick={onClose}
+                                    className="btn-outline flex-1 justify-center"
+                                >
                                     Cancel
                                 </button>
                                 <button
@@ -241,22 +310,38 @@ export const PostComposerModal = () => {
                     </aside>
                 </div>
             </div>
+
+            {isPreviewOpen && (
+                <div className="fixed inset-0 z-[70] flex items-center justify-center bg-[rgba(26,46,26,0.52)] px-4 py-6">
+                    <div
+                        ref={fullPreviewModalRef}
+                        className="flex h-[min(86vh,860px)] w-full max-w-[860px] flex-col overflow-hidden rounded-[var(--radius)] border-2 border-ink bg-surface shadow-[8px_8px_0_var(--ink)]"
+                    >
+                        <div className="flex items-center justify-between border-b-2 border-ink px-4 py-3">
+                            <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-muted">
+                                Full preview
+                            </p>
+                            <button
+                                onClick={() => setIsPreviewOpen(false)}
+                                className="cursor-pointer rounded-[var(--radius)] border-2 border-ink bg-bg p-2 text-muted transition-colors hover:text-text-base"
+                                aria-label="Close modal"
+                            >
+                                <X size={16} />
+                            </button>
+                        </div>
+
+                        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
+                            <h3 className="text-[1.8rem] font-extrabold leading-[1.15] tracking-[-0.03em] text-text-base">
+                                {previewTitle}
+                            </h3>
+                            <p className="mt-4 whitespace-pre-wrap text-[15px] leading-[1.78] text-text-base">
+                                {previewBody}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>,
         document.body,
     );
 };
-
-interface ToolButtonProps {
-    label: string;
-    icon?: ReactNode;
-}
-
-const ToolButton = ({ label, icon }: ToolButtonProps) => (
-    <button
-        type="button"
-        className="inline-flex items-center gap-1.5 rounded-[var(--radius)] border border-ink-soft bg-surface px-2.5 py-1 text-[12px] font-semibold text-muted transition-colors hover:border-ink hover:text-text-base"
-    >
-        {icon}
-        {label}
-    </button>
-);
