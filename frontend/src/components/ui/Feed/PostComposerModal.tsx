@@ -13,7 +13,11 @@ import {
     Maximize2,
 } from "lucide-react";
 import { Avatar } from "@/components/common";
+import { PostModalOptions, Tips } from "./index";
 import { currentUser } from "@/lib/constants/mockData";
+import ReactMarkdown from "react-markdown";
+import remarkBreaks from "remark-breaks";
+import remarkGfm from "remark-gfm";
 import type { LucideIcon } from "lucide-react";
 
 type ComposerTab = "Post" | "Code" | "Article";
@@ -29,6 +33,8 @@ const composerTabs: ComposerTabInfo[] = [
     { label: "Article", icon: BookOpenText },
 ];
 
+const PREVIEW_CHAR_LIMIT = 250;
+
 export const PostComposerModal = () => {
     const navigate = useNavigate();
     const postModalRef = useRef<HTMLDivElement>(null);
@@ -37,13 +43,6 @@ export const PostComposerModal = () => {
     const [body, setBody] = useState("");
     const [showTips, setShowTips] = useState(false);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-
-    const markdownHints = [
-        { token: "#", label: "H1 heading" },
-        { token: "**text**", label: "Bold text" },
-        { token: "- item", label: "Bullet list" },
-        { token: "```", label: "Code block" },
-    ];
 
     const onClose = useCallback(() => navigate(-1), [navigate]);
 
@@ -88,17 +87,11 @@ export const PostComposerModal = () => {
         };
     }, [onClose, setIsPreviewOpen, isPreviewOpen]);
 
-    const firstHeading = body
-        .split("\n")
-        .find((line) => line.trim().startsWith("# "))
-        ?.replace(/^#\s*/, "")
-        .trim();
-    const previewTitle = firstHeading || "Start your post with # Heading";
-    const previewBody =
-        body.trim() ||
-        "Write a few paragraphs here. The editor is intentionally quiet so the title stays in focus.";
+    const previewBody = body.trim() || "You text will be here...";
     const previewExcerpt =
-        previewBody.length > 250 ? `${previewBody.slice(0, 250).trimEnd()}...` : previewBody;
+        previewBody.length > PREVIEW_CHAR_LIMIT
+            ? `${previewBody.slice(0, PREVIEW_CHAR_LIMIT).trimEnd()}...`
+            : previewBody;
 
     return createPortal(
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(26,46,26,0.62)] px-4 py-4 backdrop-blur-[2px]">
@@ -178,25 +171,7 @@ export const PostComposerModal = () => {
                                     </button>
                                 </div>
 
-                                {showTips && (
-                                    <div className="border-b border-ink-soft bg-surface/85 px-3 py-2">
-                                        <div className="flex flex-wrap gap-2">
-                                            {markdownHints.map((hint) => (
-                                                <span
-                                                    key={hint.token}
-                                                    className="inline-flex items-center gap-1.5 rounded-[var(--radius)] border border-ink-soft bg-bg px-2 py-1"
-                                                >
-                                                    <span className="font-mono text-[11px] font-bold text-text-base">
-                                                        {hint.token}
-                                                    </span>
-                                                    <span className="text-[11px] text-muted">
-                                                        {hint.label}
-                                                    </span>
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
+                                {showTips && <Tips />}
 
                                 <textarea
                                     value={body}
@@ -241,13 +216,16 @@ export const PostComposerModal = () => {
                                     Preview
                                 </div>
                                 <div className="space-y-3">
-                                    <h3 className="text-[1.4rem] font-extrabold leading-[1.15] tracking-[-0.02em] text-text-base">
-                                        {previewTitle}
-                                    </h3>
-                                    <p className="text-[13px] leading-[1.7] text-text-base whitespace-pre-line">
-                                        {previewExcerpt}
-                                    </p>
-                                    {previewBody.length > 420 && (
+                                    <div className="text-[13px] leading-[1.7] text-base overflow-y-auto">
+                                        <div className="preview-markdown">
+                                            <ReactMarkdown
+                                                remarkPlugins={[remarkGfm, remarkBreaks]}
+                                            >
+                                                {previewExcerpt}
+                                            </ReactMarkdown>
+                                        </div>
+                                    </div>
+                                    {previewBody.length > PREVIEW_CHAR_LIMIT && (
                                         <button
                                             type="button"
                                             onClick={() => setIsPreviewOpen(true)}
@@ -265,29 +243,7 @@ export const PostComposerModal = () => {
                                 </div>
                             </div>
 
-                            <div className="card p-4">
-                                <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.24em] text-muted">
-                                    Publishing
-                                </div>
-                                <div className="space-y-3 text-[13px] text-text-base">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-muted">Visibility</span>
-                                        <span className="font-semibold">Public</span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-muted">Format</span>
-                                        <span className="font-semibold">Article</span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-muted">Reading time</span>
-                                        <span className="font-semibold">3 min</span>
-                                    </div>
-                                    <p className="pt-2 text-[12px] leading-relaxed text-muted">
-                                        Keep the main writing area dominant. The sidebar is only for
-                                        context, preview, and publishing state.
-                                    </p>
-                                </div>
-                            </div>
+                            <PostModalOptions />
                         </div>
 
                         <div className="border-t-2 border-ink bg-surface px-4 py-4">
@@ -331,12 +287,11 @@ export const PostComposerModal = () => {
                         </div>
 
                         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
-                            <h3 className="text-[1.8rem] font-extrabold leading-[1.15] tracking-[-0.03em] text-text-base">
-                                {previewTitle}
-                            </h3>
-                            <p className="mt-4 whitespace-pre-wrap text-[15px] leading-[1.78] text-text-base">
-                                {previewBody}
-                            </p>
+                            <div className="preview-markdown">
+                                <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+                                    {body}
+                                </ReactMarkdown>
+                            </div>
                         </div>
                     </div>
                 </div>
