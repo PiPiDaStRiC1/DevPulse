@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Send, Search, BadgeCheck, MessageCircle } from "lucide-react";
 import { Avatar } from "@/components/common";
 import { suggestedUsers } from "@/lib/constants/mockData";
-import type { SuggestedUser } from "@/types";
+import type { SuggestedUser } from "@shared/types";
 
 interface Message {
     id: string;
@@ -189,7 +189,7 @@ export const Whispers = () => {
                                 onClick={() => setActiveId(convo.id)}
                                 className={`w-full text-left px-4 py-3 flex items-center gap-3 border-b border-ink-soft cursor-pointer font-[inherit] transition-colors ${isActive ? "bg-bg border-l-2 border-l-ink" : "bg-surface hover:bg-bg border-l-2 border-l-transparent"}`}
                             >
-                                <Avatar user={convo.user} size="sm" />
+                                <Avatar handle={convo.user.handle} size="sm" />
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center justify-between gap-1">
                                         <div className="flex items-center gap-1 min-w-0">
@@ -227,7 +227,7 @@ export const Whispers = () => {
 
             <div className="flex-1 flex flex-col bg-bg min-w-0">
                 <div className="px-5 py-3 border-b-2 border-ink bg-surface flex items-center gap-3 shrink-0">
-                    <Avatar user={active.user} size="md" />
+                    <Avatar handle={active.user.handle} size="md" />
                     <div className="min-w-0">
                         <div className="flex items-center gap-1.5">
                             <span className="text-[14px] font-bold leading-tight truncate">

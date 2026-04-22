@@ -1,24 +1,24 @@
 import type { Comment } from "./comment";
 
 export interface CodeSnippet {
-    language: string;
-    code: string;
+    language: string | null;
+    code: string | null;
 }
 
 export interface Post {
-    id: number;
-    authorId: number;
+    id?: number;
+    authorId?: number;
     content: string;
     tags: string[];
     techStack: string[];
-    likes: number;
+    likes?: number;
     comments: Comment[];
-    reposts: number;
-    bookmarks: number;
-    createdAt: Date;
-    isLiked: boolean;
-    isBookmarked: boolean;
-    isReposted: boolean;
-    image?: string;
-    codeSnippet?: CodeSnippet;
+    reposts?: number;
+    bookmarks?: number;
+    createdAt?: Date;
+    isLiked?: boolean;
+    isBookmarked?: boolean;
+    isReposted?: boolean;
+    image: string | null;
+    codeSnippet: CodeSnippet | null;
 }

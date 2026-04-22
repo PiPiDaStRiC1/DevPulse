@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { Heart, MessageCircle, Repeat2, Bookmark, Share2, BadgeCheck } from "lucide-react";
-import type { Post } from "@/types";
-import { Avatar } from "@/components/common";
+import { Avatar, ErrorAlert } from "@/components";
+import { useQuery } from "@tanstack/react-query";
+import { apiClient } from "@/lib/api";
+import { safeParseDate } from "@/lib/utils";
+import type { Post } from "@shared/types";
 
 interface PostCardProps {
     post: Post;
@@ -60,31 +63,45 @@ function RichContent({ text }: { text: string }) {
 }
 
 export const PostCard = ({ post }: PostCardProps) => {
-    const [liked, setLiked] = useState(post.isLiked);
-    const [bookmarked, setBookmarked] = useState(post.isBookmarked);
-    const [likeCount, setLikeCount] = useState(post.likes);
+    const [liked, setLiked] = useState(post.isLiked!);
+    const [bookmarked, setBookmarked] = useState(post.isBookmarked!);
+    const [likeCount, setLikeCount] = useState(post.likes!);
 
-    const fmt = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n));
+    const {
+        data: author,
+        isLoading,
+        isError,
+    } = useQuery({
+        queryKey: ["user", post.authorId],
+        queryFn: apiClient.me, // Replace with actual API call to fetch user data by ID
+        staleTime: 30 * 60 * 1000,
+    });
+
+    if (isError || !author) {
+        return <ErrorAlert message="Failed to load author information" />;
+    }
+
+    const fmt = (n: number | undefined) => (n && n >= 1000 ? `${(n / 1000).toFixed(1)}k` : 0);
+
+    const postDateLabel = safeParseDate(post.createdAt);
 
     return (
         <article className="card p-0 mb-4 overflow-hidden">
             <div className="p-4 sm:p-5">
                 <div className="flex gap-3.5">
-                    <Avatar user={post.author} size="sm" />
+                    <Avatar handle={author.handle} size="sm" isLoading={isLoading} />
 
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap text-[12px] leading-tight">
-                            <span className="font-semibold text-text-base">
-                                {post.author.username}
-                            </span>
-                            {post.author.isVerified && (
+                            <span className="font-semibold text-text-base">{author.username}</span>
+                            {author.isVerified && (
                                 <BadgeCheck size={13} className="text-av-blue shrink-0" />
                             )}
-                            <span className="text-muted">@{post.author.handle}</span>
+                            <span className="text-muted">{author.handle}</span>
                             <span className="text-subtle">·</span>
-                            <span className="text-subtle">{post.createdAt}</span>
+                            <span className="text-subtle">{postDateLabel}</span>
                             <span className="text-subtle">·</span>
-                            <span className="text-subtle">{post.author.role}</span>
+                            <span className="text-subtle">{author.role}</span>
                             <span className="text-subtle">·</span>
                             <span className="text-subtle">~3 min read</span>
                         </div>
@@ -153,7 +170,7 @@ export const PostCard = ({ post }: PostCardProps) => {
 
                 <button className="action-btn" aria-label="Comment">
                     <MessageCircle size={16} />
-                    <span>{fmt(post.comments)} comments</span>
+                    <span>{fmt(post.comments.length)} comments</span>
                 </button>
 
                 <button className="action-btn" aria-label="Repost">

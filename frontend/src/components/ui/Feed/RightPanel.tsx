@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Users } from "lucide-react";
-import type { SuggestedUser, TrendingTopic } from "@/types";
+import type { SuggestedUser, TrendingTopic } from "@shared/types";
 import { Avatar } from "@/components/common/Avatar";
 
 interface RightPanelProps {
@@ -9,9 +9,9 @@ interface RightPanelProps {
 }
 
 export const RightPanel = ({ trending, suggested }: RightPanelProps) => {
-    const [followed, setFollowed] = useState<Set<string>>(new Set());
+    const [followed, setFollowed] = useState<Set<number>>(new Set());
 
-    const toggleFollow = (id: string) => {
+    const toggleFollow = (id: number) => {
         setFollowed((prev) => {
             const next = new Set(prev);
             if (next.has(id)) next.delete(id);
@@ -32,7 +32,7 @@ export const RightPanel = ({ trending, suggested }: RightPanelProps) => {
                         const isFollowed = followed.has(user.id);
                         return (
                             <div key={user.id} className="flex items-center gap-2.5">
-                                <Avatar user={user} size="sm" />
+                                <Avatar handle={user.handle} size="sm" />
                                 <div className="flex-1 min-w-0">
                                     <p className="text-[13px] font-bold truncate">
                                         {user.username}

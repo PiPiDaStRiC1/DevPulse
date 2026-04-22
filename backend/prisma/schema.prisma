@@ -8,14 +8,14 @@ datasource db {
 
 model TechStack {
   id Int @id @default(autoincrement())
-  name String? @default("")
+  name String @default("")
   postId Int
   post Post @relation(fields: [postId], references: [id])
 }
 
 model Tags {
   id Int @id @default(autoincrement())
-  name String? @default("")
+  name String @default("")
   postId Int
   post Post @relation(fields: [postId], references: [id])
 }

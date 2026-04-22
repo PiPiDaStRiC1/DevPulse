@@ -1,5 +1,5 @@
 export interface TrendingTopic {
-    id: string;
+    id: number;
     tag: string;
     posts: number;
     category: string;

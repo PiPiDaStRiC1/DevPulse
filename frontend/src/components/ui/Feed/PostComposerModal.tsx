@@ -18,6 +18,8 @@ import { currentUser } from "@/lib/constants/mockData";
 import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
+import { apiClient } from "@/lib/api";
+import toast from "react-hot-toast";
 import type { LucideIcon } from "lucide-react";
 
 type ComposerTab = "Post" | "Code" | "Article";
@@ -44,7 +46,30 @@ export const PostComposerModal = () => {
     const [showTips, setShowTips] = useState(false);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
+    const previewBody = body.trim() || "You text will be here...";
+    const previewExcerpt =
+        previewBody.length > PREVIEW_CHAR_LIMIT
+            ? `${previewBody.slice(0, PREVIEW_CHAR_LIMIT).trimEnd()}...`
+            : previewBody;
+
     const onClose = useCallback(() => navigate(-1), [navigate]);
+
+    const handlePostSubmit = async () => {
+        try {
+            await apiClient.postOnePost({
+                content: body,
+                tags: ["DEV", "Markdown", "Writing"],
+                techStack: ["React", "TypeScript"],
+                codeSnippet: null,
+                comments: [],
+                image: null,
+            });
+            onClose();
+        } catch (error) {
+            console.error("Failed to create post", error);
+            toast.error("Failed to create post");
+        }
+    };
 
     useEffect(() => {
         const onKeyDown = (event: KeyboardEvent) => {
@@ -86,12 +111,6 @@ export const PostComposerModal = () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, [onClose, setIsPreviewOpen, isPreviewOpen]);
-
-    const previewBody = body.trim() || "You text will be here...";
-    const previewExcerpt =
-        previewBody.length > PREVIEW_CHAR_LIMIT
-            ? `${previewBody.slice(0, PREVIEW_CHAR_LIMIT).trimEnd()}...`
-            : previewBody;
 
     return createPortal(
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(26,46,26,0.62)] px-4 py-4 backdrop-blur-[2px]">
@@ -199,7 +218,7 @@ export const PostComposerModal = () => {
                     <aside className="flex min-h-0 flex-col bg-bg/65">
                         <div className="border-b-2 border-ink px-4 py-4">
                             <div className="flex items-center gap-3">
-                                <Avatar user={currentUser} size="sm" />
+                                <Avatar handle={currentUser.handle} size="sm" />
                                 <div className="min-w-0">
                                     <p className="text-[13px] font-bold text-text-base">
                                         {currentUser.username}
@@ -249,13 +268,15 @@ export const PostComposerModal = () => {
                         <div className="border-t-2 border-ink bg-surface px-4 py-4">
                             <div className="flex gap-2">
                                 <button
+                                    type="button"
                                     onClick={onClose}
                                     className="btn-outline flex-1 justify-center"
                                 >
                                     Cancel
                                 </button>
                                 <button
-                                    onClick={onClose}
+                                    type="submit"
+                                    onClick={handlePostSubmit}
                                     className="btn-solid flex-1 justify-center"
                                 >
                                     <Send size={14} />

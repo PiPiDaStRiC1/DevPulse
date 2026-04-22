@@ -5,6 +5,7 @@ import { ErrorAlert, Preloader } from "@/components/common";
 import { useSession } from "@/hooks";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { safeParseDate } from "@/lib/utils";
 import type { User } from "@shared/types";
 
 export const Profile = () => {
@@ -54,7 +55,7 @@ export const Profile = () => {
         { icon: Mail, label: "Email", value: currentUser.email },
         { icon: UserRound, label: "Handle", value: currentUser.handle },
         { icon: Shield, label: "Role", value: currentUser.role },
-        { icon: CalendarDays, label: "Joined", value: "April 2026" },
+        { icon: CalendarDays, label: "Joined", value: safeParseDate(currentUser.createdAt) },
     ];
 
     const initials = currentUser.username

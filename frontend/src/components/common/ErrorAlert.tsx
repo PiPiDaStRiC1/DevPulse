@@ -17,7 +17,6 @@ export const ErrorAlert = ({ message, onRetry }: ErrorAlertProps) => {
                     <div className="sq-avatar h-12 w-12 border-[#d7a6a1] bg-[#fff1ef] text-danger shadow-[3px_3px_0_var(--ink)]">
                         <AlertTriangle size={16} />
                     </div>
-                    <span className="h-full w-[2px] min-h-8 rounded-full bg-[#e7c7c1]" />
                 </div>
 
                 <div className="min-w-0 flex-1">

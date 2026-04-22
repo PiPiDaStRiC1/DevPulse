@@ -1,15 +1,31 @@
 import { useState } from "react";
-import { mockPosts, suggestedUsers, trendingTopics } from "@/lib/constants/mockData";
+import { trendingTopics, suggestedUsers } from "@/lib/constants";
 import { CreatePostBox, PostCard, RightPanel } from "@/components/ui";
+import { useQuery } from "@tanstack/react-query";
+import { apiClient } from "@/lib/api";
+import { ErrorAlert, PostSkeleton } from "@/components";
 
 const feedTabs = ["For You", "Following", "Trending"] as const;
 
 export const Feed = () => {
     const [activeTab, setActiveTab] = useState<(typeof feedTabs)[number]>("For You");
+    const {
+        data: posts,
+        isLoading,
+        isError,
+    } = useQuery({
+        queryKey: ["feed", activeTab],
+        queryFn: apiClient.getAllPosts,
+        staleTime: 1 * 60 * 1000,
+    });
+
+    if (isError || !posts) {
+        return <ErrorAlert message="Failed to load feed" />;
+    }
 
     return (
         <>
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1 flex flex-col self-start">
                 <div className="filter-card flex mb-4 overflow-hidden">
                     {feedTabs.map((tab) => {
                         const isActive = tab === activeTab;
@@ -27,9 +43,9 @@ export const Feed = () => {
 
                 <div className="flex flex-col gap-5">
                     <CreatePostBox />
-                    {mockPosts.map((post) => (
-                        <PostCard key={post.id} post={post} />
-                    ))}
+                    {isLoading
+                        ? Array.from({ length: 5 }).map((_, i) => <PostSkeleton key={i} />)
+                        : posts.map((post) => <PostCard key={post.id} post={post} />)}
                 </div>
             </div>
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Search, TrendingUp, Hash, Flame } from "lucide-react";
-import { trendingTopics } from "@/lib/constants/mockData";
+import { trendingTopics } from "@/lib/constants";
 
 const categories = [
     "All",

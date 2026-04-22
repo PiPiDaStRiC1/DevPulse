@@ -1,9 +1,8 @@
-import type { User } from "@/types";
-
 interface AvatarProps {
-    user: Pick<User, "username" | "avatarColor">;
+    handle: string;
     size?: "xs" | "sm" | "md" | "lg";
     className?: string;
+    isLoading?: boolean;
 }
 
 const sizeMap = {
@@ -13,22 +12,27 @@ const sizeMap = {
     lg: { cls: "w-14 h-14 min-w-14 text-[18px]", side: "56px" },
 };
 
-export const Avatar = ({ user, size = "md", className = "" }: AvatarProps) => {
+export const Avatar = ({ handle, size = "md", className = "", isLoading = false }: AvatarProps) => {
     const { cls } = sizeMap[size];
-    const initials = user.username
-        .split(" ")
+    const initials = (handle ?? "")
+        .split("@")
         .map((w) => w[0])
         .slice(0, 2)
         .join("")
         .toUpperCase();
 
     return (
-        <div
-            className={`sq-avatar ${cls} ${className}`}
-            style={{ background: user.avatarColor, color: "#fff" }}
-            title={user.username}
-        >
-            {initials}
-        </div>
+        <>
+            {isLoading ? (
+                <div className={`sq-avatar ${cls} ${className} animate-pulse`} />
+            ) : (
+                <div
+                    className={`sq-avatar ${cls} ${className} bg-[var(--ink)] text-white`}
+                    title={handle}
+                >
+                    {initials}
+                </div>
+            )}
+        </>
     );
 };
