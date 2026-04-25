@@ -1,7 +1,14 @@
 import { genericFetch } from "@/lib/utils";
 import { getAuthToken } from "@/lib/store";
 import type { RegisterSchema, LoginSchema } from "@shared/schemas";
-import type { ApiResponse, Post, AuthResponse, MeResponse, RefreshResponse } from "@shared/types";
+import type {
+    ApiResponse,
+    Post,
+    AuthResponse,
+    MeResponse,
+    RefreshResponse,
+    User,
+} from "@shared/types";
 
 const API_URL = import.meta.env["VITE_API_URL"];
 
@@ -73,11 +80,21 @@ export const apiClient = {
             throw new Error(error instanceof Error ? error.message : "Failed to refresh token");
         }
     },
+    async getOneUser(id: number) {
+        try {
+            const response = await genericFetch<ApiResponse<User>>(`${API_URL}/users/${id}`);
+            if (!response.success) {
+                throw new Error(response.error);
+            }
+
+            return response.data;
+        } catch (error) {
+            throw new Error(error instanceof Error ? error.message : "Failed to fetch user");
+        }
+    },
     async getAllPosts() {
         try {
-            const response = await genericFetch<ApiResponse<Post[]>>(`${API_URL}/posts`, {
-                headers: { ...JWTheaders() },
-            });
+            const response = await genericFetch<ApiResponse<Post[]>>(`${API_URL}/posts`);
             if (!response.success) {
                 throw new Error(response.error);
             }
@@ -87,11 +104,9 @@ export const apiClient = {
             throw new Error(error instanceof Error ? error.message : "Failed to fetch posts");
         }
     },
-    async getOnePost(id: string) {
+    async getOnePost(id: number) {
         try {
-            const response = await genericFetch<ApiResponse<Post>>(`${API_URL}/posts/${id}`, {
-                headers: { ...JWTheaders() },
-            });
+            const response = await genericFetch<ApiResponse<Post>>(`${API_URL}/posts/${id}`);
             if (!response.success) {
                 throw new Error(response.error);
             }

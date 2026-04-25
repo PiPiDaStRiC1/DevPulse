@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Users } from "lucide-react";
-import type { SuggestedUser, TrendingTopic } from "@shared/types";
 import { Avatar } from "@/components/common/Avatar";
+import type { SuggestedUser, TrendingTopic } from "@shared/types";
 
 interface RightPanelProps {
     trending: TrendingTopic[];

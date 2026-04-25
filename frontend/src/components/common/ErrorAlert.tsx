@@ -23,9 +23,6 @@ export const ErrorAlert = ({ message, onRetry }: ErrorAlertProps) => {
                     <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-danger/90">
                         Error
                     </p>
-                    <h2 className="mt-1 text-lg font-bold tracking-tight text-text-base sm:text-xl">
-                        We hit a snag
-                    </h2>
                     <p className="mt-2 max-w-2xl break-words text-[14px] leading-relaxed text-muted">
                         {message}
                     </p>

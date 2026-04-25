@@ -19,7 +19,7 @@ export const Feed = () => {
         staleTime: 1 * 60 * 1000,
     });
 
-    if (isError || !posts) {
+    if (isError) {
         return <ErrorAlert message="Failed to load feed" />;
     }
 
@@ -45,7 +45,7 @@ export const Feed = () => {
                     <CreatePostBox />
                     {isLoading
                         ? Array.from({ length: 5 }).map((_, i) => <PostSkeleton key={i} />)
-                        : posts.map((post) => <PostCard key={post.id} post={post} />)}
+                        : posts && posts.map((post) => <PostCard key={post.id} post={post} />)}
                 </div>
             </div>
 

@@ -1,65 +1,16 @@
 import { useState } from "react";
 import { Heart, MessageCircle, Repeat2, Bookmark, Share2, BadgeCheck } from "lucide-react";
-import { Avatar, ErrorAlert } from "@/components";
 import { useQuery } from "@tanstack/react-query";
+import { Avatar, ErrorAlert } from "@/components";
 import { apiClient } from "@/lib/api";
 import { safeParseDate } from "@/lib/utils";
+import ReactMarkdown from "react-markdown";
+import remarkBreaks from "remark-breaks";
+import remarkGfm from "remark-gfm";
 import type { Post } from "@shared/types";
 
 interface PostCardProps {
     post: Post;
-}
-
-/* highlight #tags and @mentions in content */
-function RichContent({ text }: { text: string }) {
-    const paragraphs = text.split("\n\n").filter(Boolean);
-
-    return (
-        <div className="flex flex-col gap-2.5">
-            {paragraphs.map((paragraph, pi) => {
-                const lines = paragraph.split("\n");
-                return (
-                    <p
-                        key={pi}
-                        className={
-                            pi === 0
-                                ? "text-[1.58rem] leading-[1.18] font-extrabold tracking-[-0.02em] text-text-base"
-                                : "text-[0.95rem] leading-[1.62] text-text-base"
-                        }
-                    >
-                        {lines.map((line, li) => (
-                            <span key={li}>
-                                {line.split(/(\s+)/).map((token, ti) => {
-                                    if (token.startsWith("#")) {
-                                        return (
-                                            <span
-                                                key={ti}
-                                                className="text-av-blue font-semibold cursor-pointer"
-                                            >
-                                                {token}
-                                            </span>
-                                        );
-                                    }
-                                    if (token.startsWith("@")) {
-                                        return (
-                                            <span
-                                                key={ti}
-                                                className="text-[#b45309] font-semibold cursor-pointer"
-                                            >
-                                                {token}
-                                            </span>
-                                        );
-                                    }
-                                    return token;
-                                })}
-                                {li < lines.length - 1 && <br />}
-                            </span>
-                        ))}
-                    </p>
-                );
-            })}
-        </div>
-    );
 }
 
 export const PostCard = ({ post }: PostCardProps) => {
@@ -73,8 +24,9 @@ export const PostCard = ({ post }: PostCardProps) => {
         isError,
     } = useQuery({
         queryKey: ["user", post.authorId],
-        queryFn: apiClient.me, // Replace with actual API call to fetch user data by ID
+        queryFn: () => apiClient.getOneUser(post.authorId!),
         staleTime: 30 * 60 * 1000,
+        enabled: !!post.authorId,
     });
 
     if (isError || !author) {
@@ -101,18 +53,18 @@ export const PostCard = ({ post }: PostCardProps) => {
                             <span className="text-subtle">·</span>
                             <span className="text-subtle">{postDateLabel}</span>
                             <span className="text-subtle">·</span>
-                            <span className="text-subtle">{author.role}</span>
-                            <span className="text-subtle">·</span>
                             <span className="text-subtle">~3 min read</span>
                         </div>
 
-                        <div className="mt-2.5">
-                            <RichContent text={post.content} />
+                        <div className="preview-markdown">
+                            <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+                                {post.content}
+                            </ReactMarkdown>
                         </div>
 
-                        {post.image === "gradient" && (
-                            <div className="mt-4 h-[170px] border-2 border-ink rounded-[var(--radius)] bg-[#ece8dd] flex items-center justify-center text-muted text-[13px] font-medium">
-                                📸 Dashboard redesign preview
+                        {post.image && (
+                            <div className="border-2 border-ink rounded-lg flex items-center justify-center">
+                                <img src={post.image} alt="user-picture" />
                             </div>
                         )}
 
@@ -143,7 +95,7 @@ export const PostCard = ({ post }: PostCardProps) => {
                                 {post.tags.map((tag) => (
                                     <button
                                         key={tag}
-                                        className="appearance-none border-0 bg-transparent p-0 text-[13px] font-semibold text-muted hover:text-text-base hover:underline hover:underline-offset-2 cursor-pointer"
+                                        className="tag-badge cursor-pointer"
                                         aria-label={`Tag ${tag}`}
                                     >
                                         {tag}

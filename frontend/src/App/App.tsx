@@ -1,12 +1,22 @@
 import { Routes, Route, useLocation } from "react-router-dom";
-import { Header, Main, Footer } from "@/components/layout";
-import { PostComposerModal } from "@/components/ui";
-import { Feed, Explore, Whispers, Auth, AuthModal, NotFound, Profile } from "@/pages";
+import { Header, Main, Footer } from "@/components";
+import {
+    Feed,
+    Explore,
+    Whispers,
+    Auth,
+    AuthModal,
+    NotFound,
+    Profile,
+    PostComposerModal,
+} from "@/pages";
+import { ProtectedRoute, PublicRoute } from "@/features";
 import { ScrollToTop } from "@/lib/utils";
 import { Toaster } from "react-hot-toast";
 import { useAuthBootstrap } from "@/hooks";
 
 // ToDo:
+// сделать safeParse схем на бекенде при получении данных из формы
 // WebSocket — последним (только когда REST работает)
 // WebSocket нужен лишь трём фичам:
 
@@ -21,8 +31,8 @@ function App() {
 
     const location = useLocation();
     const state = location.state as { background?: Location };
-    const isWhispersPage = location.pathname.includes("/whispers");
-    const isProfilePage = location.pathname.includes("/profile");
+    const isFooterHidden =
+        location.pathname.includes("/whispers") && location.pathname.includes("/profile");
 
     return (
         <>
@@ -33,18 +43,64 @@ function App() {
                 <Route element={<Main />}>
                     <Route path="/" index element={<Feed />} />
                     <Route path="/explore" element={<Explore />} />
-                    <Route path="/whispers" element={<Whispers />} />
-                    <Route path="/profile" element={<Profile />} />
-                    <Route path="/editor" element={<PostComposerModal />} />
+                    <Route
+                        path="/whispers"
+                        element={
+                            <ProtectedRoute>
+                                <Whispers />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/profile"
+                        element={
+                            <ProtectedRoute>
+                                <Profile />
+                            </ProtectedRoute>
+                        }
+                    />
+                    {!state?.background && (
+                        <Route
+                            path="/editor"
+                            element={
+                                <ProtectedRoute>
+                                    <PostComposerModal />
+                                </ProtectedRoute>
+                            }
+                        />
+                    )}
                     <Route path="*" element={<NotFound />} />
-                    {!state?.background && <Route path="/auth" element={<Auth />} />}
+                    {!state?.background && (
+                        <Route
+                            path="/auth"
+                            element={
+                                <PublicRoute>
+                                    <Auth />
+                                </PublicRoute>
+                            }
+                        />
+                    )}
                 </Route>
             </Routes>
-            {!isWhispersPage && !isProfilePage && <Footer />}
+            {isFooterHidden && <Footer />}
             {state?.background && (
                 <Routes>
-                    <Route path="/auth" element={<AuthModal />} />
-                    <Route path="/editor" element={<PostComposerModal />} />
+                    <Route
+                        path="/auth"
+                        element={
+                            <PublicRoute>
+                                <AuthModal />
+                            </PublicRoute>
+                        }
+                    />
+                    <Route
+                        path="/editor"
+                        element={
+                            <ProtectedRoute>
+                                <PostComposerModal />
+                            </ProtectedRoute>
+                        }
+                    />
                 </Routes>
             )}
         </>

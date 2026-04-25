@@ -10,14 +10,14 @@ model TechStack {
   id Int @id @default(autoincrement())
   name String @default("")
   postId Int
-  post Post @relation(fields: [postId], references: [id])
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 }
 
 model Tags {
   id Int @id @default(autoincrement())
   name String @default("")
   postId Int
-  post Post @relation(fields: [postId], references: [id])
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 }
 
 model PostComment {
@@ -25,9 +25,9 @@ model PostComment {
   text String
   createdAt DateTime @default(now())
   postId Int
-  post Post @relation(fields: [postId], references: [id])
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
   authorId Int
-  author User @relation(fields: [authorId], references: [id])
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
 }
 
 model CodeSnippet {
@@ -35,7 +35,7 @@ model CodeSnippet {
   language String? 
   code String?
   postId Int @unique
-  post Post @relation(fields: [postId], references: [id])
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 }
 
 model User {
@@ -57,7 +57,7 @@ model User {
 model Post {
   id Int @id @default(autoincrement())
   authorId Int
-  author User @relation(fields: [authorId], references: [id])
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
   content String
   tags Tags[]
   techStack TechStack[]

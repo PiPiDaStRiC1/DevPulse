@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { ActivityIcon, Zap, Users, Hash } from "lucide-react";
-import { LoginForm, RegisterForm } from "@/components/ui";
+import { Zap, Users, Hash } from "lucide-react";
+import { LoginForm, RegisterForm, Logo } from "@/components";
 
 type Tab = "login" | "register";
 
@@ -16,20 +16,9 @@ export const Auth = () => {
     const [tab, setTab] = useState<Tab>("login");
 
     return (
-        <div className="min-h-screen -my-7 bg-bg flex overflow-hidden">
-            <div
-                className="hidden lg:flex flex-col justify-between shrink-0 bg-ink text-accent-fg p-12"
-                style={{ borderRight: "3px solid var(--ink)" }}
-            >
-                <div className="flex items-center gap-2.5">
-                    <div
-                        className="border-2 border-accent-fg p-1.5 rounded-[var(--radius)]"
-                        style={{ boxShadow: "2px 2px 0 var(--accent-fg)" }}
-                    >
-                        <ActivityIcon size={18} />
-                    </div>
-                    <span className="text-2xl font-bold tracking-tight select-none">DevPulse</span>
-                </div>
+        <div className="min-h-[calc(100vh-49px)] -my-9 bg-bg flex overflow-hidden">
+            <div className="hidden lg:flex flex-col gap-20 bg-ink text-accent-fg p-12">
+                <Logo theme="light" size="lg" />
 
                 <div className="flex flex-col gap-6">
                     <h1 className="text-4xl font-bold leading-[1.15] tracking-tight">
@@ -66,26 +55,10 @@ export const Auth = () => {
                         ))}
                     </ul>
                 </div>
-
-                <p className="text-[11px]" style={{ color: "#5c7a58" }}>
-                    v0.1.0
-                </p>
             </div>
 
             <div className="flex-1 flex flex-col justify-center px-12 py-12 overflow-y-auto">
                 <div className="w-full w-[400px] mx-auto flex flex-col gap-8">
-                    <div className="flex lg:hidden items-center gap-2">
-                        <div
-                            className="border-2 border-ink p-1 rounded-[var(--radius)]"
-                            style={{ boxShadow: "2px 2px 0 var(--ink)" }}
-                        >
-                            <ActivityIcon size={14} className="text-ink" />
-                        </div>
-                        <span className="text-lg font-bold tracking-tight text-text-base select-none">
-                            DevPulse
-                        </span>
-                    </div>
-
                     <div>
                         <h2 className="text-[42px] font-bold leading-[1.05] tracking-tight text-text-base">
                             {tab === "login" ? (
@@ -128,34 +101,6 @@ export const Auth = () => {
                     </div>
 
                     {tab === "login" ? <LoginForm /> : <RegisterForm />}
-
-                    <div className="flex flex-col gap-3">
-                        <button className="btn-solid w-full justify-center py-3 text-[15px]">
-                            {tab === "login" ? "Sign in →" : "Create account →"}
-                        </button>
-
-                        {tab === "login" ? (
-                            <p className="text-[12px] text-center text-muted">
-                                No account?{" "}
-                                <button
-                                    onClick={() => setTab("register")}
-                                    className="font-bold text-text-base underline underline-offset-2 bg-transparent border-0 cursor-pointer font-[inherit] text-[12px]"
-                                >
-                                    Create one
-                                </button>
-                            </p>
-                        ) : (
-                            <p className="text-[12px] text-center text-muted">
-                                Already have an account?{" "}
-                                <button
-                                    onClick={() => setTab("login")}
-                                    className="font-bold text-text-base underline underline-offset-2 bg-transparent border-0 cursor-pointer font-[inherit] text-[12px]"
-                                >
-                                    Sign in
-                                </button>
-                            </p>
-                        )}
-                    </div>
 
                     <p className="text-[11px] text-subtle">
                         By continuing you agree to the Terms of Service.
