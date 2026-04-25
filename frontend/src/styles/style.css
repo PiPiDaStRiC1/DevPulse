@@ -4,8 +4,9 @@
   --bg:           #f5f2eb; 
   --surface:      #fffef8;   
 
-  --ink:          #1a2e1a;  
-  --ink-soft:     #c2d4c0;  
+  --ink:          #1a2e1a;
+  --ink-middle:   rgb(223, 233, 222);
+  --ink-soft:     #c2d4c0; 
 
   --text:         #1a2e1a;
   --text-danger:  #dc2626;
@@ -192,7 +193,8 @@ body {
 }
 
 .tag-badge {
-  display: inline-block;
+  display: flex;
+  align-items: center;
   padding: 2px 10px;
   border-radius: 99px;
   font-size: 12px;
@@ -203,7 +205,7 @@ body {
   cursor: pointer;
   transition: background 0.12s, color 0.12s;
 }
-.tag-badge:hover { background: var(--ink); color: var(--accent-fg); }
+.tag-badge:hover { background: var(--ink-middle); color: var(--text); }
 
 .code-block {
   background: #f0ede3;

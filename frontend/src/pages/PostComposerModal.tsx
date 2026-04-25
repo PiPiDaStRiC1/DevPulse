@@ -8,16 +8,19 @@ import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
 import { apiClient } from "@/lib/api";
 import toast from "react-hot-toast";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const PREVIEW_CHAR_LIMIT = 250;
 
 export const PostComposerModal = () => {
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const postModalRef = useRef<HTMLDivElement>(null);
     const fullPreviewModalRef = useRef<HTMLDivElement>(null);
     const [body, setBody] = useState("");
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+    const [isAddingTag, setIsAddingTag] = useState(false);
+    const [tags, setTags] = useState<string[]>([]);
 
     const previewBody = body.trim() || "You text will be here...";
     const previewExcerpt =
@@ -31,18 +34,33 @@ export const PostComposerModal = () => {
         isError,
     } = useQuery({ queryKey: ["me"], queryFn: apiClient.me, staleTime: 30 * 60 * 1000 });
 
+    const handleAddTag = (newTag: string) => {
+        if (newTag !== "" && !tags.includes(newTag)) {
+            setTags((prev) => [...prev, newTag]);
+            setIsAddingTag(false);
+        } else {
+            setIsAddingTag(false);
+        }
+    };
+
+    const handleToggleTag = (tag: string) => {
+        setTags((prev) => prev.filter((el) => el !== tag));
+    };
+
     const onClose = useCallback(() => navigate(-1), [navigate]);
 
     const handlePostSubmit = async () => {
         try {
             await apiClient.postOnePost({
                 content: body,
-                tags: ["DEV", "Markdown", "Writing"],
+                tags: tags,
                 techStack: ["React", "TypeScript"],
                 codeSnippet: null,
                 comments: [],
                 image: null,
             });
+
+            queryClient.invalidateQueries({ queryKey: ["feed"] });
             onClose();
         } catch (error) {
             console.error("Failed to create post", error);
@@ -179,9 +197,30 @@ export const PostComposerModal = () => {
                                         </button>
                                     )}
                                     <div className="flex flex-wrap gap-2 pt-1">
-                                        <span className="tag-badge">#DEV</span>
-                                        <span className="tag-badge">#Markdown</span>
-                                        <span className="tag-badge">#Writing</span>
+                                        {isAddingTag && (
+                                            <input
+                                                type="text"
+                                                autoFocus
+                                                onBlur={(e) => handleAddTag(e.currentTarget.value)}
+                                                className="tag-badge bg-bg border-2 border-ink p-1.5 text-[12px] text-muted rounded-[var(--radius)]"
+                                            />
+                                        )}
+                                        {tags.map((tag) => (
+                                            <span
+                                                key={tag}
+                                                onClick={() => handleToggleTag(tag)}
+                                                className="tag-badge gap-2"
+                                            >
+                                                {tag}
+                                                <X size={13} />
+                                            </span>
+                                        ))}
+                                        <span
+                                            className="tag-badge"
+                                            onClick={() => setIsAddingTag(true)}
+                                        >
+                                            + Add Tag
+                                        </span>
                                     </div>
                                 </div>
                             </div>
