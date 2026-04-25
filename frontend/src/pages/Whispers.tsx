@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Send, Search, BadgeCheck, MessageCircle } from "lucide-react";
-import { Avatar } from "@/components/common";
+import { Avatar } from "@/components";
 import { suggestedUsers } from "@/lib/constants/mockData";
 import type { SuggestedUser } from "@shared/types";
 
@@ -143,6 +143,14 @@ export const Whispers = () => {
     );
 
     const totalUnread = convos.reduce((n, c) => n + c.unread, 0);
+
+    useEffect(() => {
+        document.body.style.overflow = "hidden";
+
+        return () => {
+            document.body.style.overflow = "auto";
+        };
+    }, []);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

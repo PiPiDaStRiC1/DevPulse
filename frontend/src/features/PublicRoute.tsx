@@ -9,7 +9,7 @@ interface PublicRouteProps {
 export const PublicRoute = ({ children }: PublicRouteProps) => {
     const location = useLocation();
     const locationState = location.state as { background?: Location; from?: string };
-    const redirectTo = locationState?.from || locationState?.background?.pathname || "/profile";
+    const redirectTo = locationState?.from || "/profile";
     const { status } = useAuthStore();
 
     if (status === "authenticated") {

@@ -12,9 +12,9 @@ export const getOneUser = async (
         const userId = Number(id);
 
         const user = await prisma.user.findFirstOrThrow({ where: { id: userId } });
-        res.status(200).json({ success: true, data: user });
+        return res.status(200).json({ success: true, data: user });
     } catch (error) {
         console.error("Error getting post:", error);
-        res.status(500).json({ success: false, error: "Failed to fetch post" });
+        return res.status(500).json({ success: false, error: "Failed to fetch post" });
     }
 };

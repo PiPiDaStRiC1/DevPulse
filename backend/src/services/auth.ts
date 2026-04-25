@@ -2,6 +2,7 @@ import { compare, genSalt, hash } from "bcrypt";
 import { prisma } from "@/helpers";
 import { createAccessToken } from "@/helpers";
 import { Prisma } from "@prisma/client";
+import { loginSchema, registerSchema } from "@shared/schemas";
 import type { AuthResponse, MeResponse } from "@shared/types";
 import type { LoginSchema, RegisterSchema } from "@shared/schemas";
 import type { Request, Response } from "express";
@@ -37,6 +38,11 @@ export const loginUser = async (
 ) => {
     try {
         const { email, password } = req.body;
+        const parsed = loginSchema.safeParse({ email, password });
+
+        if (!parsed.success) {
+            return res.status(400).json({ success: false, error: "Invalid email or password" });
+        }
 
         const user = await prisma.user.findUnique({ where: { email } });
 
@@ -67,6 +73,12 @@ export const registerUser = async (
 ) => {
     try {
         const { email, password, handle, username } = req.body;
+
+        const parsed = registerSchema.safeParse({ email, password, handle, username });
+
+        if (!parsed.success) {
+            return res.status(400).json({ success: false, error: "Invalid user data" });
+        }
 
         const hashed = await hashedPassword(password);
 

@@ -3,6 +3,7 @@ import { Prisma } from "@prisma/client";
 import type { Response, Request } from "express";
 import type { ApiResponse } from "@shared/types";
 import type { Post } from "@shared/types";
+import { postCreateSchema } from "@shared/schemas";
 
 const parsedPost = (post: any): Post => ({
     id: post.id,
@@ -29,10 +30,10 @@ export const getPosts = async (_req: Request, res: Response<ApiResponse<Post[]>>
         const posts = await prisma.post.findMany({
             include: { tags: true, techStack: true, comments: true, codeSnippet: true },
         });
-        res.status(200).json({ success: true, data: posts.map(parsedPost) });
+        return res.status(200).json({ success: true, data: posts.map(parsedPost) });
     } catch (error) {
         console.error("Error getting all posts:", error);
-        res.status(500).json({ success: false, error: "Failed to fetch posts" });
+        return res.status(500).json({ success: false, error: "Failed to fetch posts" });
     }
 };
 
@@ -46,10 +47,10 @@ export const getOnePost = async (req: Request, res: Response<ApiResponse<Post>>)
             where: { id: postId },
             include: { tags: true, techStack: true, comments: true, codeSnippet: true },
         });
-        res.status(200).json({ success: true, data: parsedPost(post) });
+        return res.status(200).json({ success: true, data: parsedPost(post) });
     } catch (error) {
         console.error("Error getting post:", error);
-        res.status(500).json({ success: false, error: "Failed to fetch post" });
+        return res.status(500).json({ success: false, error: "Failed to fetch post" });
     }
 };
 
@@ -58,21 +59,28 @@ export const postPost = async (
     res: Response<ApiResponse<Post>>,
 ) => {
     try {
-        const { tags, techStack, comments, codeSnippet, authorId: _, ...rest } = req.body;
+        const parsed = postCreateSchema.safeParse(req.body);
+
+        if (!parsed.success) {
+            return res.status(400).json({ success: false, error: "Invalid post data" });
+        }
+
+        const { tags, techStack, comments, codeSnippet, image, content } = parsed.data;
         const { userId } = req.user!;
 
-        const data: Prisma.XOR<Prisma.PostCreateInput, Prisma.PostUncheckedCreateInput> = {
-            ...rest,
-            authorId: userId,
+        const data: Prisma.PostCreateInput = {
+            content,
+            image: image === undefined ? null : image,
+            author: { connect: { id: userId } },
             tags: { create: tags.map((name) => ({ name })) },
             techStack: { create: techStack.map((name) => ({ name })) },
             comments: { create: comments.map((comment) => ({ ...comment })) },
         };
 
         console.log("Received post data:", data);
-        if (codeSnippet) {
+        if (codeSnippet && codeSnippet !== null) {
             data["codeSnippet"] = {
-                create: { code: codeSnippet.code, language: codeSnippet.language },
+                create: { code: codeSnippet.code ?? null, language: codeSnippet.language ?? null },
             };
         }
 
@@ -81,9 +89,9 @@ export const postPost = async (
             include: { tags: true, techStack: true, comments: true, codeSnippet: true },
         });
 
-        res.status(201).json({ success: true, data: parsedPost(post) });
+        return res.status(201).json({ success: true, data: parsedPost(post) });
     } catch (error) {
         console.error("Error creating post:", error);
-        res.status(500).json({ success: false, error: "Failed to create post" });
+        return res.status(500).json({ success: false, error: "Failed to create post" });
     }
 };

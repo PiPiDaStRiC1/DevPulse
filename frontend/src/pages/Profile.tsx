@@ -20,9 +20,12 @@ export const Profile = () => {
     } = useQuery<User>({ queryKey: ["me"], queryFn: apiClient.me, staleTime: 30 * 60 * 1000 });
 
     const handleLogout = () => {
-        logout();
-        toast.success("Logged out successfully!");
         navigate("/");
+
+        setTimeout(() => {
+            logout();
+            toast.success("Logged out successfully!");
+        }, 200);
     };
 
     if (isLoading) {
