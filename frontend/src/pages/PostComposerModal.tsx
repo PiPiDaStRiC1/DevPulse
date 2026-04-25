@@ -9,18 +9,36 @@ import remarkGfm from "remark-gfm";
 import { apiClient } from "@/lib/api";
 import toast from "react-hot-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import type { User } from "@shared/types";
 
 const PREVIEW_CHAR_LIMIT = 250;
+const SAVED_TIMER = 10000;
+
+const initDraft = (): { body: string; tags: string[] } => {
+    try {
+        const raw = localStorage.getItem("draft-post");
+        if (!raw) return { body: "", tags: [] };
+
+        return JSON.parse(raw);
+    } catch (error) {
+        console.error("Failed to parse draft post from localStorage", error);
+        return { body: "", tags: [] };
+    }
+};
+
+const initBody: () => string = () => initDraft().body;
+const initTags: () => string[] = () => initDraft().tags;
 
 export const PostComposerModal = () => {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const postModalRef = useRef<HTMLDivElement>(null);
     const fullPreviewModalRef = useRef<HTMLDivElement>(null);
-    const [body, setBody] = useState("");
+    const saveTimer = useRef<number | null>(null);
+    const [body, setBody] = useState(initBody);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const [isAddingTag, setIsAddingTag] = useState(false);
-    const [tags, setTags] = useState<string[]>([]);
+    const [tags, setTags] = useState<string[]>(initTags);
 
     const previewBody = body.trim() || "You text will be here...";
     const previewExcerpt =
@@ -32,7 +50,12 @@ export const PostComposerModal = () => {
         data: currentUser,
         isLoading,
         isError,
-    } = useQuery({ queryKey: ["me"], queryFn: apiClient.me, staleTime: 30 * 60 * 1000 });
+    } = useQuery<User>({ queryKey: ["me"], queryFn: apiClient.me, staleTime: 30 * 60 * 1000 });
+
+    const handleSaveDraft = useCallback(() => {
+        localStorage.setItem("draft-post", JSON.stringify({ body, tags }));
+        toast.success("Draft saved locally");
+    }, [body, tags]);
 
     const handleAddTag = (newTag: string) => {
         if (newTag !== "" && !tags.includes(newTag)) {
@@ -61,12 +84,25 @@ export const PostComposerModal = () => {
             });
 
             queryClient.invalidateQueries({ queryKey: ["feed"] });
+            localStorage.removeItem("draft-post");
             onClose();
         } catch (error) {
             console.error("Failed to create post", error);
             toast.error("Failed to create post");
         }
     };
+
+    useEffect(() => {
+        saveTimer.current = setInterval(() => {
+            handleSaveDraft();
+        }, SAVED_TIMER);
+
+        return () => {
+            if (saveTimer.current) {
+                clearInterval(saveTimer.current);
+            }
+        };
+    }, [handleSaveDraft]);
 
     useEffect(() => {
         const onKeyDown = (event: KeyboardEvent) => {
@@ -131,7 +167,10 @@ export const PostComposerModal = () => {
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <button className="cursor-pointer btn-outline !py-1 !px-3">
+                        <button
+                            className="cursor-pointer btn-outline !py-1 !px-3"
+                            onClick={handleSaveDraft}
+                        >
                             <Bookmark size={14} />
                             Save draft
                         </button>
