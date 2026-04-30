@@ -8,8 +8,10 @@ const parseJwt = (token: string): { exp: number } | null => {
     try {
         const payload = token.split(".")[1];
         if (!payload) return null;
+
         const decoded = JSON.parse(atob(payload));
         return decoded;
+
         // eslint-disable-next-line
     } catch (error) {
         return null;

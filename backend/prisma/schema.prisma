@@ -43,9 +43,12 @@ model User {
   username String
   handle String @unique
   email String @unique
+  avatar String?
   password String
   posts Post[]
   comments PostComment[]
+  messages Message[]
+  chats Chat[]
   bio String?
   isVerified Boolean @default(false)
   followers Int @default(0)
@@ -71,4 +74,24 @@ model Post {
   isReposted Boolean @default(false)
   image String?
   codeSnippet CodeSnippet?
+}
+
+model Message {
+  id Int @id  @default(autoincrement())
+  chatId Int
+  chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  senderId Int
+  sender User @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  text String
+  createdAt DateTime @default(now())
+  delivered Boolean?
+}
+
+model Chat {
+  id Int @id @default(autoincrement())
+  messages Message[]
+  collocutorId Int
+  collocutor User @relation(fields: [collocutorId], references: [id], onDelete: Cascade)
+  unreadCount Int
+  updatedAt DateTime @default(now())
 }

@@ -13,15 +13,15 @@ import {
 import { ProtectedRoute, PublicRoute } from "@/features";
 import { ScrollToTop } from "@/lib/utils";
 import { Toaster } from "react-hot-toast";
-import { useAuthBootstrap } from "@/hooks";
+import { useAuthBootstrap, useSocketBootstrap } from "@/hooks";
 
 // ToDo:
 // сделать debounce для сохранения draft для поста
 // сделать фикс бага, связанного с нажатием на вкладки в header, будучи гостем
-// (сейчас в таком случае фон модалки это "/" всегда, даже если находится на странице 
+// (сейчас в таком случае фон модалки это "/" всегда, даже если находится на странице
 // explore)
 
-// позже сделать refreshToken 
+// позже сделать refreshToken
 
 // WebSocket — последним (только когда REST работает)
 // WebSocket нужен лишь трём фичам:
@@ -33,6 +33,7 @@ import { useAuthBootstrap } from "@/hooks";
 function App() {
     // initial hook for "me" request at mount of App
     useAuthBootstrap();
+    useSocketBootstrap();
 
     const location = useLocation();
     const state = location.state as { background?: Location };

@@ -1,5 +1,5 @@
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { Logo } from "@/components/common";
+import { Logo } from "@/components";
 import { navLinks } from "@/lib/constants";
 import { LogIn, User, PenLine } from "lucide-react";
 import { useSession } from "@/hooks";
@@ -14,15 +14,25 @@ export const Header = () => {
                 <Logo />
             </Link>
             <nav className="flex gap-2 flex-1">
-                {navLinks.map(({ id, label, path }) => (
-                    <NavLink
-                        key={id}
-                        to={path}
-                        className={({ isActive }) => `nav-btn${isActive ? " active" : ""}`}
-                    >
-                        {label}
-                    </NavLink>
-                ))}
+                {navLinks.map(({ id, label, path, isProtected }) => {
+                    if (isProtected && !isAuthenticated) {
+                        return (
+                            <Link key={id} to="/auth" className="nav-btn">
+                                {label}
+                            </Link>
+                        );
+                    } else {
+                        return (
+                            <NavLink
+                                key={id}
+                                to={path}
+                                className={({ isActive }) => `nav-btn${isActive ? " active" : ""}`}
+                            >
+                                {label}
+                            </NavLink>
+                        );
+                    }
+                })}
             </nav>
             {!isHydrated ? (
                 <div className="animate-pulse bg-[var(--ink-soft)] px-20 py-5" />

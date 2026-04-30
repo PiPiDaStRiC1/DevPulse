@@ -8,6 +8,7 @@ import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
 import type { Post } from "@shared/types";
+import { Link } from "react-router-dom";
 
 interface PostCardProps {
     post: Post;
@@ -41,7 +42,9 @@ export const PostCard = ({ post }: PostCardProps) => {
         <article className="card p-0 mb-4 overflow-hidden">
             <div className="p-4 sm:p-5">
                 <div className="flex gap-3.5">
-                    <Avatar handle={author.handle} size="sm" isLoading={isLoading} />
+                    <Link to={`/profile/${author.handle}`} className="shrink-0">
+                        <Avatar handle={author.handle} size="sm" isLoading={isLoading} />
+                    </Link>
 
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap text-[12px] leading-tight">

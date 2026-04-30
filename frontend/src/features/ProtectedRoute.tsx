@@ -16,15 +16,12 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     }
 
     if (status === "guest") {
-        const safeBackground =
-            locationState?.background && locationState.background.pathname !== location.pathname
-                ? locationState.background
-                : { ...location, pathname: "/", search: "", hash: "", state: null };
+        const background = locationState?.background || location.pathname;
 
         return (
             <Navigate
                 to="/auth"
-                state={{ background: safeBackground, from: location.pathname }}
+                state={{ background: background, from: location.pathname }}
                 replace
             />
         );

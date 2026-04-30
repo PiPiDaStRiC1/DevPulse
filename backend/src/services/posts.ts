@@ -77,7 +77,6 @@ export const postPost = async (
             comments: { create: comments.map((comment) => ({ ...comment })) },
         };
 
-        console.log("Received post data:", data);
         if (codeSnippet && codeSnippet !== null) {
             data["codeSnippet"] = {
                 create: { code: codeSnippet.code ?? null, language: codeSnippet.language ?? null },

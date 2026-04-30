@@ -74,7 +74,13 @@ export const registerUser = async (
     try {
         const { email, password, handle, username } = req.body;
 
-        const parsed = registerSchema.safeParse({ email, password, handle, username });
+        const parsed = registerSchema.safeParse({
+            email,
+            password,
+            handle,
+            username,
+            confirmPassword: password,
+        });
 
         if (!parsed.success) {
             return res.status(400).json({ success: false, error: "Invalid user data" });
