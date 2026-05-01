@@ -37,7 +37,10 @@ export const getPosts = async (_req: Request, res: Response<ApiResponse<Post[]>>
     }
 };
 
-export const getOnePost = async (req: Request, res: Response<ApiResponse<Post>>) => {
+export const getOnePost = async (
+    req: Request<{ id: string }>,
+    res: Response<ApiResponse<Post>>,
+) => {
     try {
         const { id } = req.params;
 

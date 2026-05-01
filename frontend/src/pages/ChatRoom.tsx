@@ -2,19 +2,19 @@ import { useRef, useEffect, useState } from "react";
 import { ErrorAlert, ChatRoomSkeleton, ChatRoomHeader } from "@/components";
 import { Send } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { MESSAGES } from "@/lib/constants";
 import { safeParseDate } from "@/lib/utils";
 import { useNavigate, useParams } from "react-router-dom";
-import { CHATS } from "@/lib/constants";
 import { useSession } from "@/hooks";
+import { apiClient } from "@/lib/api";
+import toast from "react-hot-toast";
 import type { Chat, Message } from "@shared/types";
 
 export const ChatRoom = () => {
-    const { user } = useSession();
+    const { user: me } = useSession();
     const navigate = useNavigate();
     const [draft, setDraft] = useState("");
     const { id } = useParams<{ id: string }>();
-    const isMe = Boolean(user?.id === id);
+    const isMe = Boolean(me?.id === id);
 
     const {
         data: chat,
@@ -22,9 +22,7 @@ export const ChatRoom = () => {
         isError: isErrorChat,
     } = useQuery<Chat>({
         queryKey: ["chats", id],
-        queryFn: async () => {
-            return CHATS.find((c) => c.id === Number(id))!;
-        },
+        queryFn: () => apiClient.getOneChat(Number(id!)),
         enabled: !!id,
     });
 
@@ -32,18 +30,29 @@ export const ChatRoom = () => {
         data: chatMessages,
         isLoading: isLoadingMessages,
         isError: isErrorMessages,
+        refetch: refetchMessages,
     } = useQuery<Message[]>({
         queryKey: ["messages", id!],
-        queryFn: async () => {
-            return MESSAGES.filter((mess) => mess.chatId === Number(id!));
-        },
+        queryFn: () => apiClient.getAllMessagesByChatId(Number(id!)),
+        enabled: !!id,
     });
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        setDraft("");
+        try {
+            await apiClient.postOneMessage({
+                text: draft.trim(),
+                senderId: me!.id,
+                chatId: Number(id!),
+            });
+            setDraft("");
+            refetchMessages();
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (error) {
+            toast.error("Failed to create message");
+        }
     };
 
     useEffect(() => {
@@ -73,22 +82,22 @@ export const ChatRoom = () => {
             <ChatRoomHeader chat={chat} />
             <div className="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-3">
                 {chatMessages.map((msg) => {
-                    const isMe = msg.senderId === user?.id;
+                    const isMyMsg = msg.senderId === me?.id;
                     return (
                         <div
                             key={msg.id}
                             className={[
                                 "flex flex-col gap-1",
-                                isMe ? "items-end" : "items-start",
+                                isMyMsg ? "items-end" : "items-start",
                             ].join(" ")}
                         >
                             <div
                                 className={[
                                     "max-w-[72%] px-4 py-2.5 text-[13px] leading-relaxed",
                                     "border-2 border-ink rounded-[var(--radius)]",
-                                    isMe ? "bg-ink text-accent-fg" : "bg-surface text-text-base",
+                                    isMyMsg ? "bg-ink text-accent-fg" : "bg-surface text-text-base",
                                 ].join(" ")}
-                                style={isMe ? undefined : { boxShadow: "2px 2px 0 var(--ink)" }}
+                                style={isMyMsg ? undefined : { boxShadow: "2px 2px 0 var(--ink)" }}
                             >
                                 {msg.text}
                             </div>

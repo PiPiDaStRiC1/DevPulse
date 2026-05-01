@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { CHATS } from "@/lib/constants";
+import { apiClient } from "@/lib/api";
 import { useSocket } from "./useSocket";
 
 export const useSocketBootstrap = () => {
@@ -8,13 +8,7 @@ export const useSocketBootstrap = () => {
         data: chats,
         isLoading,
         isError,
-    } = useQuery({
-        queryKey: ["chats"],
-        queryFn: async () => {
-            return CHATS;
-        },
-        staleTime: Infinity,
-    });
+    } = useQuery({ queryKey: ["chats"], queryFn: apiClient.getAllChats, staleTime: Infinity });
 
     if (!isLoading && !isError && chats) {
         chats.forEach((chat) => joinRoom(chat.id));

@@ -4,7 +4,7 @@ import morgan from "morgan";
 import cors from "cors";
 import { Server } from "socket.io";
 import { createServer } from "http";
-import { postsRouter, authRouter, userRouter, chatRouter } from "@/routes";
+import { postsRouter, authRouter, userRouter, chatRouter, messagesRouter } from "@/routes";
 
 const PORT = Number(process.env["PORT"]) || 4000;
 const CORS_ORIGIN = process.env["CORS_ORIGIN"] || "http://localhost:5173";
@@ -22,6 +22,7 @@ app.use("/api/posts", postsRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 app.use("/api/chats", chatRouter);
+app.use("/api/messages", messagesRouter);
 
 io.on("connection", (socket) => {
     console.log("User`s rooms: " + JSON.stringify(socket.rooms));

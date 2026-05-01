@@ -16,7 +16,7 @@ export const NewChatRoom = () => {
 
     const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (!handle || !draft.trim()) return;
+        if (!handle || !draft.trim() || !me) throw new Error("Failed to create chat: missing data");
 
         try {
             const collocutor = await apiClient.getOneUserByHandle(handle);
@@ -24,16 +24,14 @@ export const NewChatRoom = () => {
                 throw new Error("User not found");
             }
 
-            const payload: ChatDTO = {
+            const chatPayload: ChatDTO = {
                 collocutorId: collocutor.id,
                 unreadCount: 0,
-                lastMessage: { text: draft.trim(), senderId: me!.id },
+                lastMessage: { text: draft.trim(), senderId: me.id },
             };
 
-            const created = await apiClient.postOneChat(payload);
-
-            // 4) (optional) emit via socket: wsStore.sendMessage(created.data.id, createdMessage)
-            navigate(`/whispers/${created.id}`);
+            const createdChat = await apiClient.postOneChat(chatPayload);
+            navigate(`/whispers/${createdChat.id}`);
         } catch (err) {
             toast.error("Failed to create chat");
             console.error(err);

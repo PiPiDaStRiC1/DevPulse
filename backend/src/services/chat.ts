@@ -10,6 +10,7 @@ const parseChat = (chat: any): Chat => {
         lastMessage: chat.messages[0] || null,
         unreadCount: chat.unreadCount,
         updatedAt: chat.updatedAt,
+        userId: chat.userId,
     };
 };
 
@@ -40,16 +41,92 @@ export const getChats = async (_req: Request, res: Response<ApiResponse<Chat[]>>
     }
 };
 
-export const postChat = async (req: Request<{}, {}, ChatDTO>, res: Response<ApiResponse<Chat>>) => {
+export const getOneChat = async (req: Request, res: Response<ApiResponse<Chat>>) => {
     try {
-        const { collocutorId, lastMessage, unreadCount } = req.body;
+        const { id } = req.params;
 
-        const chat = await prisma.chat.create({
-            data: { unreadCount, messages: { create: lastMessage }, collocutorId },
+        const chatId = Number(id);
+
+        const chat = await prisma.chat.findFirstOrThrow({
+            where: { id: chatId },
+            select: {
+                id: true,
+                messages: { orderBy: { createdAt: "desc" }, take: 1 },
+                collocutor: {
+                    select: {
+                        id: true,
+                        username: true,
+                        handle: true,
+                        avatar: true,
+                        isVerified: true,
+                    },
+                },
+                userId: true,
+                unreadCount: true,
+                updatedAt: true,
+            },
         });
 
-        await prisma.message.create({
-            data: { text: lastMessage.text, senderId: lastMessage.senderId, chatId: chat.id },
+        return res.status(200).json({ success: true, data: parseChat(chat) });
+    } catch (error) {
+        console.error("Error getting all chats: ", error);
+        return res.status(500).json({ success: false, error: "Failed to fetch chats" });
+    }
+};
+
+export const postChat = async (req: Request<{}, {}, ChatDTO>, res: Response<ApiResponse<Chat>>) => {
+    try {
+        const { userId } = req.user!;
+
+        const { collocutorId, lastMessage, unreadCount } = req.body;
+
+        if (!collocutorId) {
+            return res.status(400).json({ success: false, error: "collocutorId is required" });
+        }
+
+        const existing = await prisma.chat.findFirst({
+            where: {
+                OR: [
+                    { userId: userId, collocutorId: collocutorId },
+                    { userId: collocutorId, collocutorId: userId },
+                ],
+            },
+        });
+
+        if (existing) {
+            const fullExisting = await prisma.chat.findUnique({
+                where: { id: existing.id },
+                select: {
+                    id: true,
+                    messages: { orderBy: { createdAt: "desc" }, take: 1 },
+                    collocutor: {
+                        select: {
+                            id: true,
+                            username: true,
+                            handle: true,
+                            avatar: true,
+                            isVerified: true,
+                        },
+                    },
+                    unreadCount: true,
+                    updatedAt: true,
+                },
+            });
+
+            if (!fullExisting) {
+                return res.status(404).json({ success: false, error: "Chat not found" });
+            }
+
+            return res.status(200).json({ success: true, data: parseChat(fullExisting) });
+        }
+
+        const chat = await prisma.chat.create({
+            data: {
+                userId,
+                unreadCount: unreadCount,
+                messages: { create: lastMessage },
+                collocutorId,
+            },
         });
 
         const fullChat = await prisma.chat.findUnique({
@@ -81,3 +158,4 @@ export const postChat = async (req: Request<{}, {}, ChatDTO>, res: Response<ApiR
         return res.status(500).json({ success: false, error: "Failed to create chat" });
     }
 };
+

@@ -12,7 +12,7 @@ export interface Message {
     senderId: number;
     text: string;
     createdAt: Date;
-    delivered?: boolean; // server-side delivery flag
+    delivered: boolean | null; // server-side delivery flag
 }
 
 export interface Chat {
@@ -20,6 +20,7 @@ export interface Chat {
     collocutor: UserSummary;
     lastMessage: Message;
     unreadCount: number;
+    userId: number; // for identifying the owner of the chat
     updatedAt: Date; // last activity for filtering/sorting chats by time
 }
 
@@ -30,6 +31,7 @@ export interface ChatDTO {
 }
 
 export interface MessageDTO {
+    chatId?: number;
     senderId: number;
     text: string;
 }

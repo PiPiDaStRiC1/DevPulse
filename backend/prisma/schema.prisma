@@ -48,7 +48,8 @@ model User {
   posts Post[]
   comments PostComment[]
   messages Message[]
-  chats Chat[]
+  chatsInitiated Chat[] @relation("ChatInitiator")
+  chatsAsCollocutor Chat[] @relation("ChatCollocutor")
   bio String?
   isVerified Boolean @default(false)
   followers Int @default(0)
@@ -90,8 +91,10 @@ model Message {
 model Chat {
   id Int @id @default(autoincrement())
   messages Message[]
+  userId Int
+  user User @relation("ChatInitiator", fields: [userId], references: [id], onDelete: Cascade)
   collocutorId Int
-  collocutor User @relation(fields: [collocutorId], references: [id], onDelete: Cascade)
+  collocutor User @relation("ChatCollocutor", fields: [collocutorId], references: [id], onDelete: Cascade)
   unreadCount Int
   updatedAt DateTime @default(now())
 }

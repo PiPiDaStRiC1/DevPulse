@@ -10,6 +10,8 @@ import type {
     User,
     Chat,
     ChatDTO,
+    Message,
+    MessageDTO,
 } from "@shared/types";
 
 const API_URL = import.meta.env["VITE_API_URL"];
@@ -158,6 +160,19 @@ export const apiClient = {
             throw new Error(error instanceof Error ? error.message : "Failed to fetch chats");
         }
     },
+    async getOneChat(id: number) {
+        try {
+            const response = await genericFetch<ApiResponse<Chat>>(`${API_URL}/chats/${id}`, {
+                headers: { ...JWTheaders() },
+            });
+            if (!response.success) {
+                throw new Error(response.error);
+            }
+            return response.data;
+        } catch (error) {
+            throw new Error(error instanceof Error ? error.message : "Failed to fetch chat");
+        }
+    },
     async postOneChat(chatData: ChatDTO) {
         try {
             const response = await genericFetch<ApiResponse<Chat>>(`${API_URL}/chats`, {
@@ -174,10 +189,11 @@ export const apiClient = {
             throw new Error(error instanceof Error ? error.message : "Failed to create chat");
         }
     },
-    async getChatMessages(chatId: number) {
+    async getAllMessagesByChatId(chatId: number) {
         try {
-            const response = await genericFetch<ApiResponse<ChatMessage[]>>(
-                `${API_URL}/chats/${chatId}/messages`,
+            const response = await genericFetch<ApiResponse<Message[]>>(
+                `${API_URL}/messages/chat/${chatId}`,
+                { headers: { ...JWTheaders() } },
             );
             if (!response.success) {
                 throw new Error(response.error);
@@ -188,6 +204,22 @@ export const apiClient = {
             throw new Error(
                 error instanceof Error ? error.message : "Failed to fetch chat messages",
             );
+        }
+    },
+    async postOneMessage(messageData: MessageDTO) {
+        try {
+            const response = await genericFetch<ApiResponse<Message>>(`${API_URL}/messages/chat`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", ...JWTheaders() },
+                body: JSON.stringify(messageData),
+            });
+            if (!response.success) {
+                throw new Error(response.error);
+            }
+
+            return response.data;
+        } catch (error) {
+            throw new Error(error instanceof Error ? error.message : "Failed to post chat message");
         }
     },
 };

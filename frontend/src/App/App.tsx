@@ -13,7 +13,7 @@ import {
     ChatRoom,
     NewChatRoom,
 } from "@/pages";
-import { ProtectedRoute, PublicRoute } from "@/features";
+import { ProtectedRoute, PublicRoute, NewChatRoute } from "@/features";
 import { ScrollToTop } from "@/lib/utils";
 import { Toaster } from "react-hot-toast";
 import { useAuthBootstrap, useSocketBootstrap } from "@/hooks";
@@ -23,6 +23,8 @@ import { useAuthBootstrap, useSocketBootstrap } from "@/hooks";
 // сделать фикс бага, связанного с нажатием на вкладки в header, будучи гостем
 // (сейчас в таком случае фон модалки это "/" всегда, даже если находится на странице
 // explore)
+// ДОБАВИТЬ ПРОВЕРКУ НА ТО, ЧТО ЧАТ СОЗДАН ОПРЕДЕЛЕННЫМ ПОЛЬЗОВАТЕЛЕМ (Т.Е ЕГО НЕ МОЖЕТ БЫТЬ
+// У ДРУГИХ ПОЛЬЗОВАТЕЛЕЙ НА ЭТОМ ЖЕ УСТРОЙСТВЕ)
 
 // позже сделать refreshToken
 
@@ -57,7 +59,9 @@ function App() {
                             path="/whispers/new/:handle"
                             element={
                                 <ProtectedRoute>
-                                    <NewChatRoom />
+                                    <NewChatRoute>
+                                        <NewChatRoom />
+                                    </NewChatRoute>
                                 </ProtectedRoute>
                             }
                         />
