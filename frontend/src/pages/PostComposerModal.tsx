@@ -187,26 +187,30 @@ export const PostComposerModal = () => {
                 <div className="grid flex-1 min-h-0 lg:grid-cols-[minmax(0,1fr)_340px]">
                     <TextEditor body={body} setBody={setBody} />
                     <aside className="flex min-h-0 flex-col bg-bg/65">
-                        {isError || !currentUser ? (
+                        {isError ? (
                             <ErrorAlert message="Failed to load user" />
                         ) : (
-                            <div className="border-b-2 border-ink px-4 py-4">
-                                <div className="flex items-center gap-3">
-                                    <Avatar
-                                        handle={currentUser.handle}
-                                        size="sm"
-                                        isLoading={isLoading}
-                                    />
-                                    <div className="min-w-0">
-                                        <p className="text-[13px] font-bold text-text-base">
-                                            {currentUser.username}
-                                        </p>
-                                        <p className="text-[12px] text-muted">
-                                            {currentUser.handle}
-                                        </p>
+                            <>
+                                {currentUser && (
+                                    <div className="border-b-2 border-ink px-4 py-4">
+                                        <div className="flex items-center gap-3">
+                                            <Avatar
+                                                handle={currentUser.handle}
+                                                size="sm"
+                                                isLoading={isLoading}
+                                            />
+                                            <div className="min-w-0">
+                                                <p className="text-[13px] font-bold text-text-base">
+                                                    {currentUser.username}
+                                                </p>
+                                                <p className="text-[12px] text-muted">
+                                                    @{currentUser.handle}
+                                                </p>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
+                                )}
+                            </>
                         )}
 
                         <div className="flex-1 space-y-4 overflow-y-auto p-4">

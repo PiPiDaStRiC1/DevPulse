@@ -1,20 +1,32 @@
 import { useRef, useEffect, useState } from "react";
-import { Avatar, ErrorAlert, ChatRoomSkeleton } from "@/components";
-import { BadgeCheck, Send } from "lucide-react";
+import { ErrorAlert, ChatRoomSkeleton, ChatRoomHeader } from "@/components";
+import { Send } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { MESSAGES } from "@/lib/constants";
-import { parseISO } from "@/lib/utils";
-import { Link, useParams } from "react-router-dom";
+import { safeParseDate } from "@/lib/utils";
+import { useNavigate, useParams } from "react-router-dom";
 import { CHATS } from "@/lib/constants";
 import { useSession } from "@/hooks";
 import type { Chat, Message } from "@shared/types";
 
 export const ChatRoom = () => {
-    const [draft, setDraft] = useState("");
     const { user } = useSession();
+    const navigate = useNavigate();
+    const [draft, setDraft] = useState("");
     const { id } = useParams<{ id: string }>();
+    const isMe = Boolean(user?.id === id);
 
-    const activeChat = CHATS.find((c) => c.id === Number(id))!;
+    const {
+        data: chat,
+        isLoading: isLoadingChat,
+        isError: isErrorChat,
+    } = useQuery<Chat>({
+        queryKey: ["chats", id],
+        queryFn: async () => {
+            return CHATS.find((c) => c.id === Number(id))!;
+        },
+        enabled: !!id,
+    });
 
     const {
         data: chatMessages,
@@ -35,43 +47,30 @@ export const ChatRoom = () => {
     };
 
     useEffect(() => {
+        if (isMe) {
+            navigate(-1);
+        }
+    }, [isMe, navigate]);
+
+    useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [id, chatMessages?.length]);
 
-    if (isLoadingMessages) {
+    if (isLoadingMessages || isLoadingChat) {
         return <ChatRoomSkeleton />;
     }
 
-    if (isErrorMessages) {
+    if (isErrorMessages || isErrorChat) {
         return <ErrorAlert message="Failed to load messages" />;
     }
 
-    if (!chatMessages) {
-        return <ErrorAlert message="Not found" />;
+    if (!chatMessages || !chat) {
+        return <ErrorAlert message="Messages not found" />;
     }
 
     return (
         <div className="flex-1 flex flex-col bg-bg min-w-0">
-            <div className="px-5 py-3 border-b-2 border-ink bg-surface flex items-center gap-3 shrink-0">
-                <Link
-                    to={`/profile/${activeChat.collocutor.handle}`}
-                    className="flex items-center gap-3"
-                >
-                    <Avatar handle={activeChat.collocutor.handle} size="md" />
-                </Link>
-                <div className="min-w-0">
-                    <div className="flex items-center gap-1.5">
-                        <span className="text-[14px] font-bold leading-tight truncate">
-                            {activeChat.collocutor.username}
-                        </span>
-                        {activeChat.collocutor.isVerified && (
-                            <BadgeCheck size={13} className="text-av-blue shrink-0" />
-                        )}
-                    </div>
-                    <p className="text-[11px] text-muted">@{activeChat.collocutor.handle}</p>
-                </div>
-            </div>
-
+            <ChatRoomHeader chat={chat} />
             <div className="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-3">
                 {chatMessages.map((msg) => {
                     const isMe = msg.senderId === user?.id;
@@ -94,7 +93,7 @@ export const ChatRoom = () => {
                                 {msg.text}
                             </div>
                             <span className="text-[10px] text-subtle px-1">
-                                {parseISO(msg.createdAt)}
+                                {safeParseDate(msg.createdAt)}
                             </span>
                         </div>
                     );
@@ -119,7 +118,7 @@ export const ChatRoom = () => {
                 <button
                     type="submit"
                     disabled={!draft.trim()}
-                    className="btn-solid !py-2 !px-3 shrink-0"
+                    className="btn-solid h-full !py-2 !px-3 shrink-0"
                 >
                     <Send size={14} />
                 </button>

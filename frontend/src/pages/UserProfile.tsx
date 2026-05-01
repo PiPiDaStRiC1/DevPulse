@@ -15,9 +15,11 @@ import { Avatar, ErrorAlert, Preloader } from "@/components";
 import { apiClient } from "@/lib/api";
 import { safeParseDate } from "@/lib/utils";
 import { Link, useParams } from "react-router-dom";
+import { useSession } from "@/hooks";
 import type { User } from "@shared/types";
 
 export const UserProfile = () => {
+    const { user: me } = useSession();
     const { handle } = useParams<{ handle: string }>();
 
     const {
@@ -29,6 +31,7 @@ export const UserProfile = () => {
         queryFn: () => apiClient.getOneUserByHandle(handle!),
         staleTime: 30 * 60 * 1000,
     });
+    const isMe = Boolean(me?.id === user?.id);
 
     if (isLoading) {
         return <Preloader text="Loading profile" />;
@@ -69,13 +72,15 @@ export const UserProfile = () => {
                     <div className="absolute inset-0 opacity-70 bg-[radial-gradient(circle_at_10%_70%,rgba(38,34,27,0.32),transparent_18%),radial-gradient(circle_at_26%_56%,rgba(38,34,27,0.28),transparent_20%),radial-gradient(circle_at_48%_46%,rgba(38,34,27,0.36),transparent_22%),radial-gradient(circle_at_67%_58%,rgba(38,34,27,0.24),transparent_18%),radial-gradient(circle_at_86%_38%,rgba(38,34,27,0.26),transparent_20%)]" />
                     <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_0%,rgba(255,255,255,0.06)_50%,rgba(255,255,255,0.18)_100%)]" />
                     <div className="absolute right-4 bottom-4 sm:right-6 sm:bottom-6 flex items-center gap-2 sm:gap-3">
-                        <Link
-                            to={`/whispers/${user.handle}`}
-                            type="button"
-                            className="cursor-pointer grid h-10 w-10 place-items-center rounded-[6px] border-2 border-ink bg-bg text-text-base shadow-[4px_4px_0_var(--ink)] transition-transform hover:-translate-y-0.5"
-                        >
-                            <Send size={15} />
-                        </Link>
+                        {!isMe && (
+                            <Link
+                                to={`/whispers/new/${user.handle}`}
+                                type="button"
+                                className="cursor-pointer grid h-10 w-10 place-items-center rounded-[6px] border-2 border-ink bg-bg text-text-base shadow-[4px_4px_0_var(--ink)] transition-transform hover:-translate-y-0.5"
+                            >
+                                <Send size={15} />
+                            </Link>
+                        )}
                         <button
                             type="button"
                             className="cursor-pointer grid h-10 w-10 place-items-center rounded-[6px] border-2 border-ink bg-bg text-text-base shadow-[4px_4px_0_var(--ink)] transition-transform hover:-translate-y-0.5"
@@ -84,7 +89,8 @@ export const UserProfile = () => {
                         </button>
                         <button
                             type="button"
-                            className="cursor-pointer text-white min-w-[112px] rounded-[6px] border-2 border-ink bg-ink px-5 py-2.5 text-sm font-bold tracking-wide text-ink shadow-[4px_4px_0_var(--ink)] transition-transform hover:-translate-y-0.5"
+                            disabled={isMe}
+                            className="cursor-pointer disabled:opacity-50 text-white min-w-[112px] rounded-[6px] border-2 border-ink bg-ink px-5 py-2.5 text-sm font-bold tracking-wide text-ink shadow-[4px_4px_0_var(--ink)] transition-transform hover:-translate-y-0.5"
                         >
                             Follow
                         </button>

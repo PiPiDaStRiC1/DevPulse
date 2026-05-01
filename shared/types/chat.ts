@@ -7,7 +7,7 @@ export interface UserSummary {
 }
 
 export interface Message {
-    id: number;
+    id?: number;
     chatId: number;
     senderId: number;
     text: string;
@@ -26,5 +26,10 @@ export interface Chat {
 export interface ChatDTO {
     collocutorId: number;
     unreadCount: number;
-    lastMessage: Message;
+    lastMessage: MessageDTO;
+}
+
+export interface MessageDTO {
+    senderId: number;
+    text: string;
 }

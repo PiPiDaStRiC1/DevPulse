@@ -1,4 +1,3 @@
 export * from "./ScrollToTop";
 export * from "./genericFetch";
-export * from "./parseData";
-export * from "./parseISO";
+export * from "./safeParseDate";

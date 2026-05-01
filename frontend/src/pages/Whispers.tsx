@@ -3,9 +3,8 @@ import { Search, BadgeCheck, MessageCircle } from "lucide-react";
 import { Avatar, ErrorAlert, WhispersSkeleton } from "@/components";
 import { useAuthStore } from "@/lib/store";
 import { useQuery } from "@tanstack/react-query";
-import { parseISO } from "@/lib/utils";
+import { safeParseDate } from "@/lib/utils";
 import { NavLink, useOutlet } from "react-router-dom";
-import { CHATS } from "@/lib/constants";
 import { apiClient } from "@/lib/api";
 import type { Chat } from "@shared/types";
 
@@ -17,7 +16,11 @@ export const Whispers = () => {
         data: chats,
         isLoading,
         isError,
-    } = useQuery<Chat[]>({ queryKey: ["chats"], queryFn: async () => CHATS });
+    } = useQuery<Chat[]>({
+        queryKey: ["chats"],
+        queryFn: apiClient.getAllChats,
+        staleTime: 5 * 1000,
+    });
 
     useEffect(() => {
         document.body.style.overflow = "hidden";
@@ -79,6 +82,12 @@ export const Whispers = () => {
                 </div>
 
                 <div className="flex-1 overflow-y-auto">
+                    {filtered.length === 0 && (
+                        <div className="flex flex-col items-center gap-3 mt-12">
+                            <MessageCircle size={20} className="text-muted" />
+                            <p className="text-sm text-muted">No chats found</p>
+                        </div>
+                    )}
                     {filtered.map((chat) => {
                         const last = chat.lastMessage;
 
@@ -105,7 +114,7 @@ export const Whispers = () => {
                                             )}
                                         </div>
                                         <span className="text-[10px] text-subtle shrink-0">
-                                            {parseISO(last.createdAt)}
+                                            {safeParseDate(last.createdAt)}
                                         </span>
                                     </div>
                                     <p className="text-[12px] text-muted truncate mt-0.5">

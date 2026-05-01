@@ -9,6 +9,7 @@ import type {
     RefreshResponse,
     User,
     Chat,
+    ChatDTO,
 } from "@shared/types";
 
 const API_URL = import.meta.env["VITE_API_URL"];
@@ -157,9 +158,9 @@ export const apiClient = {
             throw new Error(error instanceof Error ? error.message : "Failed to fetch chats");
         }
     },
-    async postOneChat(chatData: Chat) {
+    async postOneChat(chatData: ChatDTO) {
         try {
-            const response = await genericFetch<ApiResponse<Chat[]>>(`${API_URL}/chats`, {
+            const response = await genericFetch<ApiResponse<Chat>>(`${API_URL}/chats`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json", ...JWTheaders() },
                 body: JSON.stringify(chatData),
@@ -171,6 +172,22 @@ export const apiClient = {
             return response.data;
         } catch (error) {
             throw new Error(error instanceof Error ? error.message : "Failed to create chat");
+        }
+    },
+    async getChatMessages(chatId: number) {
+        try {
+            const response = await genericFetch<ApiResponse<ChatMessage[]>>(
+                `${API_URL}/chats/${chatId}/messages`,
+            );
+            if (!response.success) {
+                throw new Error(response.error);
+            }
+
+            return response.data;
+        } catch (error) {
+            throw new Error(
+                error instanceof Error ? error.message : "Failed to fetch chat messages",
+            );
         }
     },
 };

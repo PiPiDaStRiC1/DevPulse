@@ -11,6 +11,7 @@ import {
     UserProfile,
     PostComposerModal,
     ChatRoom,
+    NewChatRoom,
 } from "@/pages";
 import { ProtectedRoute, PublicRoute } from "@/features";
 import { ScrollToTop } from "@/lib/utils";
@@ -52,6 +53,14 @@ function App() {
                     <Route path="/" index element={<Feed />} />
                     <Route path="/explore" element={<Explore />} />
                     <Route path="/whispers" element={<Whispers />}>
+                        <Route
+                            path="/whispers/new/:handle"
+                            element={
+                                <ProtectedRoute>
+                                    <NewChatRoom />
+                                </ProtectedRoute>
+                            }
+                        />
                         <Route
                             path="/whispers/:id"
                             element={
