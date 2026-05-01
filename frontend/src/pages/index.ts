@@ -7,3 +7,4 @@ export * from "./NotFound";
 export * from "./MyProfile";
 export * from "./PostComposerModal";
 export * from "./UserProfile";
+export * from "./ChatRoom";

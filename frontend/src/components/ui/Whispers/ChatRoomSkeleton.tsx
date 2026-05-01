@@ -18,7 +18,9 @@ export const ChatRoomSkeleton = () => {
                         className={`flex flex-col gap-1 ${i % 3 === 0 ? "items-end" : "items-start"}`}
                     >
                         <div
-                            className={`max-w-[60%] h-10 rounded-[var(--radius)] animate-pulse ${
+                            className={`${
+                                i % 3 === 0 ? "w-1/5" : "w-2/3"
+                            } h-10 rounded-[var(--radius)] animate-pulse ${
                                 i % 3 === 0 ? "bg-ink" : "bg-surface border-2 border-ink"
                             }`}
                         />

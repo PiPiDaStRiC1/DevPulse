@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { getOneUser } from "@/services";
+import { getOneUserById, getOneUserByHandle } from "@/services";
 
 const userRouter = Router();
 
-userRouter.get("/:id", getOneUser);
+userRouter.get("/id/:id", getOneUserById);
+userRouter.get("/handle/:handle", getOneUserByHandle);
 
 export { userRouter };

@@ -81,9 +81,23 @@ export const apiClient = {
             throw new Error(error instanceof Error ? error.message : "Failed to refresh token");
         }
     },
-    async getOneUser(id: number) {
+    async getOneUserByHandle(handle: string) {
         try {
-            const response = await genericFetch<ApiResponse<User>>(`${API_URL}/users/${id}`);
+            const response = await genericFetch<ApiResponse<User>>(
+                `${API_URL}/users/handle/${handle}`,
+            );
+            if (!response.success) {
+                throw new Error(response.error);
+            }
+
+            return response.data;
+        } catch (error) {
+            throw new Error(error instanceof Error ? error.message : "Failed to fetch user");
+        }
+    },
+    async getOneUserById(id: number) {
+        try {
+            const response = await genericFetch<ApiResponse<User>>(`${API_URL}/users/id/${id}`);
             if (!response.success) {
                 throw new Error(response.error);
             }

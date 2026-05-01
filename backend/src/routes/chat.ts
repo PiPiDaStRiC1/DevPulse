@@ -3,6 +3,7 @@ import { getChats, postChat } from "@/services";
 
 const chatRouter = Router();
 
-chatRouter.get("/", getChats).post("/", postChat);
+chatRouter.get("/", getChats);
+chatRouter.post("/", postChat);
 
 export { chatRouter };

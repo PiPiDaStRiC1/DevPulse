@@ -13,6 +13,7 @@ export const Feed = () => {
         data: posts,
         isLoading,
         isError,
+        refetch,
     } = useQuery({
         queryKey: ["feed", activeTab],
         queryFn: apiClient.getAllPosts,
@@ -20,7 +21,7 @@ export const Feed = () => {
     });
 
     if (isError) {
-        return <ErrorAlert message="Failed to load feed" />;
+        return <ErrorAlert message="Failed to load feed" onRetry={refetch} />;
     }
 
     return (
@@ -40,6 +41,8 @@ export const Feed = () => {
                         );
                     })}
                 </div>
+
+                {isError}
 
                 <div className="flex flex-col gap-5">
                     <CreatePostBox />

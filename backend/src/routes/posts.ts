@@ -4,6 +4,8 @@ import { getOnePost, getPosts, postPost } from "@/services";
 
 const postsRouter = Router();
 
-postsRouter.get("/", getPosts).post("/", verifyJWT, postPost).get("/:id", getOnePost);
+postsRouter.get("/", getPosts);
+postsRouter.post("/", verifyJWT, postPost);
+postsRouter.get("/:id", getOnePost);
 
 export { postsRouter };

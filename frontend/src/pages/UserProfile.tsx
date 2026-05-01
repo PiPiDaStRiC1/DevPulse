@@ -14,48 +14,46 @@ import { useQuery } from "@tanstack/react-query";
 import { Avatar, ErrorAlert, Preloader } from "@/components";
 import { apiClient } from "@/lib/api";
 import { safeParseDate } from "@/lib/utils";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import type { User } from "@shared/types";
 
 export const UserProfile = () => {
-    const { id } = useParams();
+    const { handle } = useParams<{ handle: string }>();
 
-    const { data, isLoading, isError } = useQuery<User>({
-        queryKey: ["user", id],
-        queryFn: () => apiClient.getOneUser(Number(id!)),
+    const {
+        data: user,
+        isLoading,
+        isError,
+    } = useQuery<User>({
+        queryKey: ["user", handle],
+        queryFn: () => apiClient.getOneUserByHandle(handle!),
         staleTime: 30 * 60 * 1000,
     });
 
     if (isLoading) {
-        return (
-            <section className="flex h-full w-full items-center justify-center">
-                <Preloader text="Loading profile" />
-            </section>
-        );
+        return <Preloader text="Loading profile" />;
     }
 
-    if (isError || !data) {
-        return (
-            <section className="flex h-full w-full items-center justify-center">
-                <ErrorAlert
-                    message={isError ? "We couldn't load this profile." : "Profile not found."}
-                />
-            </section>
-        );
+    if (isError) {
+        return <ErrorAlert message="We couldn't load this profile" />;
+    }
+
+    if (!user) {
+        return <ErrorAlert message="Profile not found" />;
     }
 
     const accountFacts = [
-        { icon: Mail, label: "Email", value: data.email },
-        { icon: UserRound, label: "Handle", value: data.handle },
-        { icon: Shield, label: "Role", value: data.role },
-        { icon: CalendarDays, label: "Joined", value: safeParseDate(data.createdAt) },
+        { icon: Mail, label: "Email", value: user.email },
+        { icon: UserRound, label: "Handle", value: user.handle },
+        { icon: Shield, label: "Role", value: user.role },
+        { icon: CalendarDays, label: "Joined", value: safeParseDate(user.createdAt) },
     ];
 
     const profileMetrics = [
-        { label: "Followers", value: data.followers },
-        { label: "Following", value: data.following },
+        { label: "Followers", value: user.followers },
+        { label: "Following", value: user.following },
         { label: "Posts", value: "—" },
-        { label: "Status", value: data.isVerified ? "Verified" : "Rising" },
+        { label: "Status", value: user.isVerified ? "Verified" : "Rising" },
     ];
 
     const socialLinks = [
@@ -71,12 +69,13 @@ export const UserProfile = () => {
                     <div className="absolute inset-0 opacity-70 bg-[radial-gradient(circle_at_10%_70%,rgba(38,34,27,0.32),transparent_18%),radial-gradient(circle_at_26%_56%,rgba(38,34,27,0.28),transparent_20%),radial-gradient(circle_at_48%_46%,rgba(38,34,27,0.36),transparent_22%),radial-gradient(circle_at_67%_58%,rgba(38,34,27,0.24),transparent_18%),radial-gradient(circle_at_86%_38%,rgba(38,34,27,0.26),transparent_20%)]" />
                     <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_0%,rgba(255,255,255,0.06)_50%,rgba(255,255,255,0.18)_100%)]" />
                     <div className="absolute right-4 bottom-4 sm:right-6 sm:bottom-6 flex items-center gap-2 sm:gap-3">
-                        <button
+                        <Link
+                            to={`/whispers/${user.handle}`}
                             type="button"
                             className="cursor-pointer grid h-10 w-10 place-items-center rounded-[6px] border-2 border-ink bg-bg text-text-base shadow-[4px_4px_0_var(--ink)] transition-transform hover:-translate-y-0.5"
                         >
                             <Send size={15} />
-                        </button>
+                        </Link>
                         <button
                             type="button"
                             className="cursor-pointer grid h-10 w-10 place-items-center rounded-[6px] border-2 border-ink bg-bg text-text-base shadow-[4px_4px_0_var(--ink)] transition-transform hover:-translate-y-0.5"
@@ -94,7 +93,7 @@ export const UserProfile = () => {
                     <div className="absolute -bottom-10 left-4 sm:left-6">
                         <div className="rounded-[6px] border-2 border-ink bg-bg p-2 shadow-[4px_4px_0_var(--ink)]">
                             <Avatar
-                                handle={data.handle}
+                                handle={user.handle}
                                 size="lg"
                                 className="!w-[92px] !h-[92px] text-[26px]"
                             />
@@ -107,15 +106,15 @@ export const UserProfile = () => {
                         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                             <div className="min-w-0 max-w-2xl">
                                 <h1 className="text-3xl sm:text-[2.5rem] font-black tracking-tight text-text-base">
-                                    {data.username}
+                                    {user.username}
                                 </h1>
 
                                 <p className="mt-1 text-[15px] font-medium text-subtle">
-                                    @{data.handle}
+                                    @{user.handle}
                                 </p>
 
                                 <p className="mt-5 max-w-2xl text-[15px] leading-7 text-text-base">
-                                    {data.bio ||
+                                    {user.bio ||
                                         "This profile does not have a bio yet. It usually means the owner prefers to let posts and conversations do the talking."}
                                 </p>
 
@@ -133,7 +132,7 @@ export const UserProfile = () => {
                                 </div>
 
                                 <div className="mt-6 flex flex-wrap items-center gap-3 text-[13px] text-subtle">
-                                    {data.isVerified && (
+                                    {user.isVerified && (
                                         <span className="inline-flex items-center gap-2 rounded-[6px] border border-ink-soft bg-bg px-3 py-2 font-semibold text-text-base">
                                             <BadgeCheck size={15} className="text-av-blue" />{" "}
                                             Verified account
@@ -165,7 +164,7 @@ export const UserProfile = () => {
                                     About
                                 </h2>
                                 <p className="mt-4 text-[15px] leading-7 text-text-base">
-                                    {data.bio ||
+                                    {user.bio ||
                                         "A short profile summary would normally live here. Use this space for a more personal description of the account owner, current interests, or the kind of work they want to be discovered for."}
                                 </p>
 

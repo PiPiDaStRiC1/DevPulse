@@ -4,47 +4,61 @@ import { BadgeCheck, Send } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { MESSAGES } from "@/lib/constants";
 import { parseISO } from "@/lib/utils";
+import { Link, useParams } from "react-router-dom";
+import { CHATS } from "@/lib/constants";
+import { useSession } from "@/hooks";
 import type { Chat, Message } from "@shared/types";
 
-interface ChatRoomProps {
-    activeChat: Chat;
-    currentUserId: number;
-}
-
-export const ChatRoom = ({ activeChat, currentUserId }: ChatRoomProps) => {
+export const ChatRoom = () => {
     const [draft, setDraft] = useState("");
+    const { user } = useSession();
+    const { id } = useParams<{ id: string }>();
+
+    const activeChat = CHATS.find((c) => c.id === Number(id))!;
+
     const {
         data: chatMessages,
         isLoading: isLoadingMessages,
         isError: isErrorMessages,
     } = useQuery<Message[]>({
-        queryKey: ["messages", activeChat.id],
+        queryKey: ["messages", id!],
         queryFn: async () => {
-            return MESSAGES.filter((mess) => mess.chatId === activeChat.id);
+            return MESSAGES.filter((mess) => mess.chatId === Number(id!));
         },
     });
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    const handleSubmit = () => {
+    const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
         setDraft("");
     };
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [activeChat.id, chatMessages?.length]);
+    }, [id, chatMessages?.length]);
 
     if (isLoadingMessages) {
         return <ChatRoomSkeleton />;
     }
 
-    if (isErrorMessages || !chatMessages) {
+    if (isErrorMessages) {
         return <ErrorAlert message="Failed to load messages" />;
+    }
+
+    if (!chatMessages) {
+        return <ErrorAlert message="Not found" />;
     }
 
     return (
         <div className="flex-1 flex flex-col bg-bg min-w-0">
             <div className="px-5 py-3 border-b-2 border-ink bg-surface flex items-center gap-3 shrink-0">
-                <Avatar handle={activeChat.collocutor.handle} size="md" />
+                <Link
+                    to={`/profile/${activeChat.collocutor.handle}`}
+                    className="flex items-center gap-3"
+                >
+                    <Avatar handle={activeChat.collocutor.handle} size="md" />
+                </Link>
                 <div className="min-w-0">
                     <div className="flex items-center gap-1.5">
                         <span className="text-[14px] font-bold leading-tight truncate">
@@ -60,7 +74,7 @@ export const ChatRoom = ({ activeChat, currentUserId }: ChatRoomProps) => {
 
             <div className="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-3">
                 {chatMessages.map((msg) => {
-                    const isMe = msg.senderId === currentUserId;
+                    const isMe = msg.senderId === user?.id;
                     return (
                         <div
                             key={msg.id}

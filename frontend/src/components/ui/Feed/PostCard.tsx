@@ -25,7 +25,7 @@ export const PostCard = ({ post }: PostCardProps) => {
         isError,
     } = useQuery({
         queryKey: ["user", post.authorId],
-        queryFn: () => apiClient.getOneUser(post.authorId!),
+        queryFn: () => apiClient.getOneUserById(post.authorId!),
         staleTime: 30 * 60 * 1000,
         enabled: !!post.authorId,
     });

@@ -1,21 +1,23 @@
 import { useState, useEffect } from "react";
 import { Search, BadgeCheck, MessageCircle } from "lucide-react";
-import { Avatar, ChatRoom, ErrorAlert, WhispersSkeleton } from "@/components";
+import { Avatar, ErrorAlert, WhispersSkeleton } from "@/components";
 import { useAuthStore } from "@/lib/store";
 import { useQuery } from "@tanstack/react-query";
 import { parseISO } from "@/lib/utils";
+import { NavLink, useOutlet } from "react-router-dom";
+import { CHATS } from "@/lib/constants";
 import { apiClient } from "@/lib/api";
 import type { Chat } from "@shared/types";
 
 export const Whispers = () => {
-    const { user, status } = useAuthStore();
-    const [activeId, setActiveId] = useState(1);
+    const outlet = useOutlet();
+    const { user, status, isHydrated } = useAuthStore();
     const [search, setSearch] = useState("");
     const {
         data: chats,
         isLoading,
         isError,
-    } = useQuery<Chat[]>({ queryKey: ["chats"], queryFn: apiClient.getAllChats });
+    } = useQuery<Chat[]>({ queryKey: ["chats"], queryFn: async () => CHATS });
 
     useEffect(() => {
         document.body.style.overflow = "hidden";
@@ -29,11 +31,14 @@ export const Whispers = () => {
         return <WhispersSkeleton />;
     }
 
+    if (!isHydrated || status === "unknown") {
+        return <WhispersSkeleton />;
+    }
+
     if (isError || !chats || !user || status === "guest") {
         return <ErrorAlert message="Failed to fetch chats" />;
     }
 
-    const active = chats.find((c) => c.id === activeId)!;
     const filtered = chats.filter(
         (c) =>
             c.collocutor.username.toLowerCase().includes(search.toLowerCase()) ||
@@ -47,7 +52,7 @@ export const Whispers = () => {
             className="flex-1 h-[calc(100vh-10rem)] flex border-2 border-ink rounded-lg overflow-hidden"
             style={{ boxShadow: "var(--shadow-card)" }}
         >
-            <div className="w- shrink-0 border-r-2 border-ink bg-surface flex flex-col">
+            <div className="w-80 shrink-0 border-r-2 border-ink bg-surface flex flex-col">
                 <div className="px-4 py-3 border-b-2 border-ink flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <MessageCircle size={14} className="text-ink" />
@@ -76,13 +81,14 @@ export const Whispers = () => {
                 <div className="flex-1 overflow-y-auto">
                     {filtered.map((chat) => {
                         const last = chat.lastMessage;
-                        const isActive = activeId === chat.id;
 
                         return (
-                            <button
+                            <NavLink
+                                to={`/whispers/${chat.id}`}
                                 key={chat.id}
-                                onClick={() => setActiveId(chat.id)}
-                                className={`w-full text-left px-4 py-3 flex items-center gap-3 border-b border-ink-soft cursor-pointer font-[inherit] transition-colors ${isActive ? "bg-bg border-l-2 border-l-ink" : "bg-surface hover:bg-bg border-l-2 border-l-transparent"}`}
+                                className={({ isActive }) =>
+                                    `w-full text-left px-4 py-3 flex items-center gap-3 border-b border-ink-soft cursor-pointer font-[inherit] transition-colors ${isActive ? "bg-bg border-l-2 border-l-ink" : "bg-surface hover:bg-bg border-l-2 border-l-transparent"}`
+                                }
                             >
                                 <Avatar handle={chat.collocutor.handle} size="sm" />
                                 <div className="flex-1 min-w-0">
@@ -114,18 +120,16 @@ export const Whispers = () => {
                                         {chat.unreadCount}
                                     </span>
                                 )}
-                            </button>
+                            </NavLink>
                         );
                     })}
                 </div>
             </div>
 
-            {!active ? (
-                <div className="flex justify-center items-center h-full w-full">
-                    Select chat and start messaging
+            {outlet ?? (
+                <div className="flex-1 flex items-center justify-center text-sm text-muted">
+                    Select a chat to start whispering
                 </div>
-            ) : (
-                <ChatRoom activeChat={active} currentUserId={user.id} />
             )}
         </div>
     );

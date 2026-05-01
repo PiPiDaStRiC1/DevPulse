@@ -10,6 +10,7 @@ import {
     MyProfile,
     UserProfile,
     PostComposerModal,
+    ChatRoom,
 } from "@/pages";
 import { ProtectedRoute, PublicRoute } from "@/features";
 import { ScrollToTop } from "@/lib/utils";
@@ -50,15 +51,16 @@ function App() {
                 <Route element={<Main />}>
                     <Route path="/" index element={<Feed />} />
                     <Route path="/explore" element={<Explore />} />
-                    <Route path="/profile/:id" element={<UserProfile />} />
-                    <Route
-                        path="/whispers"
-                        element={
-                            <ProtectedRoute>
-                                <Whispers />
-                            </ProtectedRoute>
-                        }
-                    />
+                    <Route path="/whispers" element={<Whispers />}>
+                        <Route
+                            path="/whispers/:id"
+                            element={
+                                <ProtectedRoute>
+                                    <ChatRoom />
+                                </ProtectedRoute>
+                            }
+                        />
+                    </Route>
                     <Route
                         path="/profile"
                         element={
@@ -67,6 +69,7 @@ function App() {
                             </ProtectedRoute>
                         }
                     />
+                    <Route path="/profile/:handle" element={<UserProfile />} />
                     {!state?.background && (
                         <Route
                             path="/editor"
