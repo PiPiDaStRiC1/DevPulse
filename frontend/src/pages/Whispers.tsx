@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { Search, BadgeCheck, MessageCircle } from "lucide-react";
-import { Avatar, ChatRoom, ErrorAlert } from "@/components";
-import { CHATS } from "@/lib/constants";
+import { Avatar, ChatRoom, ErrorAlert, WhispersSkeleton } from "@/components";
 import { useAuthStore } from "@/lib/store";
 import { useQuery } from "@tanstack/react-query";
 import { parseISO } from "@/lib/utils";
+import { apiClient } from "@/lib/api";
 import type { Chat } from "@shared/types";
 
 export const Whispers = () => {
@@ -15,12 +15,7 @@ export const Whispers = () => {
         data: chats,
         isLoading,
         isError,
-    } = useQuery<Chat[]>({
-        queryKey: ["chats"],
-        queryFn: async () => {
-            return CHATS;
-        },
-    });
+    } = useQuery<Chat[]>({ queryKey: ["chats"], queryFn: apiClient.getAllChats });
 
     useEffect(() => {
         document.body.style.overflow = "hidden";
@@ -31,7 +26,7 @@ export const Whispers = () => {
     }, []);
 
     if (isLoading) {
-        return <div>Loading...</div>;
+        return <WhispersSkeleton />;
     }
 
     if (isError || !chats || !user || status === "guest") {
@@ -49,10 +44,10 @@ export const Whispers = () => {
 
     return (
         <div
-            className="flex-1 mt-10 min-w-0 flex border-2 border-ink rounded-[var(--radius)] overflow-hidden"
-            style={{ boxShadow: "var(--shadow-card)", height: "calc(100vh - 7rem)" }}
+            className="flex-1 h-[calc(100vh-10rem)] flex border-2 border-ink rounded-lg overflow-hidden"
+            style={{ boxShadow: "var(--shadow-card)" }}
         >
-            <div className="w-[280px] shrink-0 border-r-2 border-ink bg-surface flex flex-col">
+            <div className="w- shrink-0 border-r-2 border-ink bg-surface flex flex-col">
                 <div className="px-4 py-3 border-b-2 border-ink flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <MessageCircle size={14} className="text-ink" />
@@ -125,7 +120,13 @@ export const Whispers = () => {
                 </div>
             </div>
 
-            <ChatRoom activeChat={active} currentUserId={user.id} />
+            {!active ? (
+                <div className="flex justify-center items-center h-full w-full">
+                    Select chat and start messaging
+                </div>
+            ) : (
+                <ChatRoom activeChat={active} currentUserId={user.id} />
+            )}
         </div>
     );
 };

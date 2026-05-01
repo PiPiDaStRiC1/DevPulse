@@ -21,6 +21,8 @@ export const useAuth = () => {
         register: registerRegister,
         formState: { errors: registerErrors, isValid: isRegisterValid },
         handleSubmit: handleRegisterSubmit,
+        setValue: setValueRegister,
+        watch: watchRegister,
     } = useForm<RegisterSchema>({ resolver: zodResolver(registerSchema), mode: "onChange" });
 
     const submitForm = async (data: LoginSchema | RegisterSchema) => {
@@ -47,6 +49,13 @@ export const useAuth = () => {
     return {
         submitForm,
         login: { registerLogin, loginErrors, isLoginValid, handleLoginSubmit },
-        register: { registerRegister, registerErrors, isRegisterValid, handleRegisterSubmit },
+        register: {
+            registerRegister,
+            registerErrors,
+            isRegisterValid,
+            handleRegisterSubmit,
+            setValueRegister,
+            watchRegister,
+        },
     };
 };

@@ -7,7 +7,8 @@ import {
     Auth,
     AuthModal,
     NotFound,
-    Profile,
+    MyProfile,
+    UserProfile,
     PostComposerModal,
 } from "@/pages";
 import { ProtectedRoute, PublicRoute } from "@/features";
@@ -49,6 +50,7 @@ function App() {
                 <Route element={<Main />}>
                     <Route path="/" index element={<Feed />} />
                     <Route path="/explore" element={<Explore />} />
+                    <Route path="/profile/:id" element={<UserProfile />} />
                     <Route
                         path="/whispers"
                         element={
@@ -61,7 +63,7 @@ function App() {
                         path="/profile"
                         element={
                             <ProtectedRoute>
-                                <Profile />
+                                <MyProfile />
                             </ProtectedRoute>
                         }
                     />

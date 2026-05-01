@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from "react";
-import { Avatar, ErrorAlert } from "@/components";
+import { Avatar, ErrorAlert, ChatRoomSkeleton } from "@/components";
 import { BadgeCheck, Send } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { MESSAGES } from "@/lib/constants";
@@ -34,7 +34,7 @@ export const ChatRoom = ({ activeChat, currentUserId }: ChatRoomProps) => {
     }, [activeChat.id, chatMessages?.length]);
 
     if (isLoadingMessages) {
-        return <div>Loading...</div>;
+        return <ChatRoomSkeleton />;
     }
 
     if (isErrorMessages || !chatMessages) {

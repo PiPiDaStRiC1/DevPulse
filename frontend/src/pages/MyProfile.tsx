@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { safeParseDate } from "@/lib/utils";
 import type { User } from "@shared/types";
 
-export const Profile = () => {
+export const MyProfile = () => {
     const navigate = useNavigate();
     const { logout } = useSession();
 
@@ -95,7 +95,7 @@ export const Profile = () => {
                                     </div>
 
                                     <p className="text-sm text-muted font-semibold mt-1">
-                                        {currentUser.handle}
+                                        @{currentUser.handle}
                                     </p>
                                     <p className="text-sm text-muted mt-3 max-w-2xl leading-relaxed">
                                         {currentUser.bio ||

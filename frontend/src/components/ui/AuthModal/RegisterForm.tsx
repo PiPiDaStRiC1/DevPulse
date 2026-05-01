@@ -7,8 +7,36 @@ export const RegisterForm = () => {
     const [showConfirm, setShowConfirm] = useState(false);
     const {
         submitForm,
-        register: { registerRegister, registerErrors, isRegisterValid, handleRegisterSubmit },
+        register: {
+            registerRegister,
+            registerErrors,
+            isRegisterValid,
+            handleRegisterSubmit,
+            setValueRegister,
+            watchRegister,
+        },
     } = useAuth();
+    const handle = watchRegister("handle") ?? "@";
+
+    const normalizeHandle = (value: string) => {
+        const withoutExtraPrefix = value.replace(/^@+/, "");
+
+        if (!withoutExtraPrefix) {
+            return "@";
+        }
+
+        return `@${withoutExtraPrefix}`;
+    };
+
+    const handleHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const currentValue = normalizeHandle(e.target.value);
+
+        setValueRegister("handle", currentValue, {
+            shouldValidate: true,
+            shouldDirty: true,
+            shouldTouch: true,
+        });
+    };
 
     return (
         <form
@@ -35,8 +63,9 @@ export const RegisterForm = () => {
                 <div className="flex flex-col gap-1.5 flex-1 min-w-0">
                     <label className="text-[11px] font-bold text-text-base">Handle</label>
                     <input
-                        {...registerRegister("handle")}
                         type="text"
+                        onChange={(e) => handleHandler(e)}
+                        value={handle}
                         placeholder="@handle"
                         className={[
                             "bg-bg border-2 border-ink rounded-[var(--radius)] px-3 py-2",

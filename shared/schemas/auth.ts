@@ -1,7 +1,14 @@
 import { z } from "zod";
 
-const handleRegex = /^@[a-zA-Z0-9_]+$/;
+const handleRegex = /^@?[a-zA-Z0-9_]+$/;
 const passwordRegExp = /^(?=.*[A-ZА-ЯЁ])(?=.*\d).{8,}$/;
+
+const handleSchema = z
+    .string()
+    .trim()
+    .min(1, { error: "Includes more than one symbol" })
+    .regex(handleRegex, { message: "Includes letters, numbers, and '@', '_' symbols" })
+    .transform((value) => value.replace(/^@+/, ""));
 
 export const loginSchema = z.object({
     email: z.email("Incorrect email"),
@@ -16,10 +23,7 @@ export const loginSchema = z.object({
 export const registerSchema = z
     .object({
         username: z.string().min(2, { error: "Includes more than two symbol" }),
-        handle: z
-            .string()
-            .min(1, { error: "Includes more than one symbol" })
-            .regex(handleRegex, { message: "Includes letters, numbers, and '@', '_' symbols" }),
+        handle: handleSchema,
         email: z.email("Incorrect email"),
         password: z
             .string()

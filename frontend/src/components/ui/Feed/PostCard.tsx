@@ -52,7 +52,7 @@ export const PostCard = ({ post }: PostCardProps) => {
                             {author.isVerified && (
                                 <BadgeCheck size={13} className="text-av-blue shrink-0" />
                             )}
-                            <span className="text-muted">{author.handle}</span>
+                            <span className="text-muted">@{author.handle}</span>
                             <span className="text-subtle">·</span>
                             <span className="text-subtle">{postDateLabel}</span>
                             <span className="text-subtle">·</span>

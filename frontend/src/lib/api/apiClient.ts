@@ -8,6 +8,7 @@ import type {
     MeResponse,
     RefreshResponse,
     User,
+    Chat,
 } from "@shared/types";
 
 const API_URL = import.meta.env["VITE_API_URL"];
@@ -128,6 +129,34 @@ export const apiClient = {
             return response.data;
         } catch (error) {
             throw new Error(error instanceof Error ? error.message : "Failed to create post");
+        }
+    },
+    async getAllChats() {
+        try {
+            const response = await genericFetch<ApiResponse<Chat[]>>(`${API_URL}/chats`);
+            if (!response.success) {
+                throw new Error(response.error);
+            }
+
+            return response.data;
+        } catch (error) {
+            throw new Error(error instanceof Error ? error.message : "Failed to fetch chats");
+        }
+    },
+    async postOneChat(chatData: Chat) {
+        try {
+            const response = await genericFetch<ApiResponse<Chat[]>>(`${API_URL}/chats`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", ...JWTheaders() },
+                body: JSON.stringify(chatData),
+            });
+            if (!response.success) {
+                throw new Error(response.error);
+            }
+
+            return response.data;
+        } catch (error) {
+            throw new Error(error instanceof Error ? error.message : "Failed to create chat");
         }
     },
 };
