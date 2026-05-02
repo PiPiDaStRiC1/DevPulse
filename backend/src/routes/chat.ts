@@ -4,7 +4,7 @@ import { getChats, postChat, getOneChat } from "@/services";
 
 const chatRouter = Router();
 
-chatRouter.get("/", getChats);
+chatRouter.get("/", verifyJWT, getChats);
 chatRouter.post("/", verifyJWT, postChat);
 chatRouter.get("/:id", verifyJWT, getOneChat);
 

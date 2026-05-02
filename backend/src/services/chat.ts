@@ -14,9 +14,12 @@ const parseChat = (chat: any): Chat => {
     };
 };
 
-export const getChats = async (_req: Request, res: Response<ApiResponse<Chat[]>>) => {
+export const getChats = async (req: Request, res: Response<ApiResponse<Chat[]>>) => {
     try {
+        const { userId } = req.user!;
+
         const chats = await prisma.chat.findMany({
+            where: { userId },
             select: {
                 id: true,
                 messages: { orderBy: { createdAt: "desc" }, take: 1 },
@@ -43,12 +46,13 @@ export const getChats = async (_req: Request, res: Response<ApiResponse<Chat[]>>
 
 export const getOneChat = async (req: Request, res: Response<ApiResponse<Chat>>) => {
     try {
+        const { userId } = req.user!;
         const { id } = req.params;
 
         const chatId = Number(id);
 
         const chat = await prisma.chat.findFirstOrThrow({
-            where: { id: chatId },
+            where: { id: chatId, userId },
             select: {
                 id: true,
                 messages: { orderBy: { createdAt: "desc" }, take: 1 },

@@ -70,7 +70,7 @@ export const NewChatRoom = () => {
                 <button
                     type="submit"
                     disabled={!draft.trim()}
-                    className="btn-solid h-full !py-2 !px-3 shrink-0"
+                    className="btn-solid h-full shrink-0"
                 >
                     <Send size={14} />
                 </button>

@@ -150,7 +150,9 @@ export const apiClient = {
     },
     async getAllChats() {
         try {
-            const response = await genericFetch<ApiResponse<Chat[]>>(`${API_URL}/chats`);
+            const response = await genericFetch<ApiResponse<Chat[]>>(`${API_URL}/chats`, {
+                headers: { ...JWTheaders() },
+            });
             if (!response.success) {
                 throw new Error(response.error);
             }
