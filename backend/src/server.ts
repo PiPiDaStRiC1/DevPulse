@@ -5,7 +5,7 @@ import cors from "cors";
 import { Server } from "socket.io";
 import { createServer } from "http";
 import { postsRouter, authRouter, userRouter, chatRouter, messagesRouter } from "@/routes";
-import type { SocketMessagePayload } from "@shared/types";
+import type { SocketMessagePayload, SocketPostPayload } from "@shared/types";
 
 const PORT = Number(process.env["PORT"]) || 4000;
 const CORS_ORIGIN = process.env["CORS_ORIGIN"] || "http://localhost:5173";
@@ -36,6 +36,10 @@ io.on("connection", (socket) => {
 
     socket.on("chat:message", (payload: SocketMessagePayload) => {
         socket.to(payload.chatId).emit("chat:message:new", payload);
+    });
+
+    socket.on("post:publish", (payload: SocketPostPayload) => {
+        io.emit("post:publish:new", payload);
     });
 
     socket.on("disconnect", () => {

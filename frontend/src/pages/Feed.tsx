@@ -1,24 +1,39 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { trendingTopics, suggestedUsers } from "@/lib/constants";
 import { CreatePostBox, PostCard, RightPanel } from "@/components/ui";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
 import { ErrorAlert, PostSkeleton } from "@/components";
+import { useSocket } from "@/hooks";
+import type { Post, SocketPostPayload } from "@shared/types";
 
 const feedTabs = ["For You", "Following", "Trending"] as const;
 
 export const Feed = () => {
+    const { socket } = useSocket();
+    const queryClient = useQueryClient();
     const [activeTab, setActiveTab] = useState<(typeof feedTabs)[number]>("For You");
     const {
         data: posts,
         isLoading,
         isError,
         refetch,
-    } = useQuery({
-        queryKey: ["feed", activeTab],
-        queryFn: apiClient.getAllPosts,
-        staleTime: 1 * 60 * 1000,
-    });
+    } = useQuery({ queryKey: ["feed"], queryFn: apiClient.getAllPosts });
+
+    useEffect(() => {
+        const handler = ({ post }: SocketPostPayload) => {
+            queryClient.setQueryData(["feed"], (oldData: Post[] | undefined) => {
+                if (!oldData) return [post];
+                if (post.id && oldData.some((p) => p.id === post.id)) return oldData;
+                return [...oldData, post];
+            });
+        };
+
+        socket.on("post:publish:new", handler);
+        return () => {
+            socket.off("post:publish:new", handler);
+        };
+    }, [socket, queryClient]);
 
     if (isError) {
         return <ErrorAlert message="Failed to load feed" onRetry={refetch} />;

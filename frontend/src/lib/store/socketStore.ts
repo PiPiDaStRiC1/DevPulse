@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { io, type Socket } from "socket.io-client";
-import type { SocketMessagePayload } from "@shared/types";
+import type { SocketMessagePayload, SocketPostPayload } from "@shared/types";
 
 const WS_URL = import.meta.env["VITE_WS_URL"] || "http://localhost:4000";
 const socket: Socket = io(WS_URL, { transports: ["websocket"], autoConnect: true });
@@ -8,6 +8,7 @@ const socket: Socket = io(WS_URL, { transports: ["websocket"], autoConnect: true
 interface SocketState {
     joinRoom: (roomId: string) => void;
     sendMessageWithWS: ({ chatId, message }: SocketMessagePayload) => void;
+    publishPostWithWS: ({ post }: SocketPostPayload) => void;
     socket: Socket;
 }
 
@@ -21,6 +22,9 @@ export const useSocketStore = create<SocketState>(() => ({
         if (!text) return;
 
         socket.emit("chat:message", { chatId, message });
+    },
+    publishPostWithWS: ({ post }: SocketPostPayload) => {
+        socket.emit("post:publish", { post });
     },
     socket: socket,
 }));

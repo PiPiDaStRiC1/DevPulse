@@ -1,125 +1,34 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { useNavigate } from "react-router-dom";
 import { X, Sparkles, Eye, Bookmark, Send, Maximize2 } from "lucide-react";
 import { Avatar, ErrorAlert, PostModalOptions, TextEditor } from "@/components";
 import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
-import { apiClient } from "@/lib/api";
-import toast from "react-hot-toast";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import type { User } from "@shared/types";
-
-const PREVIEW_CHAR_LIMIT = 250;
-const SAVED_TIMER = 10000;
-
-const initDraft = (): { body: string; tags: string[] } => {
-    try {
-        const raw = localStorage.getItem("draft-post");
-        if (!raw) return { body: "", tags: [] };
-
-        return JSON.parse(raw);
-    } catch (error) {
-        console.error("Failed to parse draft post from localStorage", error);
-        return { body: "", tags: [] };
-    }
-};
-
-const initBody: () => string = () => initDraft().body;
-const initTags: () => string[] = () => initDraft().tags;
+import { usePostComposer } from "@/hooks";
 
 export const PostComposerModal = () => {
-    const navigate = useNavigate();
-    const queryClient = useQueryClient();
     const postModalRef = useRef<HTMLDivElement>(null);
     const fullPreviewModalRef = useRef<HTMLDivElement>(null);
-    const saveTimer = useRef<number | null>(null);
-    const [body, setBody] = useState(initBody);
-    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-    const [isAddingTag, setIsAddingTag] = useState(false);
-    const [tags, setTags] = useState<string[]>(initTags);
-
-    const previewBody = body.trim() || "You text will be here...";
-    const previewExcerpt =
-        previewBody.length > PREVIEW_CHAR_LIMIT
-            ? `${previewBody.slice(0, PREVIEW_CHAR_LIMIT).trimEnd()}...`
-            : previewBody;
-
     const {
-        data: currentUser,
+        body,
+        setBody,
+        tags,
+        isPreviewOpen,
+        setIsPreviewOpen,
+        isAddingTag,
+        setIsAddingTag,
+        previewBody,
+        previewExcerpt,
+        currentUser,
         isLoading,
         isError,
-    } = useQuery<User>({ queryKey: ["me"], queryFn: apiClient.me, staleTime: 30 * 60 * 1000 });
-
-    const handleSaveDraft = useCallback(() => {
-        localStorage.setItem("draft-post", JSON.stringify({ body, tags }));
-        toast.success("Draft saved locally");
-    }, [body, tags]);
-
-    const handleAddTag = (newTag: string) => {
-        if (newTag !== "" && !tags.includes(newTag)) {
-            setTags((prev) => [...prev, newTag]);
-            setIsAddingTag(false);
-        } else {
-            setIsAddingTag(false);
-        }
-    };
-
-    const handleToggleTag = (tag: string) => {
-        setTags((prev) => prev.filter((el) => el !== tag));
-    };
-
-    const onClose = useCallback(() => navigate(-1), [navigate]);
-
-    const handlePostSubmit = async () => {
-        try {
-            await apiClient.postOnePost({
-                content: body,
-                tags: tags,
-                techStack: ["React", "TypeScript"],
-                codeSnippet: null,
-                comments: [],
-                image: null,
-            });
-
-            queryClient.invalidateQueries({ queryKey: ["feed"] });
-            localStorage.removeItem("draft-post");
-            onClose();
-        } catch (error) {
-            console.error("Failed to create post", error);
-            toast.error("Failed to create post");
-        }
-    };
-
-    useEffect(() => {
-        saveTimer.current = setInterval(() => {
-            handleSaveDraft();
-        }, SAVED_TIMER);
-
-        return () => {
-            if (saveTimer.current) {
-                clearInterval(saveTimer.current);
-            }
-        };
-    }, [handleSaveDraft]);
-
-    useEffect(() => {
-        const onKeyDown = (event: KeyboardEvent) => {
-            if (event.key === "Escape") onClose();
-        };
-
-        window.addEventListener("keydown", onKeyDown);
-        return () => window.removeEventListener("keydown", onKeyDown);
-    }, [onClose]);
-
-    useEffect(() => {
-        document.body.style.overflow = "hidden";
-
-        return () => {
-            document.body.style.overflow = "auto";
-        };
-    }, []);
+        handleSaveDraft,
+        handleAddTag,
+        handleToggleTag,
+        handlePostSubmit,
+        onClose,
+    } = usePostComposer();
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -229,7 +138,7 @@ export const PostComposerModal = () => {
                                             </ReactMarkdown>
                                         </div>
                                     </div>
-                                    {previewBody.length > PREVIEW_CHAR_LIMIT && (
+                                    {previewBody.length > 250 && (
                                         <button
                                             type="button"
                                             onClick={() => setIsPreviewOpen(true)}

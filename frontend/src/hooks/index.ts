@@ -4,3 +4,4 @@ export * from "./useSocketBootstrap";
 export * from "./useAuthBootstrap";
 export * from "./useSocket";
 export * from "./useChat";
+export * from "./usePostComposer";
