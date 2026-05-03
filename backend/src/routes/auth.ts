@@ -4,10 +4,9 @@ import { loginUser, registerUser, fetchMe, refreshToken } from "@/services";
 
 const authRouter = Router();
 
-authRouter
-    .get("/refresh", verifyJWT, refreshToken)
-    .get("/me", verifyJWT, fetchMe)
-    .post("/login", loginUser)
-    .post("/register", registerUser);
+authRouter.get("/refresh", verifyJWT, refreshToken);
+authRouter.get("/me", verifyJWT, fetchMe);
+authRouter.post("/login", loginUser);
+authRouter.post("/register", registerUser);
 
 export { authRouter };

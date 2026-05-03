@@ -26,7 +26,6 @@ export interface Chat {
 
 export interface ChatDTO {
     collocutorId: number;
-    unreadCount: number;
     lastMessage: MessageDTO;
 }
 

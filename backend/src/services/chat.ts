@@ -22,6 +22,19 @@ const resolveCollocutor = (chat: any, userId: number) => {
     return chat.collocutor;
 };
 
+const getUnreadCount = async (chatId: number, userId: number) => {
+    const participant = await prisma.chatParticipant.findUnique({
+        where: { chatId_userId: { chatId, userId } },
+        select: { lastReadAt: true },
+    });
+
+    const lastReadAt = participant?.lastReadAt ?? new Date().toISOString();
+
+    return prisma.message.count({
+        where: { chatId, createdAt: { gt: lastReadAt }, senderId: { not: userId } },
+    });
+};
+
 export const getChats = async (req: Request, res: Response<ApiResponse<Chat[]>>) => {
     try {
         const { userId } = req.user!;
@@ -49,16 +62,17 @@ export const getChats = async (req: Request, res: Response<ApiResponse<Chat[]>>)
                         isVerified: true,
                     },
                 },
-                unreadCount: true,
                 updatedAt: true,
                 userId: true,
             },
         });
 
-        const chats = rawChats.map((chat) => ({
-            ...chat,
-            collocutor: resolveCollocutor(chat, userId),
-        }));
+        const chats = await Promise.all(
+            rawChats.map(async (chat) => {
+                const unreadCount = await getUnreadCount(chat.id, userId);
+                return { ...chat, collocutor: resolveCollocutor(chat, userId), unreadCount };
+            }),
+        );
 
         return res.status(200).json({ success: true, data: chats.map(parseChat) });
     } catch (error) {
@@ -98,12 +112,12 @@ export const getOneChat = async (req: Request, res: Response<ApiResponse<Chat>>)
                     },
                 },
                 userId: true,
-                unreadCount: true,
                 updatedAt: true,
             },
         });
 
-        const resolvedChat = { ...chat, collocutor: resolveCollocutor(chat, userId) };
+        const unreadCount = await getUnreadCount(chat.id, userId);
+        const resolvedChat = { ...chat, collocutor: resolveCollocutor(chat, userId), unreadCount };
 
         return res.status(200).json({ success: true, data: parseChat(resolvedChat) });
     } catch (error) {
@@ -116,7 +130,7 @@ export const postChat = async (req: Request<{}, {}, ChatDTO>, res: Response<ApiR
     try {
         const { userId } = req.user!;
 
-        const { collocutorId, lastMessage, unreadCount } = req.body;
+        const { collocutorId, lastMessage } = req.body;
 
         if (!collocutorId) {
             return res.status(400).json({ success: false, error: "collocutorId is required" });
@@ -146,7 +160,6 @@ export const postChat = async (req: Request<{}, {}, ChatDTO>, res: Response<ApiR
                             isVerified: true,
                         },
                     },
-                    unreadCount: true,
                     updatedAt: true,
                 },
             });
@@ -159,12 +172,7 @@ export const postChat = async (req: Request<{}, {}, ChatDTO>, res: Response<ApiR
         }
 
         const chat = await prisma.chat.create({
-            data: {
-                userId,
-                unreadCount: unreadCount,
-                messages: { create: lastMessage },
-                collocutorId,
-            },
+            data: { userId, messages: { create: lastMessage }, collocutorId },
         });
 
         const fullChat = await prisma.chat.findUnique({
@@ -181,7 +189,6 @@ export const postChat = async (req: Request<{}, {}, ChatDTO>, res: Response<ApiR
                         isVerified: true,
                     },
                 },
-                unreadCount: true,
                 updatedAt: true,
             },
         });
@@ -197,3 +204,54 @@ export const postChat = async (req: Request<{}, {}, ChatDTO>, res: Response<ApiR
     }
 };
 
+export const patchChat = async (req: Request<{ id: string }>, res: Response<ApiResponse<Chat>>) => {
+    try {
+        const { userId } = req.user!;
+        const { id } = req.params;
+        const chatId = Number(id);
+
+        const chat = await prisma.chat.update({
+            where: { id: chatId, OR: [{ userId }, { collocutorId: userId }] },
+            data: {
+                participants: {
+                    update: {
+                        where: { chatId_userId: { chatId, userId: userId } },
+                        data: { lastReadAt: new Date().toISOString() },
+                    },
+                },
+            },
+            select: {
+                id: true,
+                messages: { orderBy: { createdAt: "desc" }, take: 1 },
+                collocutor: {
+                    select: {
+                        id: true,
+                        username: true,
+                        handle: true,
+                        avatar: true,
+                        isVerified: true,
+                    },
+                },
+                user: {
+                    select: {
+                        id: true,
+                        username: true,
+                        handle: true,
+                        avatar: true,
+                        isVerified: true,
+                    },
+                },
+                updatedAt: true,
+                userId: true,
+            },
+        });
+
+        const unreadCount = await getUnreadCount(chatId, userId);
+        const resolvedChat = { ...chat, collocutor: resolveCollocutor(chat, userId), unreadCount };
+
+        return res.status(200).json({ success: true, data: parseChat(resolvedChat) });
+    } catch (error) {
+        console.error("Error patching chat: ", error);
+        return res.status(500).json({ success: false, error: "Failed to patch chat" });
+    }
+};

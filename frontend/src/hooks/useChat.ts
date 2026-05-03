@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { useSession, useSocket } from "@/hooks";
 import { apiClient } from "@/lib/api";
@@ -32,6 +32,14 @@ export const useChat = () => {
         queryKey: ["messages", id!],
         queryFn: () => apiClient.getAllMessagesByChatId(Number(id!)),
         enabled: !!id,
+    });
+
+    const { mutate: readChat } = useMutation({
+        mutationKey: ["chats", id, "read"],
+        mutationFn: (chatId: number) => apiClient.readChat(chatId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["chats"] });
+        },
     });
 
     const handleSubmit = useCallback(
@@ -78,6 +86,26 @@ export const useChat = () => {
             socket.off("chat:message:new", handler);
         };
     }, [socket, queryClient]);
+
+    // for correctly updating when we in ChatRoom
+    useEffect(() => {
+        if (!id) return;
+        readChat(Number(id));
+    }, [id, readChat]);
+
+    // for correctly updating in Whispers` chat`s list
+    useEffect(() => {
+        const handler = ({ chatId }: SocketMessagePayload) => {
+            if (String(chatId) === String(id)) {
+                readChat(Number(id));
+            }
+        };
+
+        socket.on("chat:message:new", handler);
+        return () => {
+            socket.off("chat:message:new", handler);
+        };
+    }, [id, readChat, socket]);
 
     return {
         id,

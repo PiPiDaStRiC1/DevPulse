@@ -50,6 +50,7 @@ model User {
   messages Message[]
   chatsInitiated Chat[] @relation("ChatInitiator")
   chatsAsCollocutor Chat[] @relation("ChatCollocutor")
+  participants ChatParticipant[]
   bio String?
   isVerified Boolean @default(false)
   followers Int @default(0)
@@ -91,10 +92,21 @@ model Message {
 model Chat {
   id Int @id @default(autoincrement())
   messages Message[]
+  participants ChatParticipant[]
   userId Int
   user User @relation("ChatInitiator", fields: [userId], references: [id], onDelete: Cascade)
   collocutorId Int
   collocutor User @relation("ChatCollocutor", fields: [collocutorId], references: [id], onDelete: Cascade)
-  unreadCount Int
   updatedAt DateTime @default(now())
+}
+
+model ChatParticipant {
+  id Int @id @default(autoincrement())
+  chatId Int
+  chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  userId Int 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lastReadAt DateTime @default(now())
+
+  @@unique([chatId, userId])
 }

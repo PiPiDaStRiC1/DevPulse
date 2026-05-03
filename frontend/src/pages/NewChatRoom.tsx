@@ -26,7 +26,6 @@ export const NewChatRoom = () => {
 
             const chatPayload: ChatDTO = {
                 collocutorId: collocutor.id,
-                unreadCount: 0,
                 lastMessage: { text: draft.trim(), senderId: me.id },
             };
 

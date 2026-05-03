@@ -24,6 +24,23 @@ export const postMessage = async (req: Request, res: Response<ApiResponse<Messag
     try {
         const { text, senderId, chatId } = req.body;
         const newMessage = await prisma.message.create({ data: { text, senderId, chatId } });
+
+        const now = new Date().toISOString();
+
+        await prisma.chat.update({ where: { id: chatId }, data: { updatedAt: now } });
+
+        // Ensure participant exists and update lastReadAt
+        const updated = await prisma.chatParticipant.updateMany({
+            where: { chatId, userId: senderId },
+            data: { lastReadAt: now },
+        });
+
+        if (updated.count === 0) {
+            await prisma.chatParticipant.create({
+                data: { chatId, userId: senderId, lastReadAt: now },
+            });
+        }
+
         return res.status(201).json({ success: true, data: newMessage });
     } catch (error) {
         console.error("Error creating message:", error);

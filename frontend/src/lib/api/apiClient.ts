@@ -191,6 +191,21 @@ export const apiClient = {
             throw new Error(error instanceof Error ? error.message : "Failed to create chat");
         }
     },
+    async readChat(id: number) {
+        try {
+            const response = await genericFetch<ApiResponse<Chat>>(`${API_URL}/chats/${id}`, {
+                method: "PATCH",
+                headers: { ...JWTheaders() },
+            });
+            if (!response.success) {
+                throw new Error(response.error);
+            }
+
+            return response.data;
+        } catch (error) {
+            throw new Error(error instanceof Error ? error.message : "Failed to patch chat");
+        }
+    },
     async getAllMessagesByChatId(chatId: number) {
         try {
             const response = await genericFetch<ApiResponse<Message[]>>(
