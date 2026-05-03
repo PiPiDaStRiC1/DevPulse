@@ -5,6 +5,7 @@ import cors from "cors";
 import { Server } from "socket.io";
 import { createServer } from "http";
 import { postsRouter, authRouter, userRouter, chatRouter, messagesRouter } from "@/routes";
+import type { SocketMessagePayload } from "@shared/types";
 
 const PORT = Number(process.env["PORT"]) || 4000;
 const CORS_ORIGIN = process.env["CORS_ORIGIN"] || "http://localhost:5173";
@@ -25,16 +26,16 @@ app.use("/api/chats", chatRouter);
 app.use("/api/messages", messagesRouter);
 
 io.on("connection", (socket) => {
-    console.log("User`s rooms: " + JSON.stringify(socket.rooms));
-    console.log("A user connected: " + socket.id);
-
-    socket.on("chat:message", (message) => {
-        console.log("New message: " + message);
+    socket.on("connect", () => {
+        console.log("A user connected: " + socket.id);
     });
 
-    socket.on("room:join", (room: string) => {
-        socket.join(room);
-        console.log(`User ${socket.id} joining room: ${room}`);
+    socket.on("room:join", (roomId: string) => {
+        socket.join(roomId);
+    });
+
+    socket.on("chat:message", (payload: SocketMessagePayload) => {
+        socket.to(payload.chatId).emit("chat:message:new", payload);
     });
 
     socket.on("disconnect", () => {
@@ -44,5 +45,4 @@ io.on("connection", (socket) => {
 
 httpServer.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
-    console.log(`Socket.IO enabled with CORS origin: ${CORS_ORIGIN}`);
 });

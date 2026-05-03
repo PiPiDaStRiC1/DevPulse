@@ -14,12 +14,20 @@ const parseChat = (chat: any): Chat => {
     };
 };
 
+const resolveCollocutor = (chat: any, userId: number) => {
+    if (chat.collocutor?.id === userId) {
+        return chat.user;
+    }
+
+    return chat.collocutor;
+};
+
 export const getChats = async (req: Request, res: Response<ApiResponse<Chat[]>>) => {
     try {
         const { userId } = req.user!;
 
-        const chats = await prisma.chat.findMany({
-            where: { userId },
+        const rawChats = await prisma.chat.findMany({
+            where: { OR: [{ userId }, { collocutorId: userId }] },
             select: {
                 id: true,
                 messages: { orderBy: { createdAt: "desc" }, take: 1 },
@@ -32,10 +40,25 @@ export const getChats = async (req: Request, res: Response<ApiResponse<Chat[]>>)
                         isVerified: true,
                     },
                 },
+                user: {
+                    select: {
+                        id: true,
+                        username: true,
+                        handle: true,
+                        avatar: true,
+                        isVerified: true,
+                    },
+                },
                 unreadCount: true,
                 updatedAt: true,
+                userId: true,
             },
         });
+
+        const chats = rawChats.map((chat) => ({
+            ...chat,
+            collocutor: resolveCollocutor(chat, userId),
+        }));
 
         return res.status(200).json({ success: true, data: chats.map(parseChat) });
     } catch (error) {
@@ -52,11 +75,20 @@ export const getOneChat = async (req: Request, res: Response<ApiResponse<Chat>>)
         const chatId = Number(id);
 
         const chat = await prisma.chat.findFirstOrThrow({
-            where: { id: chatId, userId },
+            where: { id: chatId, OR: [{ userId }, { collocutorId: userId }] },
             select: {
                 id: true,
                 messages: { orderBy: { createdAt: "desc" }, take: 1 },
                 collocutor: {
+                    select: {
+                        id: true,
+                        username: true,
+                        handle: true,
+                        avatar: true,
+                        isVerified: true,
+                    },
+                },
+                user: {
                     select: {
                         id: true,
                         username: true,
@@ -71,7 +103,9 @@ export const getOneChat = async (req: Request, res: Response<ApiResponse<Chat>>)
             },
         });
 
-        return res.status(200).json({ success: true, data: parseChat(chat) });
+        const resolvedChat = { ...chat, collocutor: resolveCollocutor(chat, userId) };
+
+        return res.status(200).json({ success: true, data: parseChat(resolvedChat) });
     } catch (error) {
         console.error("Error getting all chats: ", error);
         return res.status(500).json({ success: false, error: "Failed to fetch chats" });

@@ -1,29 +1,26 @@
 import { create } from "zustand";
 import { io, type Socket } from "socket.io-client";
+import type { SocketMessagePayload } from "@shared/types";
 
 const WS_URL = import.meta.env["VITE_WS_URL"] || "http://localhost:4000";
-const socket: Socket = io(WS_URL, { transports: ["websocket"] });
+const socket: Socket = io(WS_URL, { transports: ["websocket"], autoConnect: true });
 
 interface SocketState {
-    socket: Socket | null;
-    setSocket: (socket: Socket) => void;
-    joinRoom: (roomId: number) => void;
-    sendMessage: (message: string) => void;
-    clearSocket: () => void;
+    joinRoom: (roomId: string) => void;
+    sendMessageWithWS: ({ chatId, message }: SocketMessagePayload) => void;
+    socket: Socket;
 }
 
-export const useSocketStore = create<SocketState>((set) => ({
-    socket: null,
-    setSocket: (socket) => set({ socket }),
-    joinRoom: (roomId: number) => {
+export const useSocketStore = create<SocketState>(() => ({
+    joinRoom: (roomId: string) => {
         if (!socket) return;
-        socket.emit("chat:join", roomId);
+        socket.emit("room:join", roomId);
     },
-    sendMessage: (message: string) => {
-        const text = message.trim();
+    sendMessageWithWS: ({ chatId, message }: SocketMessagePayload) => {
+        const text = message.text?.trim();
         if (!text) return;
 
-        socket.emit("chat:message", text);
+        socket.emit("chat:message", { chatId, message });
     },
-    clearSocket: () => set({ socket: null }),
+    socket: socket,
 }));
