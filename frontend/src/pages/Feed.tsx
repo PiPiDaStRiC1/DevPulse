@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { trendingTopics, suggestedUsers } from "@/lib/constants";
-import { CreatePostBox, PostCard, RightPanel } from "@/components/ui";
+import { CreatePostBox, PostCard, RecommendationPanel } from "@/components";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
 import { ErrorAlert, PostSkeleton } from "@/components";
@@ -57,8 +56,6 @@ export const Feed = () => {
                     })}
                 </div>
 
-                {isError}
-
                 <div className="flex flex-col gap-5">
                     <CreatePostBox />
                     {isLoading
@@ -67,7 +64,7 @@ export const Feed = () => {
                 </div>
             </div>
 
-            <RightPanel trending={trendingTopics} suggested={suggestedUsers} />
+            <RecommendationPanel />
         </>
     );
 };

@@ -1,14 +1,14 @@
-import { useState } from "react";
-import { Heart, MessageCircle, Repeat2, Bookmark, Share2, BadgeCheck } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { Avatar, ErrorAlert } from "@/components";
-import { apiClient } from "@/lib/api";
-import { safeParseDate } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
-import type { Post } from "@shared/types";
+import { useState } from "react";
+import { Heart, MessageCircle, Repeat2, Bookmark, Share2, BadgeCheck } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Avatar, ErrorAlert, PostSkeleton } from "@/components";
+import { apiClient } from "@/lib/api";
+import { safeParseDate } from "@/lib/utils";
 import { Link } from "react-router-dom";
+import type { Post } from "@shared/types";
 
 interface PostCardProps {
     post: Post;
@@ -30,8 +30,16 @@ export const PostCard = ({ post }: PostCardProps) => {
         enabled: !!post.authorId,
     });
 
-    if (isError || !author) {
+    if (isError) {
         return <ErrorAlert message="Failed to load author information" />;
+    }
+
+    if (isLoading) {
+        return <PostSkeleton />;
+    }
+
+    if (!author) {
+        return <ErrorAlert message="Failed to fetch author information" />;
     }
 
     const fmt = (n: number | undefined) => (n && n >= 1000 ? `${(n / 1000).toFixed(1)}k` : 0);

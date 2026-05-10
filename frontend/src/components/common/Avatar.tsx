@@ -1,8 +1,11 @@
+import { Link } from "react-router-dom";
+
 interface AvatarProps {
     handle: string;
     size?: "xs" | "sm" | "md" | "lg";
     className?: string;
     isLoading?: boolean;
+    link?: string;
 }
 
 const sizeMap = {
@@ -12,7 +15,13 @@ const sizeMap = {
     lg: { cls: "w-14 h-14 min-w-14 text-[18px]", side: "56px" },
 };
 
-export const Avatar = ({ handle, size = "md", className = "", isLoading = false }: AvatarProps) => {
+export const Avatar = ({
+    handle,
+    size = "md",
+    className = "",
+    isLoading = false,
+    link,
+}: AvatarProps) => {
     const { cls } = sizeMap[size];
     const initials = (handle ?? "")
         .split("@")
@@ -21,18 +30,25 @@ export const Avatar = ({ handle, size = "md", className = "", isLoading = false 
         .join("")
         .toUpperCase();
 
+    if (isLoading) {
+        return <div className={`sq-avatar ${cls} ${className} animate-pulse`} />;
+    }
+
+    if (link) {
+        return (
+            <Link
+                to={link}
+                className={`sq-avatar ${cls} ${className} bg-[var(--ink)] text-white`}
+                title={handle}
+            >
+                {initials}
+            </Link>
+        );
+    }
+
     return (
-        <>
-            {isLoading ? (
-                <div className={`sq-avatar ${cls} ${className} animate-pulse`} />
-            ) : (
-                <div
-                    className={`sq-avatar ${cls} ${className} bg-[var(--ink)] text-white`}
-                    title={handle}
-                >
-                    {initials}
-                </div>
-            )}
-        </>
+        <div className={`sq-avatar ${cls} ${className} bg-[var(--ink)] text-white`} title={handle}>
+            {initials}
+        </div>
     );
 };

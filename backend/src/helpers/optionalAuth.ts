@@ -2,12 +2,16 @@ import jwt from "jsonwebtoken";
 import type { Response, Request, NextFunction } from "express";
 import type { ApiResponse, JWTPayload } from "@shared/types";
 
-export const verifyJWT = (req: Request, res: Response<ApiResponse<string>>, next: NextFunction) => {
+export const optionalAuth = (
+    req: Request,
+    _res: Response<ApiResponse<string>>,
+    next: NextFunction,
+) => {
     try {
         const token = req.headers["authorization"]?.split(" ")?.[1];
 
         if (!token) {
-            throw new Error("Failed to get token");
+            return next();
         }
 
         const secretKey = process.env["SECRET_KEY"];
@@ -22,8 +26,10 @@ export const verifyJWT = (req: Request, res: Response<ApiResponse<string>>, next
 
         return next();
     } catch (error) {
-        if (error instanceof Error) {
-            return res.status(400).json({ success: false, error: error.message });
-        }
+        console.error(
+            "Optional token verification failed:",
+            error instanceof Error ? error.message : "Unknown error",
+        );
+        return next();
     }
 };

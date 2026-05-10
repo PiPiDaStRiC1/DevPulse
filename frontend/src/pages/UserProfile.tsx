@@ -164,7 +164,7 @@ export const UserProfile = () => {
                             </div>
                         </div>
 
-                        <div className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
+                        <div className="flex justify-center items-center">
                             <article className="rounded-[6px] border-2 border-ink bg-bg px-4 py-5 sm:px-5 sm:py-6 shadow-[4px_4px_0_var(--ink)]">
                                 <h2 className="text-[18px] font-black tracking-tight text-text-base">
                                     About
@@ -191,43 +191,6 @@ export const UserProfile = () => {
                                     ))}
                                 </div>
                             </article>
-
-                            <aside className="rounded-[6px] border-2 border-ink bg-bg px-4 py-5 sm:px-5 sm:py-6 shadow-[4px_4px_0_var(--ink)]">
-                                <div className="flex items-center gap-2">
-                                    <div className="grid h-10 w-10 place-items-center rounded-[6px] border-2 border-ink bg-surface shadow-[3px_3px_0_var(--ink)]">
-                                        <UserRound size={16} />
-                                    </div>
-                                    <div>
-                                        <h2 className="text-[18px] font-black tracking-tight text-text-base">
-                                            Quick Notes
-                                        </h2>
-                                        <p className="text-sm text-subtle">
-                                            Small pieces of identity and activity.
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div className="mt-5 space-y-3">
-                                    <div className="rounded-[6px] border border-ink-soft bg-surface px-4 py-3">
-                                        <p className="text-[11px] font-black uppercase tracking-[0.2em] text-subtle">
-                                            Public profile
-                                        </p>
-                                        <p className="mt-1 text-[14px] font-semibold text-text-base">
-                                            This page is meant to feel like a profile card rather
-                                            than a dashboard.
-                                        </p>
-                                    </div>
-
-                                    <div className="rounded-[6px] border border-ink-soft bg-surface px-4 py-3">
-                                        <p className="text-[11px] font-black uppercase tracking-[0.2em] text-subtle">
-                                            Contact path
-                                        </p>
-                                        <p className="mt-1 text-[14px] font-semibold text-text-base">
-                                            Use the whisper action to continue the conversation.
-                                        </p>
-                                    </div>
-                                </div>
-                            </aside>
                         </div>
                     </div>
                 </div>

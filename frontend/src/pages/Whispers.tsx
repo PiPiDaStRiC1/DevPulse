@@ -1,16 +1,18 @@
 import { useState, useEffect } from "react";
 import { Search, BadgeCheck, MessageCircle } from "lucide-react";
-import { Avatar, ErrorAlert, WhispersSkeleton } from "@/components";
+import { Avatar, ErrorAlert, WhispersSkeleton, GuestWhispers } from "@/components";
 import { useAuthStore } from "@/lib/store";
 import { useQuery } from "@tanstack/react-query";
 import { safeParseDate } from "@/lib/utils";
 import { NavLink, useOutlet } from "react-router-dom";
 import { apiClient } from "@/lib/api";
+import { useSession } from "@/hooks";
 import type { Chat } from "@shared/types";
 
 export const Whispers = () => {
     const outlet = useOutlet();
     const { user, status, isHydrated } = useAuthStore();
+    const { isAuthenticated } = useSession();
     const [search, setSearch] = useState("");
     const {
         data: chats,
@@ -25,6 +27,10 @@ export const Whispers = () => {
             document.body.style.overflow = "auto";
         };
     }, []);
+
+    if (!isAuthenticated) {
+        return <GuestWhispers />;
+    }
 
     if (isLoading) {
         return <WhispersSkeleton />;

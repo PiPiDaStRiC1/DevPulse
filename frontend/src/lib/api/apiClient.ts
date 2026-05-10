@@ -84,6 +84,23 @@ export const apiClient = {
             throw new Error(error instanceof Error ? error.message : "Failed to refresh token");
         }
     },
+    async getSuggestedUsers(limit: number = 4) {
+        try {
+            const response = await genericFetch<ApiResponse<User[]>>(
+                `${API_URL}/users/suggested?limit=${limit}`,
+                { headers: { ...JWTheaders() } },
+            );
+            if (!response.success) {
+                throw new Error(response.error);
+            }
+
+            return response.data;
+        } catch (error) {
+            throw new Error(
+                error instanceof Error ? error.message : "Failed to fetch suggested users",
+            );
+        }
+    },
     async getOneUserByHandle(handle: string) {
         try {
             const response = await genericFetch<ApiResponse<User>>(

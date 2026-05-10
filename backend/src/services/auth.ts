@@ -1,6 +1,6 @@
 import { compare, genSalt, hash } from "bcrypt";
-import { prisma } from "@/helpers";
-import { createAccessToken } from "@/helpers";
+import { prisma, createAccessToken } from "@/helpers";
+import { parseUser } from "@/utils";
 import { Prisma } from "@prisma/client";
 import { loginSchema, registerSchema } from "@shared/schemas";
 import type { AuthResponse, MeResponse } from "@shared/types";
@@ -17,15 +17,16 @@ export const fetchMe = async (req: Request, res: Response<MeResponse>) => {
     try {
         const { userId } = req.user!;
 
-        const currentUser = await prisma.user.findUnique({ where: { id: userId } });
+        const currentUser = await prisma.user.findUnique({
+            where: { id: userId },
+            include: { _count: { select: { followers: true, following: true } } },
+        });
 
         if (!currentUser) {
             return res.status(404).json({ success: false, error: "User not found" });
         }
 
-        const { password: _, ...userWithoutPassword } = currentUser;
-
-        return res.status(200).json({ success: true, data: userWithoutPassword });
+        return res.status(200).json({ success: true, data: parseUser(currentUser) });
     } catch (error) {
         console.error("Fetch user error:", error);
         return res.status(500).json({ success: false, error: "Failed to fetch user" });
@@ -44,7 +45,10 @@ export const loginUser = async (
             return res.status(400).json({ success: false, error: "Invalid email or password" });
         }
 
-        const user = await prisma.user.findUnique({ where: { email } });
+        const user = await prisma.user.findUnique({
+            where: { email },
+            include: { _count: { select: { followers: true, following: true } } },
+        });
 
         if (!user) {
             return res.status(401).json({ success: false, error: "Invalid email or password" });
@@ -56,11 +60,9 @@ export const loginUser = async (
             return res.status(401).json({ success: false, error: "Invalid email or password" });
         }
 
-        const { password: _, ...userWithoutPassword } = user;
-
         const token = createAccessToken(user.id);
 
-        return res.status(200).json({ success: true, data: { token, user: userWithoutPassword } });
+        return res.status(200).json({ success: true, data: { token, user: parseUser(user) } });
     } catch (error) {
         console.error("Login error:", error);
         return res.status(500).json({ success: false, error: "Failed to login user" });
@@ -90,13 +92,12 @@ export const registerUser = async (
 
         const user = await prisma.user.create({
             data: { email, password: hashed, handle, username },
+            include: { _count: { select: { followers: true, following: true } } },
         });
-
-        const { password: _, ...userWithoutPassword } = user;
 
         const token = createAccessToken(user.id);
 
-        return res.status(201).json({ success: true, data: { token, user: userWithoutPassword } });
+        return res.status(201).json({ success: true, data: { token, user: parseUser(user) } });
     } catch (error) {
         console.error("Registration error:", error);
 

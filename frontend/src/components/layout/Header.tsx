@@ -14,24 +14,16 @@ export const Header = () => {
                 <Logo />
             </Link>
             <nav className="flex gap-2 flex-1">
-                {navLinks.map(({ id, label, path, isProtected }) => {
-                    if (isProtected && !isAuthenticated) {
-                        return (
-                            <Link key={id} to="/auth" className="nav-btn">
-                                {label}
-                            </Link>
-                        );
-                    } else {
-                        return (
-                            <NavLink
-                                key={id}
-                                to={path}
-                                className={({ isActive }) => `nav-btn${isActive ? " active" : ""}`}
-                            >
-                                {label}
-                            </NavLink>
-                        );
-                    }
+                {navLinks.map(({ id, label, path }) => {
+                    return (
+                        <NavLink
+                            key={id}
+                            to={path}
+                            className={({ isActive }) => `nav-btn${isActive ? " active" : ""}`}
+                        >
+                            {label}
+                        </NavLink>
+                    );
                 })}
             </nav>
             {!isHydrated ? (
