@@ -119,7 +119,7 @@ export const registerUser = async (
     }
 };
 
-export const refreshToken = async (req: Request, res: Response) => {
+export const refreshToken = async (_req: Request, _res: Response) => {
     // try {
     //     const { token } = req.user!;
     //     if (!token) {

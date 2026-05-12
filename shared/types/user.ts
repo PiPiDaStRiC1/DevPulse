@@ -9,6 +9,7 @@ export interface User {
     followers: number;
     following: number;
     role: string;
+    isFollowing: boolean;
     createdAt: Date;
 }
 

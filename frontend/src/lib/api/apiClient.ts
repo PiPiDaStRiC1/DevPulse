@@ -105,6 +105,7 @@ export const apiClient = {
         try {
             const response = await genericFetch<ApiResponse<User>>(
                 `${API_URL}/users/handle/${handle}`,
+                { headers: { ...JWTheaders() } },
             );
             if (!response.success) {
                 throw new Error(response.error);
@@ -117,7 +118,9 @@ export const apiClient = {
     },
     async getOneUserById(id: number) {
         try {
-            const response = await genericFetch<ApiResponse<User>>(`${API_URL}/users/id/${id}`);
+            const response = await genericFetch<ApiResponse<User>>(`${API_URL}/users/id/${id}`, {
+                headers: { ...JWTheaders() },
+            });
             if (!response.success) {
                 throw new Error(response.error);
             }
@@ -254,6 +257,36 @@ export const apiClient = {
             return response.data;
         } catch (error) {
             throw new Error(error instanceof Error ? error.message : "Failed to post chat message");
+        }
+    },
+    async followUser(userId: number) {
+        try {
+            const response = await genericFetch<ApiResponse<User>>(
+                `${API_URL}/users/${userId}/follow`,
+                { method: "POST", headers: { ...JWTheaders() } },
+            );
+            if (!response.success) {
+                throw new Error(response.error);
+            }
+
+            return response.data;
+        } catch (error) {
+            throw new Error(error instanceof Error ? error.message : "Failed to follow user");
+        }
+    },
+    async unfollowUser(userId: number) {
+        try {
+            const response = await genericFetch<ApiResponse<User>>(
+                `${API_URL}/users/${userId}/follow`,
+                { method: "DELETE", headers: { ...JWTheaders() } },
+            );
+            if (!response.success) {
+                throw new Error(response.error);
+            }
+
+            return response.data;
+        } catch (error) {
+            throw new Error(error instanceof Error ? error.message : "Failed to unfollow user");
         }
     },
 };

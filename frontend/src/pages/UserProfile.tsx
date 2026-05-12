@@ -15,11 +15,12 @@ import { Avatar, ErrorAlert, Preloader } from "@/components";
 import { apiClient } from "@/lib/api";
 import { safeParseDate } from "@/lib/utils";
 import { Link, useParams } from "react-router-dom";
-import { useSession } from "@/hooks";
+import { useFollowing, useSession } from "@/hooks";
 import type { User } from "@shared/types";
 
 export const UserProfile = () => {
     const { user: me } = useSession();
+    const { toggleFollowUser, isPendingFollowing } = useFollowing();
     const { handle } = useParams<{ handle: string }>();
 
     const {
@@ -29,9 +30,10 @@ export const UserProfile = () => {
     } = useQuery<User>({
         queryKey: ["user", handle],
         queryFn: () => apiClient.getOneUserByHandle(handle!),
-        staleTime: 30 * 60 * 1000,
     });
     const isMe = Boolean(me?.id === user?.id);
+
+    console.log(isMe);
 
     if (isLoading) {
         return <Preloader text="Loading profile" />;
@@ -87,13 +89,28 @@ export const UserProfile = () => {
                         >
                             <ExternalLink size={15} />
                         </button>
-                        <button
-                            type="button"
-                            disabled={isMe}
-                            className="cursor-pointer disabled:opacity-50 text-white min-w-[112px] rounded-[6px] border-2 border-ink bg-ink px-5 py-2.5 text-sm font-bold tracking-wide text-ink shadow-[4px_4px_0_var(--ink)] transition-transform hover:-translate-y-0.5"
-                        >
-                            Follow
-                        </button>
+                        {isPendingFollowing ? (
+                            <button
+                                type="button"
+                                className="btn-solid shrink-0 !py-1 !px-3 !text-xs"
+                            >
+                                Following...
+                            </button>
+                        ) : (
+                            <button
+                                type="button"
+                                disabled={isMe}
+                                onClick={() =>
+                                    toggleFollowUser({
+                                        userId: user.id,
+                                        isFollowing: user.isFollowing,
+                                    })
+                                }
+                                className={`${user.isFollowing ? "btn-outline" : "btn-solid"} cursor-pointer disabled:opacity-50 !py-2.5 !px-6`}
+                            >
+                                {user.isFollowing ? "Following" : "Follow"}
+                            </button>
+                        )}
                     </div>
 
                     <div className="absolute -bottom-10 left-4 sm:left-6">

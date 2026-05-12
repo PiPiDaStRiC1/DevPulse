@@ -64,8 +64,8 @@ model User {
   participants ChatParticipant[]
   bio String?
   isVerified Boolean @default(false)
-  followers Follow[] @relation("Follower")
-  following Follow[] @relation("Following")
+  followers Follow[] @relation("Following")
+  following Follow[] @relation("Follower")
   role String @default("USER")
   createdAt DateTime @default(now())
 }
@@ -90,7 +90,7 @@ model Post {
 }
 
 model Message {
-  id Int @id  @default(autoincrement())
+  id Int @id @default(autoincrement())
   chatId Int
   chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
   senderId Int

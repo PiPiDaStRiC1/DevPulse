@@ -1,11 +1,19 @@
 import { Router } from "express";
-import { getOneUserById, getOneUserByHandle, getSuggestedUsers } from "@/services";
-import { optionalAuth } from "@/helpers";
+import {
+    getOneUserById,
+    getOneUserByHandle,
+    getSuggestedUsers,
+    postFollowUser,
+    deleteUnfollowUser,
+} from "@/services";
+import { optionalAuth, verifyJWT } from "@/helpers";
 
 const userRouter = Router();
 
-userRouter.get("/id/:id", getOneUserById);
-userRouter.get("/handle/:handle", getOneUserByHandle);
+userRouter.post("/:id/follow", verifyJWT, postFollowUser);
+userRouter.delete("/:id/follow", verifyJWT, deleteUnfollowUser);
+userRouter.get("/id/:id", optionalAuth, getOneUserById);
+userRouter.get("/handle/:handle", optionalAuth, getOneUserByHandle);
 userRouter.get("/suggested", optionalAuth, getSuggestedUsers);
 
 export { userRouter };
