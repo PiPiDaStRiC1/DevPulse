@@ -225,6 +225,10 @@ body {
   color: var(--text-danger);
 }
 
+.text-white {
+  color: var(--accent-fg);
+}
+
 .preview-markdown {
   color: var(--text);
   line-height: 1.72;

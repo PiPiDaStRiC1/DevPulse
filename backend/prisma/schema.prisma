@@ -97,7 +97,7 @@ model Message {
   sender User @relation(fields: [senderId], references: [id], onDelete: Cascade)
   text String
   createdAt DateTime @default(now())
-  delivered Boolean?
+  seen Boolean @default(false)
 }
 
 model Chat {

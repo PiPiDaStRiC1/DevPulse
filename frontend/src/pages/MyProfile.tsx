@@ -17,7 +17,7 @@ export const MyProfile = () => {
         isLoading,
         isError,
         refetch,
-    } = useQuery<User>({ queryKey: ["me"], queryFn: apiClient.me, staleTime: 30 * 1000 });
+    } = useQuery<User>({ queryKey: ["me"], queryFn: apiClient.me, staleTime: 0 });
 
     const handleLogout = () => {
         navigate("/");

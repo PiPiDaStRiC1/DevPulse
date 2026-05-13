@@ -58,9 +58,10 @@ export const useFollowing = () => {
                 queryClient.setQueryData(["suggestedUsers"], context.previousData);
             }
         },
-        onSettled: (data) => {
+        onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ["suggestedUsers"] });
             queryClient.invalidateQueries({ queryKey: ["user", data?.handle] });
+            queryClient.invalidateQueries({ queryKey: ["me"] });
         },
     });
 

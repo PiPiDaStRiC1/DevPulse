@@ -11,8 +11,8 @@ export interface Message {
     chatId: number;
     senderId: number;
     text: string;
-    createdAt: Date;
-    delivered: boolean | null; // server-side delivery flag
+    createdAt: string;
+    seen: boolean;
 }
 
 export interface Chat {
@@ -21,7 +21,9 @@ export interface Chat {
     lastMessage: Message;
     unreadCount: number;
     userId: number; // for identifying the owner of the chat
-    updatedAt: Date; // last activity for filtering/sorting chats by time
+    updatedAt: string; // last activity for filtering/sorting chats by time
+    lastReadAt: string;
+    // ISO string for the last time the current user read messages in this chat
 }
 
 export interface ChatDTO {

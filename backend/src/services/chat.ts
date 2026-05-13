@@ -1,25 +1,25 @@
 import { prisma } from "@/helpers";
 import type { Response, Request } from "express";
-import type { ApiResponse } from "@shared/types";
-import type { Chat, ChatDTO } from "@shared/types";
+import type { Chat, ChatDTO, ApiResponse } from "@shared/types";
 
-const parseChat = (chat: any): Chat => {
+const parseChat = (chat: any, currentUserId: number): Chat => {
+    const participant = chat.participants?.find(
+        (p: { userId: number; lastReadAt: string }) => p.userId === currentUserId,
+    );
+
+    const lastReadAt = participant?.lastReadAt ?? new Date().toISOString();
+
+    const collocutor = chat.collocutor?.id === currentUserId ? chat.user : chat.collocutor;
+
     return {
         id: chat.id,
-        collocutor: chat.collocutor,
+        collocutor,
         lastMessage: chat.messages[0] || null,
-        unreadCount: chat.unreadCount,
+        unreadCount: chat.unreadCount ?? 0,
         updatedAt: chat.updatedAt,
+        lastReadAt,
         userId: chat.userId,
     };
-};
-
-const resolveCollocutor = (chat: any, userId: number) => {
-    if (chat.collocutor?.id === userId) {
-        return chat.user;
-    }
-
-    return chat.collocutor;
 };
 
 const getUnreadCount = async (chatId: number, userId: number) => {
@@ -62,6 +62,7 @@ export const getChats = async (req: Request, res: Response<ApiResponse<Chat[]>>)
                         isVerified: true,
                     },
                 },
+                participants: { select: { userId: true, lastReadAt: true } },
                 updatedAt: true,
                 userId: true,
             },
@@ -70,11 +71,13 @@ export const getChats = async (req: Request, res: Response<ApiResponse<Chat[]>>)
         const chats = await Promise.all(
             rawChats.map(async (chat) => {
                 const unreadCount = await getUnreadCount(chat.id, userId);
-                return { ...chat, collocutor: resolveCollocutor(chat, userId), unreadCount };
+                return { ...chat, unreadCount };
             }),
         );
 
-        return res.status(200).json({ success: true, data: chats.map(parseChat) });
+        return res
+            .status(200)
+            .json({ success: true, data: chats.map((c) => parseChat(c, userId)) });
     } catch (error) {
         console.error("Error getting all chats: ", error);
         return res.status(500).json({ success: false, error: "Failed to fetch chats" });
@@ -111,15 +114,17 @@ export const getOneChat = async (req: Request, res: Response<ApiResponse<Chat>>)
                         isVerified: true,
                     },
                 },
+                participants: { select: { userId: true, lastReadAt: true } },
                 userId: true,
                 updatedAt: true,
             },
         });
 
         const unreadCount = await getUnreadCount(chat.id, userId);
-        const resolvedChat = { ...chat, collocutor: resolveCollocutor(chat, userId), unreadCount };
 
-        return res.status(200).json({ success: true, data: parseChat(resolvedChat) });
+        return res
+            .status(200)
+            .json({ success: true, data: parseChat({ ...chat, unreadCount }, userId) });
     } catch (error) {
         console.error("Error getting all chats: ", error);
         return res.status(500).json({ success: false, error: "Failed to fetch chats" });
@@ -160,6 +165,17 @@ export const postChat = async (req: Request<{}, {}, ChatDTO>, res: Response<ApiR
                             isVerified: true,
                         },
                     },
+                    user: {
+                        select: {
+                            id: true,
+                            username: true,
+                            handle: true,
+                            avatar: true,
+                            isVerified: true,
+                        },
+                    },
+                    participants: { select: { userId: true, lastReadAt: true } },
+                    userId: true,
                     updatedAt: true,
                 },
             });
@@ -168,7 +184,7 @@ export const postChat = async (req: Request<{}, {}, ChatDTO>, res: Response<ApiR
                 return res.status(404).json({ success: false, error: "Chat not found" });
             }
 
-            return res.status(200).json({ success: true, data: parseChat(fullExisting) });
+            return res.status(200).json({ success: true, data: parseChat(fullExisting, userId) });
         }
 
         const chat = await prisma.chat.create({
@@ -189,6 +205,17 @@ export const postChat = async (req: Request<{}, {}, ChatDTO>, res: Response<ApiR
                         isVerified: true,
                     },
                 },
+                user: {
+                    select: {
+                        id: true,
+                        username: true,
+                        handle: true,
+                        avatar: true,
+                        isVerified: true,
+                    },
+                },
+                participants: { select: { userId: true, lastReadAt: true } },
+                userId: true,
                 updatedAt: true,
             },
         });
@@ -197,7 +224,7 @@ export const postChat = async (req: Request<{}, {}, ChatDTO>, res: Response<ApiR
             return res.status(404).json({ success: false, error: "Chat not found after creation" });
         }
 
-        return res.status(201).json({ success: true, data: parseChat(fullChat) });
+        return res.status(201).json({ success: true, data: parseChat(fullChat, userId) });
     } catch (error) {
         console.error("Error creating chat: ", error);
         return res.status(500).json({ success: false, error: "Failed to create chat" });
@@ -246,12 +273,13 @@ export const patchChat = async (req: Request<{ id: string }>, res: Response<ApiR
             },
         });
 
-        const unreadCount = await getUnreadCount(chatId, userId);
-        const resolvedChat = { ...chat, collocutor: resolveCollocutor(chat, userId), unreadCount };
+        const unreadCount = await getUnreadCount(chat.id, userId);
 
-        return res.status(200).json({ success: true, data: parseChat(resolvedChat) });
+        return res
+            .status(200)
+            .json({ success: true, data: parseChat({ ...chat, unreadCount }, userId) });
     } catch (error) {
-        console.error("Error patching chat: ", error);
-        return res.status(500).json({ success: false, error: "Failed to patch chat" });
+        console.error("Error updating chat: ", error);
+        return res.status(500).json({ success: false, error: "Failed to update chat" });
     }
 };

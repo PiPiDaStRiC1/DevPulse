@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { useSession, useSocket } from "@/hooks";
@@ -13,6 +13,7 @@ export const useChat = () => {
     const [draft, setDraft] = useState("");
     const { id } = useParams<{ id: string }>();
     const isMe = Boolean(me?.id === id);
+    const messagesContainerRef = useRef<HTMLDivElement>(null);
 
     const {
         data: chat,
@@ -87,12 +88,6 @@ export const useChat = () => {
         };
     }, [socket, queryClient]);
 
-    // for correctly updating when we in ChatRoom
-    useEffect(() => {
-        if (!id) return;
-        readChat(Number(id));
-    }, [id, readChat]);
-
     // for correctly updating in Whispers` chat`s list
     useEffect(() => {
         const handler = ({ chatId }: SocketMessagePayload) => {
@@ -108,7 +103,7 @@ export const useChat = () => {
     }, [id, readChat, socket]);
 
     return {
-        id,
+        chatId: id,
         me,
         isMe,
         chat,
@@ -120,5 +115,7 @@ export const useChat = () => {
         draft,
         setDraft,
         handleSubmit,
+        readChat,
+        messagesContainerRef,
     };
 };
