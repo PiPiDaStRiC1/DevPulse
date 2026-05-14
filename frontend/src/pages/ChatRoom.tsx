@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useChat } from "@/hooks";
 import { ErrorAlert, ChatRoomSkeleton, ChatRoomHeader } from "@/components";
-import { Send } from "lucide-react";
+import { Send, Check, CheckCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { safeParseDate } from "@/lib/utils";
 
@@ -51,16 +51,16 @@ export const ChatRoom = () => {
             return;
         }
 
-        container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+        container.scrollTo({ top: container.scrollHeight, behavior: "instant" });
     }, [chatId, chatMessages?.length, messagesContainerRef]);
 
     useEffect(() => {
         if (!chat || !chatMessages || unreadStartIndex === -1) return;
 
         const container = messagesContainerRef.current;
-        const bottomSentinel = chatBottomRef.current;
+        const chatBottom = chatBottomRef.current;
 
-        if (!container || !bottomSentinel) return;
+        if (!container || !chatBottom) return;
 
         const observer = new IntersectionObserver(
             (entries) => {
@@ -72,7 +72,7 @@ export const ChatRoom = () => {
             { root: container, threshold: 1.0 },
         );
 
-        observer.observe(bottomSentinel);
+        observer.observe(chatBottom);
 
         return () => observer.disconnect();
     }, [chat, chatId, chatMessages, messagesContainerRef, readChat, unreadStartIndex]);
@@ -134,9 +134,20 @@ export const ChatRoom = () => {
                                 >
                                     {msg.text}
                                 </div>
-                                <span className="text-[10px] text-subtle px-1">
-                                    {safeParseDate(msg.createdAt)}
-                                </span>
+                                <div className="flex">
+                                    <span className="text-[10px] text-subtle px-1">
+                                        {safeParseDate(msg.createdAt)}
+                                    </span>
+                                    {!isMyMsg && (
+                                        <>
+                                            {!msg.seen ? (
+                                                <Check size={12} className="text-ink" />
+                                            ) : (
+                                                <CheckCheck size={12} className="text-ink" />
+                                            )}
+                                        </>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     );

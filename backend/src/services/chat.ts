@@ -273,6 +273,11 @@ export const patchChat = async (req: Request<{ id: string }>, res: Response<ApiR
             },
         });
 
+        await prisma.message.updateMany({
+            where: { chatId, senderId: { not: userId }, seen: false },
+            data: { seen: true },
+        });
+
         const unreadCount = await getUnreadCount(chat.id, userId);
 
         return res

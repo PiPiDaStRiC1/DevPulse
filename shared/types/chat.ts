@@ -11,7 +11,7 @@ export interface Message {
     chatId: number;
     senderId: number;
     text: string;
-    createdAt: string;
+    createdAt: Date | string;
     seen: boolean;
 }
 
@@ -21,8 +21,8 @@ export interface Chat {
     lastMessage: Message;
     unreadCount: number;
     userId: number; // for identifying the owner of the chat
-    updatedAt: string; // last activity for filtering/sorting chats by time
-    lastReadAt: string;
+    updatedAt: Date | string; // last activity for filtering/sorting chats by time
+    lastReadAt: Date | string;
     // ISO string for the last time the current user read messages in this chat
 }
 

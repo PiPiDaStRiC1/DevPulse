@@ -39,6 +39,10 @@ export const useChat = () => {
         mutationKey: ["chats", id, "read"],
         mutationFn: (chatId: number) => apiClient.readChat(chatId),
         onSuccess: () => {
+            queryClient.setQueryData(["messages", id!], (oldData: Message[] | undefined) => {
+                if (!oldData) return [];
+                return oldData.map((msg) => ({ ...msg, seen: true }));
+            });
             queryClient.invalidateQueries({ queryKey: ["chats"] });
         },
     });

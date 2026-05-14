@@ -1,4 +1,4 @@
-export const safeParseDate = (date: string | undefined) => {
+export const safeParseDate = (date: string | Date | undefined) => {
     const createdAt = date ? new Date(date) : null;
     const postDateLabel =
         createdAt && !Number.isNaN(createdAt.getTime())
