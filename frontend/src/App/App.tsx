@@ -47,7 +47,20 @@ function App() {
 
     return (
         <>
-            <Toaster position="top-center" />
+            <Toaster
+                position="top-center"
+                toastOptions={{
+                    style: {
+                        background: "var(--surface)",
+                        color: "var(--text-base)",
+                        border: "2px solid var(--ink)",
+                        boxShadow: "4px 4px 0 var(--ink)",
+                        borderRadius: "var(--radius)",
+                        fontSize: "14px",
+                        fontWeight: 600,
+                    },
+                }}
+            />
             <Header />
             <ScrollToTop />
             <Routes location={state?.background || location}>
