@@ -17,7 +17,6 @@
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "noFallthroughCasesInSwitch": true,
-        "noPropertyAccessFromIndexSignature": true,
 
         "strict": true,
         "jsx": "react-jsx",

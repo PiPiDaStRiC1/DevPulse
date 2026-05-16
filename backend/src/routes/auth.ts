@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { verifyJWT } from "@/helpers";
+import { verifyJWT } from "@/middleware";
 import { loginUser, registerUser, fetchMe, refreshToken } from "@/services";
 
 const authRouter = Router();

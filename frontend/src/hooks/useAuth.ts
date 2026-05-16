@@ -5,6 +5,7 @@ import { useAuthStore } from "@/lib/store";
 import { loginSchema, registerSchema } from "@shared/schemas";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { socket } from "@/lib/store";
 import type { LoginSchema, RegisterSchema } from "@shared/schemas";
 
 export const useAuth = () => {
@@ -33,12 +34,16 @@ export const useAuth = () => {
 
                 const authData = await apiClient.register(userData);
                 setAuth({ token: authData.token, user: authData.user });
+                socket.auth = { token: authData.token };
                 toast.success("Registration successfull!");
             } else {
                 const authData = await apiClient.login(data);
                 setAuth({ token: authData.token, user: authData.user });
+                socket.auth = { token: authData.token };
                 toast.success("Login successfull!");
             }
+
+            socket.connect();
 
             navigate("/profile");
         } catch (error) {

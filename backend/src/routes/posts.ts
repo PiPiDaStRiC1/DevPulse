@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { verifyJWT } from "@/helpers";
+import { verifyJWT } from "@/middleware";
 import { getOnePost, getPosts, postPost } from "@/services";
 
 const postsRouter = Router();

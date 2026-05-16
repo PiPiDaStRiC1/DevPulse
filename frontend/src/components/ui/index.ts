@@ -12,4 +12,4 @@ export {
 export { LoginForm, RegisterForm } from "./AuthModal";
 export { TextEditor } from "./PostComposerModal";
 export { WhispersSkeleton, ChatRoomSkeleton, GuestWhispers } from "./Whispers";
-export { ChatRoomHeader } from "./ChatRoom";
+export { ChatRoomHeader, ChatInput } from "./ChatRoom";

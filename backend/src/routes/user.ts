@@ -6,7 +6,7 @@ import {
     postFollowUser,
     deleteUnfollowUser,
 } from "@/services";
-import { optionalAuth, verifyJWT } from "@/helpers";
+import { optionalAuth, verifyJWT } from "@/middleware";
 
 const userRouter = Router();
 

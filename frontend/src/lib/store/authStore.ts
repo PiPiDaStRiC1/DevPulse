@@ -41,7 +41,6 @@ export const useAuthStore = create<AuthState>()(
         {
             name: "session",
             storage: createJSONStorage(() => localStorage),
-            // Persist only JWT; user/session flags should be restored from API (/auth/me).
             partialize: (state) => ({ token: state.token }),
             merge: (persistedState, currentState) => {
                 const persisted = persistedState as Partial<AuthState>;

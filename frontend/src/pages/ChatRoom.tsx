@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useChat } from "@/hooks";
-import { ErrorAlert, ChatRoomSkeleton, ChatRoomHeader } from "@/components";
-import { Send, Check, CheckCheck } from "lucide-react";
+import { ErrorAlert, ChatRoomSkeleton, ChatRoomHeader, ChatInput } from "@/components";
+import { Check, CheckCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { safeParseDate } from "@/lib/utils";
 
@@ -16,9 +16,7 @@ export const ChatRoom = () => {
         chatMessages,
         isLoadingMessages,
         isErrorMessages,
-        draft,
-        setDraft,
-        handleSubmit,
+        sendMessage,
         readChat,
         messagesContainerRef,
     } = useChat();
@@ -155,28 +153,7 @@ export const ChatRoom = () => {
                 <div ref={chatBottomRef} className="h-px w-full" aria-hidden="true" />
             </div>
 
-            <form
-                onSubmit={handleSubmit}
-                className="px-4 py-3 border-t-2 border-ink bg-surface shrink-0 flex items-end gap-3"
-            >
-                <input
-                    value={draft}
-                    onChange={(e) => setDraft(e.target.value)}
-                    placeholder="Whisper something…"
-                    className={[
-                        "flex-1 resize-none bg-bg border-2 border-ink rounded-[var(--radius)]",
-                        "text-sm text-text-base placeholder:text-subtle px-3 py-2",
-                        "outline-none focus:outline-none focus:ring-0 transition-colors",
-                    ].join(" ")}
-                />
-                <button
-                    type="submit"
-                    disabled={!draft.trim()}
-                    className="btn-solid h-full shrink-0"
-                >
-                    <Send size={14} />
-                </button>
-            </form>
+            <ChatInput onSendMessage={sendMessage} />
         </div>
     );
 };

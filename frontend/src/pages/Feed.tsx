@@ -3,13 +3,12 @@ import { CreatePostBox, PostCard, RecommendationPanel } from "@/components";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
 import { ErrorAlert, PostSkeleton } from "@/components";
-import { useSocket } from "@/hooks";
+import { socket } from "@/lib/store";
 import type { Post, SocketPostPayload } from "@shared/types";
 
 const feedTabs = ["For You", "Following", "Trending"] as const;
 
 export const Feed = () => {
-    const { socket } = useSocket();
     const queryClient = useQueryClient();
     const [activeTab, setActiveTab] = useState<(typeof feedTabs)[number]>("For You");
     const {
@@ -32,7 +31,7 @@ export const Feed = () => {
         return () => {
             socket.off("post:publish:new", handler);
         };
-    }, [socket, queryClient]);
+    }, [queryClient]);
 
     if (isError) {
         return <ErrorAlert message="Failed to load feed" onRetry={refetch} />;

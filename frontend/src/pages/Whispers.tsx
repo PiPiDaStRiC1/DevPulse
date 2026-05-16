@@ -18,7 +18,12 @@ export const Whispers = () => {
         data: chats,
         isLoading,
         isError,
-    } = useQuery<Chat[]>({ queryKey: ["chats"], queryFn: apiClient.getAllChats, staleTime: 0 });
+    } = useQuery<Chat[]>({
+        queryKey: ["chats"],
+        queryFn: apiClient.getAllChats,
+        staleTime: 0,
+        enabled: isAuthenticated,
+    });
 
     useEffect(() => {
         document.body.style.overflow = "hidden";

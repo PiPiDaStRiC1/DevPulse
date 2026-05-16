@@ -1,5 +1,6 @@
 import { useAuthStore } from "@/lib/store";
 import { apiClient } from "@/lib/api";
+import { socket } from "@/lib/store";
 import { useCallback, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -68,6 +69,7 @@ export const useAuthBootstrap = () => {
 
     useEffect(() => {
         if (!token) {
+            socket.disconnect();
             return useAuthStore.getState().logout();
         }
 
@@ -77,11 +79,18 @@ export const useAuthBootstrap = () => {
 
         const bootstrap = async () => {
             try {
+                // Set socket auth and connect
+                socket.auth = { token };
+                if (!socket.connected) {
+                    socket.connect();
+                }
+
                 const user = await apiClient.me();
                 useAuthStore.getState().setUser(user);
             } catch (error) {
                 console.error("Failed to bootstrap auth:", error);
                 useAuthStore.getState().logout();
+                socket.disconnect();
             }
         };
 

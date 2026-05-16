@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getMessages, postMessage } from "@/services";
-import { verifyJWT } from "@/helpers";
+import { verifyJWT } from "@/middleware";
 
 const messagesRouter = Router();
 

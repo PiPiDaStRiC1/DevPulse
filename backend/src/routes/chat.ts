@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { verifyJWT } from "@/helpers";
+import { verifyJWT } from "@/middleware";
 import { getChats, postChat, getOneChat, patchChat } from "@/services";
 
 const chatRouter = Router();
