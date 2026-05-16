@@ -8,3 +8,7 @@ export interface SocketMessagePayload {
 export interface SocketPostPayload {
     post: Post;
 }
+
+export interface SocketReadChatPayload {
+    chatId: string;
+}

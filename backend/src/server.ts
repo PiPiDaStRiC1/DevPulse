@@ -6,7 +6,12 @@ import { Server } from "socket.io";
 import { createServer } from "http";
 import { postsRouter, authRouter, userRouter, chatRouter, messagesRouter } from "@/routes";
 import { verifyToken, prisma } from "./helpers";
-import type { SocketMessagePayload, SocketPostPayload, Acknowledgement } from "@shared/types";
+import type {
+    SocketMessagePayload,
+    SocketPostPayload,
+    SocketReadChatPayload,
+    Acknowledgement,
+} from "@shared/types";
 
 const PORT = Number(process.env["PORT"]) || 4000;
 const CORS_ORIGIN = process.env["CORS_ORIGIN"] || "http://localhost:5173";
@@ -66,6 +71,10 @@ io.on("connection", (socket) => {
 
     socket.on("chat:message", (payload: SocketMessagePayload) => {
         socket.to(payload.chatId).emit("chat:message:new", payload);
+    });
+
+    socket.on("chat:read", (payload: SocketReadChatPayload) => {
+        socket.to(payload.chatId).emit("chat:read:new", payload);
     });
 
     socket.on("post:publish", (payload: SocketPostPayload, ack: (res: Acknowledgement) => void) => {

@@ -1,7 +1,7 @@
 import { BadgeCheck, CalendarDays, Edit3, Mail, Shield, UserRound, LogOut } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
-import { ErrorAlert, Preloader } from "@/components/common";
+import { ErrorAlert, Preloader } from "@/components";
 import { useSession } from "@/hooks";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -11,6 +11,7 @@ import type { User } from "@shared/types";
 export const MyProfile = () => {
     const navigate = useNavigate();
     const { logout } = useSession();
+    const queryClient = useQueryClient();
 
     const {
         data: currentUser,
@@ -24,6 +25,7 @@ export const MyProfile = () => {
 
         setTimeout(() => {
             logout();
+            queryClient.clear();
             toast.success("Logged out successfully!");
         }, 200);
     };

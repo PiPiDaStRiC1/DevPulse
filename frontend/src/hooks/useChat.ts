@@ -5,11 +5,11 @@ import { useSession, useSocket } from "@/hooks";
 import { apiClient } from "@/lib/api";
 import { socket } from "@/lib/store";
 import toast from "react-hot-toast";
-import type { Chat, Message, SocketMessagePayload } from "@shared/types";
+import type { Chat, Message, SocketMessagePayload, SocketReadChatPayload } from "@shared/types";
 
 export const useChat = () => {
     const { user: me } = useSession();
-    const { sendMessageWithWS, joinRoom } = useSocket();
+    const { sendMessageWithWS, joinRoom, readChatWithWS } = useSocket();
     const queryClient = useQueryClient();
     const { id } = useParams<{ id: string }>();
     const isMe = Boolean(me?.id === id);
@@ -178,6 +178,21 @@ export const useChat = () => {
         };
     }, [id, queryClient]);
 
+    useEffect(() => {
+        const handler = ({ chatId }: SocketReadChatPayload) => {
+            if (!me || !chatId) return;
+            queryClient.setQueryData<Message[]>(["messages", chatId], (old) => {
+                if (!old) return old;
+                return old.map((m) => (m.senderId === me.id ? { ...m, seen: true } : m));
+            });
+        };
+
+        socket.on("chat:read:new", handler);
+        return () => {
+            socket.off("chat:read:new", handler);
+        };
+    }, [me, queryClient]);
+
     return {
         chatId: id,
         me,
@@ -190,6 +205,7 @@ export const useChat = () => {
         isErrorMessages,
         sendMessage,
         readChat,
+        readChatWithWS,
         messagesContainerRef,
     };
 };

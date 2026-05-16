@@ -211,9 +211,9 @@ export const apiClient = {
             throw new Error(error instanceof Error ? error.message : "Failed to create chat");
         }
     },
-    async readChat(id: number) {
+    async readChat(chatId: number) {
         try {
-            const response = await genericFetch<ApiResponse<Chat>>(`${API_URL}/chats/${id}`, {
+            const response = await genericFetch<ApiResponse<Chat>>(`${API_URL}/chats/${chatId}`, {
                 method: "PATCH",
                 headers: { ...JWTheaders() },
             });

@@ -18,6 +18,7 @@ export const ChatRoom = () => {
         isErrorMessages,
         sendMessage,
         readChat,
+        readChatWithWS,
         messagesContainerRef,
     } = useChat();
     const navigate = useNavigate();
@@ -53,7 +54,7 @@ export const ChatRoom = () => {
     }, [chatId, chatMessages?.length, messagesContainerRef]);
 
     useEffect(() => {
-        if (!chat || !chatMessages || unreadStartIndex === -1) return;
+        if (!chat || !chatId || !chatMessages || unreadStartIndex === -1) return;
 
         const container = messagesContainerRef.current;
         const chatBottom = chatBottomRef.current;
@@ -64,6 +65,7 @@ export const ChatRoom = () => {
             (entries) => {
                 if (entries[0]?.isIntersecting) {
                     readChat(Number(chatId));
+                    readChatWithWS({ chatId });
                     observer.disconnect();
                 }
             },
@@ -73,7 +75,15 @@ export const ChatRoom = () => {
         observer.observe(chatBottom);
 
         return () => observer.disconnect();
-    }, [chat, chatId, chatMessages, messagesContainerRef, readChat, unreadStartIndex]);
+    }, [
+        chat,
+        chatId,
+        chatMessages,
+        messagesContainerRef,
+        readChat,
+        readChatWithWS,
+        unreadStartIndex,
+    ]);
 
     if (isLoadingMessages || isLoadingChat) {
         return <ChatRoomSkeleton />;
@@ -132,18 +142,18 @@ export const ChatRoom = () => {
                                 >
                                     {msg.text}
                                 </div>
-                                <div className="flex">
+                                <div className="flex items-center">
                                     <span className="text-[10px] text-subtle px-1">
                                         {safeParseDate(msg.createdAt)}
                                     </span>
-                                    {!isMyMsg && (
-                                        <>
+                                    {isMyMsg && (
+                                        <div className="flex ml-0.5">
                                             {!msg.seen ? (
                                                 <Check size={12} className="text-ink" />
                                             ) : (
                                                 <CheckCheck size={12} className="text-ink" />
                                             )}
-                                        </>
+                                        </div>
                                     )}
                                 </div>
                             </div>

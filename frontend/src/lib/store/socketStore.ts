@@ -1,7 +1,12 @@
 import { create } from "zustand";
 import { io, type Socket } from "socket.io-client";
-import type { SocketMessagePayload, SocketPostPayload, Acknowledgement } from "@shared/types";
 import toast from "react-hot-toast";
+import type {
+    SocketMessagePayload,
+    SocketPostPayload,
+    Acknowledgement,
+    SocketReadChatPayload,
+} from "@shared/types";
 
 const WS_URL = import.meta.env["VITE_WS_URL"] || "http://localhost:4000";
 export const socket: Socket = io(WS_URL, {
@@ -14,6 +19,7 @@ interface SocketState {
     joinRoom: (roomId: string) => void;
     sendMessageWithWS: ({ chatId, message }: SocketMessagePayload) => void;
     publishPostWithWS: ({ post }: SocketPostPayload) => void;
+    readMessagesWithWS: ({ chatId }: SocketReadChatPayload) => void;
 }
 
 export const useSocketStore = create<SocketState>(() => ({
@@ -31,6 +37,9 @@ export const useSocketStore = create<SocketState>(() => ({
         if (!text) return;
 
         socket.emit("chat:message", { chatId, message });
+    },
+    readMessagesWithWS: ({ chatId }: SocketReadChatPayload) => {
+        socket.emit("chat:read", { chatId });
     },
     publishPostWithWS: ({ post }: SocketPostPayload) => {
         socket.emit("post:publish", { post }, (res: Acknowledgement) => {
