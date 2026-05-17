@@ -13,6 +13,7 @@ import type {
     SocketConnection,
     Acknowledgement,
     ChatOnlineAcknowledgement,
+    SocketTypingMessagePayload,
 } from "@shared/types";
 
 const PORT = Number(process.env["PORT"]) || 4000;
@@ -60,6 +61,7 @@ io.on("connection", (socket) => {
         onlineUsers.set(currentUserId, new Set());
         socket.broadcast.emit("user:connected", connectionPayload);
     }
+    // Push new socket anyway (for multi-tab support)
     onlineUsers.get(currentUserId)!.add(socket.id);
 
     socket.on(
@@ -90,6 +92,10 @@ io.on("connection", (socket) => {
 
     socket.on("chat:message", (payload: SocketMessagePayload) => {
         socket.to(payload.chatId).emit("chat:message:new", payload);
+    });
+
+    socket.on("user:typing", (payload: SocketTypingMessagePayload) => {
+        socket.to(payload.chatId).emit("user:typing:new", payload);
     });
 
     socket.on("chat:read", (payload: SocketReadChatPayload) => {

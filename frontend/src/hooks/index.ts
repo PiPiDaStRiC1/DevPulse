@@ -6,3 +6,5 @@ export * from "./useSocket";
 export * from "./useChat";
 export * from "./usePostComposer";
 export * from "./useFollowing";
+export * from "./useOnline";
+export * from "./useTypingStatus";

@@ -5,6 +5,13 @@ export const useSocket = () => {
     const publishPostWithWS = useSocketStore((state) => state.publishPostWithWS);
     const readChatWithWS = useSocketStore((state) => state.readMessagesWithWS);
     const joinRoom = useSocketStore((state) => state.joinRoom);
+    const sendTypingStatusWithWS = useSocketStore((state) => state.sendTypingStatusWithWS);
 
-    return { joinRoom, sendMessageWithWS, publishPostWithWS, readChatWithWS };
+    return {
+        joinRoom,
+        sendMessageWithWS,
+        publishPostWithWS,
+        readChatWithWS,
+        sendTypingStatusWithWS,
+    };
 };

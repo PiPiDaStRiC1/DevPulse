@@ -3,9 +3,8 @@ import { BadgeCheck } from "lucide-react";
 import { Avatar, Preloader, ErrorAlert } from "@/components";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
-import { socket } from "@/lib/store";
-import { useEffect, useState } from "react";
-import type { ChatOnlineAcknowledgement, Chat, SocketConnection } from "@shared/types";
+import { useOnline, useTypingStatus } from "@/hooks";
+import type { Chat } from "@shared/types";
 
 interface ChatRoomHeaderProps {
     chat?: Chat;
@@ -13,9 +12,7 @@ interface ChatRoomHeaderProps {
 }
 
 export const ChatRoomHeader = ({ chat, handle }: ChatRoomHeaderProps) => {
-    const [isOnline, setIsOnline] = useState(false);
     const collocutorFromChat = chat?.collocutor ?? null;
-
     const shouldFetch = !collocutorFromChat && !!handle;
 
     const {
@@ -30,35 +27,8 @@ export const ChatRoomHeader = ({ chat, handle }: ChatRoomHeaderProps) => {
     });
 
     const user = collocutorFromChat ?? fetchedUser ?? null;
-
-    useEffect(() => {
-        if (!user?.id) return;
-
-        socket.emit("user:online", { userId: user.id }, (res: ChatOnlineAcknowledgement) => {
-            if (res.ok) {
-                const isUserOnline = res.data.isUserOnline;
-                if (isUserOnline) {
-                    setIsOnline(true);
-                }
-            }
-        });
-
-        const onConnected = ({ userId }: SocketConnection) => {
-            if (userId === user.id) setIsOnline(true);
-        };
-
-        const onDisconnected = ({ userId }: SocketConnection) => {
-            if (userId === user.id) setIsOnline(false);
-        };
-
-        socket.on("user:connected", onConnected);
-        socket.on("user:disconnected", onDisconnected);
-
-        return () => {
-            socket.off("user:connected", onConnected);
-            socket.off("user:disconnected", onDisconnected);
-        };
-    }, [user?.id]);
+    const isOnline = useOnline(user?.id);
+    const isTyping = useTypingStatus(chat?.id);
 
     if (isLoading) {
         return <Preloader text="Loading user" />;
@@ -83,7 +53,11 @@ export const ChatRoomHeader = ({ chat, handle }: ChatRoomHeaderProps) => {
                         <span className="text-[14px] font-bold leading-tight truncate">
                             {user.username}
                         </span>
-                        {isOnline ? (
+                        {isTyping ? (
+                            <p className="flex items-center text-xs gap-1">
+                                <span className="text-gray-500">Печатает...</span>
+                            </p>
+                        ) : isOnline ? (
                             <p className="flex items-center text-xs gap-1">
                                 <span className="text-green-500">●</span>
                                 <span className="text-gray-500">В сети</span>

@@ -6,6 +6,7 @@ import type {
     SocketPostPayload,
     Acknowledgement,
     SocketReadChatPayload,
+    SocketTypingMessagePayload,
 } from "@shared/types";
 
 const WS_URL = import.meta.env["VITE_WS_URL"] || "http://localhost:4000";
@@ -20,6 +21,7 @@ interface SocketState {
     sendMessageWithWS: ({ chatId, message }: SocketMessagePayload) => void;
     publishPostWithWS: ({ post }: SocketPostPayload) => void;
     readMessagesWithWS: ({ chatId }: SocketReadChatPayload) => void;
+    sendTypingStatusWithWS: ({ chatId, isTyping }: SocketTypingMessagePayload) => void;
 }
 
 export const useSocketStore = create<SocketState>(() => ({
@@ -31,6 +33,9 @@ export const useSocketStore = create<SocketState>(() => ({
                 return;
             }
         });
+    },
+    sendTypingStatusWithWS: ({ chatId, isTyping }: SocketTypingMessagePayload) => {
+        socket.emit("user:typing", { chatId, isTyping });
     },
     sendMessageWithWS: ({ chatId, message }: SocketMessagePayload) => {
         const text = message.text?.trim();

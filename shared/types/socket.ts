@@ -16,3 +16,8 @@ export interface SocketReadChatPayload {
 export interface SocketConnection {
     userId: number;
 }
+
+export interface SocketTypingMessagePayload {
+    chatId: string;
+    isTyping: boolean;
+}

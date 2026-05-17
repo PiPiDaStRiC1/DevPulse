@@ -46,12 +46,12 @@ export const ChatRoom = () => {
         if (!container) return;
 
         if (marker) {
-            marker.scrollIntoView({ behavior: "smooth", block: "center" });
+            marker.scrollIntoView({ behavior: "instant", block: "end" });
             return;
         }
 
         container.scrollTo({ top: container.scrollHeight, behavior: "instant" });
-    }, [chatId, chatMessages?.length, messagesContainerRef]);
+    }, [chatMessages?.length, messagesContainerRef]);
 
     useEffect(() => {
         if (!chat || !chatId || !chatMessages || unreadStartIndex === -1) return;
@@ -93,7 +93,7 @@ export const ChatRoom = () => {
         return <ErrorAlert message="Failed to load messages" />;
     }
 
-    if (!chatMessages || !chat) {
+    if (!chatMessages || !chat || !chatId) {
         return <ErrorAlert message="Messages not found" />;
     }
 
@@ -163,7 +163,7 @@ export const ChatRoom = () => {
                 <div ref={chatBottomRef} className="h-px w-full" aria-hidden="true" />
             </div>
 
-            <ChatInput onSendMessage={sendMessage} />
+            <ChatInput chatId={chatId} onSendMessage={sendMessage} />
         </div>
     );
 };
