@@ -12,3 +12,7 @@ export interface SocketPostPayload {
 export interface SocketReadChatPayload {
     chatId: string;
 }
+
+export interface SocketConnection {
+    userId: number;
+}

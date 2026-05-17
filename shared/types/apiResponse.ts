@@ -10,6 +10,11 @@ interface ApiResponseError {
     error: string;
 }
 
+interface AcknowledgementResponseCorrectWithData<T> {
+    ok: true;
+    data: T;
+}
+
 interface AcknowledgementResponseCorrect {
     ok: true;
 }
@@ -23,4 +28,9 @@ export type ApiResponse<T> = ApiResponseSuccess<T> | ApiResponseError;
 export type AuthResponse = ApiResponse<{ token: string; user: User }>;
 export type MeResponse = ApiResponse<User>;
 export type RefreshResponse = ApiResponse<string>;
-export type Acknowledgement = AcknowledgementResponseCorrect | AcknowledgementResponseError;
+export type Acknowledgement<T = never> =
+    | AcknowledgementResponseError
+    | ([T] extends [never]
+          ? AcknowledgementResponseCorrect
+          : AcknowledgementResponseCorrectWithData<T>);
+export type ChatOnlineAcknowledgement = Acknowledgement<{ isUserOnline: boolean }>;

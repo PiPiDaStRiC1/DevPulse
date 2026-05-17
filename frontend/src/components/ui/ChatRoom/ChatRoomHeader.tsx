@@ -3,7 +3,9 @@ import { BadgeCheck } from "lucide-react";
 import { Avatar, Preloader, ErrorAlert } from "@/components";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
-import type { Chat } from "@shared/types";
+import { socket } from "@/lib/store";
+import { useEffect, useState } from "react";
+import type { ChatOnlineAcknowledgement, Chat, SocketConnection } from "@shared/types";
 
 interface ChatRoomHeaderProps {
     chat?: Chat;
@@ -11,6 +13,7 @@ interface ChatRoomHeaderProps {
 }
 
 export const ChatRoomHeader = ({ chat, handle }: ChatRoomHeaderProps) => {
+    const [isOnline, setIsOnline] = useState(false);
     const collocutorFromChat = chat?.collocutor ?? null;
 
     const shouldFetch = !collocutorFromChat && !!handle;
@@ -26,6 +29,37 @@ export const ChatRoomHeader = ({ chat, handle }: ChatRoomHeaderProps) => {
         staleTime: 5 * 60 * 1000,
     });
 
+    const user = collocutorFromChat ?? fetchedUser ?? null;
+
+    useEffect(() => {
+        if (!user?.id) return;
+
+        socket.emit("user:online", { userId: user.id }, (res: ChatOnlineAcknowledgement) => {
+            if (res.ok) {
+                const isUserOnline = res.data.isUserOnline;
+                if (isUserOnline) {
+                    setIsOnline(true);
+                }
+            }
+        });
+
+        const onConnected = ({ userId }: SocketConnection) => {
+            if (userId === user.id) setIsOnline(true);
+        };
+
+        const onDisconnected = ({ userId }: SocketConnection) => {
+            if (userId === user.id) setIsOnline(false);
+        };
+
+        socket.on("user:connected", onConnected);
+        socket.on("user:disconnected", onDisconnected);
+
+        return () => {
+            socket.off("user:connected", onConnected);
+            socket.off("user:disconnected", onDisconnected);
+        };
+    }, [user?.id]);
+
     if (isLoading) {
         return <Preloader text="Loading user" />;
     }
@@ -33,8 +67,6 @@ export const ChatRoomHeader = ({ chat, handle }: ChatRoomHeaderProps) => {
     if (isError) {
         return <ErrorAlert message="Failed to load user" />;
     }
-
-    const user = collocutorFromChat ?? fetchedUser ?? null;
 
     if (!user) {
         return <ErrorAlert message="User not found" />;
@@ -46,13 +78,25 @@ export const ChatRoomHeader = ({ chat, handle }: ChatRoomHeaderProps) => {
                 <Avatar handle={user.handle} size="md" />
             </Link>
             <div className="min-w-0">
-                <div className="flex items-center gap-1.5">
-                    <span className="text-[14px] font-bold leading-tight truncate">
-                        {user.username}
-                    </span>
+                <div className="flex items-center">
+                    <div className="flex flex-col items-start">
+                        <span className="text-[14px] font-bold leading-tight truncate">
+                            {user.username}
+                        </span>
+                        {isOnline ? (
+                            <p className="flex items-center text-xs gap-1">
+                                <span className="text-green-500">●</span>
+                                <span className="text-gray-500">В сети</span>
+                            </p>
+                        ) : (
+                            <p className="flex items-center text-xs gap-1">
+                                <span className="text-gray-500">●</span>
+                                <span className="text-gray-500">Был недавно</span>
+                            </p>
+                        )}
+                    </div>
                     {user.isVerified && <BadgeCheck size={13} className="text-av-blue shrink-0" />}
                 </div>
-                <p className="text-[11px] text-muted">@{user.handle}</p>
             </div>
         </div>
     );
