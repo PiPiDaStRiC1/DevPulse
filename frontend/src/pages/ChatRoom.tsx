@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useChat } from "@/hooks";
 import { ErrorAlert, ChatRoomSkeleton, ChatRoomHeader, ChatInput } from "@/components";
-import { Check, CheckCheck } from "lucide-react";
+import { Check, CheckCheck, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { safeParseDate } from "@/lib/utils";
 
@@ -107,6 +107,7 @@ export const ChatRoom = () => {
                 {chatMessages.map((msg, index) => {
                     const isMyMsg = msg.senderId === me?.id;
                     const showUnreadMarker = index === unreadStartIndex && chat.unreadCount > 0;
+                    const isSendingMessage = msg.id && msg.id < 0;
 
                     return (
                         <div key={msg.id} className="flex flex-col gap-3">
@@ -148,7 +149,12 @@ export const ChatRoom = () => {
                                     </span>
                                     {isMyMsg && (
                                         <div className="flex ml-0.5">
-                                            {!msg.seen ? (
+                                            {isSendingMessage ? (
+                                                <Clock
+                                                    size={12}
+                                                    className="text-ink animate-spin"
+                                                />
+                                            ) : !msg.seen ? (
                                                 <Check size={12} className="text-ink" />
                                             ) : (
                                                 <CheckCheck size={12} className="text-ink" />

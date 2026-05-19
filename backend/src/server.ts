@@ -78,8 +78,11 @@ io.on("connection", (socket) => {
         const collocutorId = payload.collocutorId;
 
         if (onlineUsers.has(collocutorId)) {
-            const userSockets = Array.from(onlineUsers.get(collocutorId)!);
+            const userSockets = Array.from(onlineUsers.get(collocutorId)!); // collocutor
+            const currentUserSockets = Array.from(onlineUsers.get(currentUserId)!); // me
+
             io.to(userSockets).emit("room:create:new", payload);
+            io.to(currentUserSockets).emit("room:create:new", payload);
         }
     });
 

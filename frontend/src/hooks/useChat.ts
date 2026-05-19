@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { useSession, useSocket } from "@/hooks";
@@ -9,7 +9,7 @@ import type { Chat, Message, SocketMessagePayload, SocketReadChatPayload } from 
 
 export const useChat = () => {
     const { user: me } = useSession();
-    const { sendMessageWithWS, joinRoom, readChatWithWS } = useSocket();
+    const { sendMessageWithWS, readChatWithWS } = useSocket();
     const queryClient = useQueryClient();
     const { id } = useParams<{ id: string }>();
     const isMe = Boolean(me?.id === id);
@@ -85,66 +85,110 @@ export const useChat = () => {
         },
     });
 
-    useEffect(() => {
-        if (!id) return;
-
-        joinRoom(id);
-
-        const onConnect = () => {
-            joinRoom(id);
-        };
-
-        socket.on("user:connected", onConnect);
-
-        return () => {
-            socket.off("user:connected", onConnect);
-        };
-    }, [id, joinRoom]);
-
-    const sendMessage = useCallback(
-        async (text: string) => {
+    const { mutate: sendMessage } = useMutation({
+        mutationFn: async (text: string) => {
             const trimmed = text.trim();
-            if (!trimmed || !me || !id) return;
+            if (!trimmed || !me || !id) throw new Error("Invalid payload");
 
-            try {
-                const message = await apiClient.postOneMessage({
-                    text: trimmed,
-                    senderId: me.id,
-                    chatId: Number(id),
-                });
+            const message = await apiClient.postOneMessage({
+                text: trimmed,
+                senderId: me.id,
+                chatId: Number(id),
+            });
 
-                sendMessageWithWS({ chatId: id, message });
+            sendMessageWithWS({ chatId: id, message });
 
-                queryClient.setQueryData(["messages", id], (oldData: Message[] | undefined) => {
-                    if (!oldData) return [message];
-                    if (message.id && oldData.some((m) => m.id === message.id)) return oldData;
-                    return [...oldData, message];
-                });
-
-                // preview for last message in Whispers list
-                queryClient.setQueryData(["chats"], (oldChats: Chat[] | undefined) => {
-                    if (!oldChats) return oldChats;
-                    return oldChats.map((c) =>
-                        String(c.id) === String(id)
-                            ? { ...c, lastMessage: message, updatedAt: message.createdAt }
-                            : c,
-                    );
-                });
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            } catch (_error) {
-                toast.error("Failed to send message");
-            }
+            return message;
         },
-        [id, me, queryClient, sendMessageWithWS],
-    );
+        onMutate: async (text: string) => {
+            await queryClient.cancelQueries({ queryKey: ["messages", id] });
+            await queryClient.cancelQueries({ queryKey: ["chats"] });
+
+            const previousMessages = queryClient.getQueryData<Message[]>(["messages", id]);
+            const previousChats = queryClient.getQueryData<Chat[]>(["chats"]);
+
+            const trimmed = text.trim();
+            if (!trimmed || !me || !id) return { previousMessages, previousChats };
+
+            const optimisticId = -Date.now(); // for optimistic message
+            const optimisticMessage: Message = {
+                id: optimisticId,
+                chatId: Number(id),
+                senderId: me.id,
+                text: trimmed,
+                createdAt: new Date().toISOString(),
+                seen: false,
+            };
+
+            queryClient.setQueryData<Message[]>(
+                ["messages", id],
+                (oldData: Message[] | undefined) => {
+                    if (!oldData) return [optimisticMessage];
+                    return [...oldData, optimisticMessage];
+                },
+            );
+
+            queryClient.setQueryData<Chat[]>(["chats"], (oldData: Chat[] | undefined) => {
+                if (!oldData) return oldData;
+                return oldData.map((c) =>
+                    String(c.id) === String(id)
+                        ? {
+                              ...c,
+                              lastMessage: optimisticMessage,
+                              updatedAt: optimisticMessage.createdAt,
+                          }
+                        : c,
+                );
+            });
+
+            return { previousMessages, previousChats, optimisticId };
+        },
+        onError: (_err, _variables, context) => {
+            if (context?.previousMessages) {
+                queryClient.setQueryData<Message[]>(["messages", id], context.previousMessages);
+            }
+            if (context?.previousChats) {
+                queryClient.setQueryData<Chat[]>(["chats"], context.previousChats);
+            }
+            toast.error("Failed to send message");
+        },
+        onSuccess: (realMessage, _variables, context) => {
+            if (!realMessage) return;
+
+            queryClient.setQueryData<Message[]>(
+                ["messages", id],
+                (oldData: Message[] | undefined) => {
+                    if (!oldData) return [realMessage];
+                    return oldData.map((m) => {
+                        if (m.id === context?.optimisticId) {
+                            return { ...realMessage, seen: m.seen || realMessage.seen };
+                        }
+                        return m;
+                    });
+                },
+            );
+
+            queryClient.setQueryData<Chat[]>(["chats"], (oldData: Chat[] | undefined) => {
+                if (!oldData) return oldData;
+                return oldData.map((c) =>
+                    String(c.id) === String(id)
+                        ? { ...c, lastMessage: realMessage, updatedAt: realMessage.createdAt }
+                        : c,
+                );
+            });
+        },
+    });
 
     useEffect(() => {
         const handler = ({ chatId, message }: SocketMessagePayload) => {
-            queryClient.setQueryData(["messages", chatId], (oldData: Message[] | undefined) => {
-                if (!oldData) return [message];
-                if (message.id && oldData.some((m) => m.id === message.id)) return oldData;
-                return [...oldData, message];
-            });
+            queryClient.setQueryData<Message[]>(
+                ["messages", chatId],
+                (oldData: Message[] | undefined) => {
+                    if (!oldData) return [message];
+                    if (message.id && oldData.some((m) => m.id === message.id)) return oldData;
+                    return [...oldData, message];
+                },
+            );
         };
 
         socket.on("chat:message:new", handler);
@@ -156,7 +200,7 @@ export const useChat = () => {
     // Update chats list dynamically when a message arrives
     useEffect(() => {
         const handler = ({ chatId, message }: SocketMessagePayload) => {
-            queryClient.setQueryData(["chats"], (oldChats: Chat[] | undefined) => {
+            queryClient.setQueryData<Chat[]>(["chats"], (oldChats: Chat[] | undefined) => {
                 if (!oldChats) return oldChats;
                 return oldChats.map((c) => {
                     if (String(c.id) !== String(chatId)) return c;
