@@ -57,17 +57,17 @@ export const ChatRoomHeader = ({ chat, handle }: ChatRoomHeaderProps) => {
                         {isTyping ? (
                             <p className="flex items-center text-xs gap-1">
                                 <img src={Typing} alt="Typing..." className="w-4 h-4" />
-                                <span className="text-gray-500">Печатает</span>
+                                <span className="text-gray-500">typing</span>
                             </p>
                         ) : isOnline ? (
                             <p className="flex items-center text-xs gap-1">
                                 <span className="text-green-500">●</span>
-                                <span className="text-gray-500">В сети</span>
+                                <span className="text-gray-500">Online</span>
                             </p>
                         ) : (
                             <p className="flex items-center text-xs gap-1">
                                 <span className="text-gray-500">●</span>
-                                <span className="text-gray-500">Был недавно</span>
+                                <span className="text-gray-500">Was online recently</span>
                             </p>
                         )}
                     </div>

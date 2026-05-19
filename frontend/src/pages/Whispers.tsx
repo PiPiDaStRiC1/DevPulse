@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
-import { Search, BadgeCheck, MessageCircle } from "lucide-react";
-import { Avatar, ErrorAlert, WhispersSkeleton, GuestWhispers } from "@/components";
+import { Search, MessageCircle } from "lucide-react";
+import { ErrorAlert, WhispersSkeleton, GuestWhispers, ChatItem } from "@/components";
 import { useAuthStore } from "@/lib/store";
 import { useQuery } from "@tanstack/react-query";
-import { safeParseDate } from "@/lib/utils";
-import { NavLink, useOutlet } from "react-router-dom";
+import { useOutlet } from "react-router-dom";
 import { apiClient } from "@/lib/api";
 import { useSession } from "@/hooks";
 import type { Chat } from "@shared/types";
@@ -95,50 +94,9 @@ export const Whispers = () => {
                             <p className="text-sm text-muted">No chats found</p>
                         </div>
                     )}
-                    {filtered.map((chat) => {
-                        const last = chat.lastMessage;
-
-                        return (
-                            <NavLink
-                                to={`/whispers/${chat.id}`}
-                                key={chat.id}
-                                className={({ isActive }) =>
-                                    `w-full text-left px-4 py-3 flex items-center gap-3 border-b border-ink-soft cursor-pointer font-[inherit] transition-colors ${isActive ? "bg-bg border-l-2 border-l-ink" : "bg-surface hover:bg-bg border-l-2 border-l-transparent"}`
-                                }
-                            >
-                                <Avatar handle={chat.collocutor.handle} size="sm" />
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-center justify-between gap-1">
-                                        <div className="flex items-center gap-1 min-w-0">
-                                            <span className="text-[13px] font-bold truncate">
-                                                {chat.collocutor.username}
-                                            </span>
-                                            {chat.collocutor.isVerified && (
-                                                <BadgeCheck
-                                                    size={11}
-                                                    className="text-av-blue shrink-0"
-                                                />
-                                            )}
-                                        </div>
-                                        <span className="text-[10px] text-subtle shrink-0">
-                                            {safeParseDate(last.createdAt)}
-                                        </span>
-                                    </div>
-                                    <p className="text-[12px] text-muted truncate mt-0.5">
-                                        {last.senderId === user.id && (
-                                            <span className="text-subtle">You: </span>
-                                        )}
-                                        {last.text}
-                                    </p>
-                                </div>
-                                {chat.unreadCount > 0 && (
-                                    <span className="text-[10px] font-bold bg-ink text-accent-fg rounded-full w-4 h-4 flex items-center justify-center shrink-0">
-                                        {chat.unreadCount}
-                                    </span>
-                                )}
-                            </NavLink>
-                        );
-                    })}
+                    {filtered.map((chat) => (
+                        <ChatItem key={chat.id} chat={chat} user={user} />
+                    ))}
                 </div>
             </div>
 

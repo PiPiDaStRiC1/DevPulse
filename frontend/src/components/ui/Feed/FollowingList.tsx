@@ -7,6 +7,7 @@ export const FollowingList = () => {
         isErrorSuggested,
         isLoadingSuggested,
         isPendingFollowing,
+        pendingFollowVariables,
         toggleFollowUser,
     } = useFollowing();
 
@@ -31,7 +32,7 @@ export const FollowingList = () => {
                         <p className="text-[13px] font-bold truncate">{user.username}</p>
                         <p className="text-[11px] text-muted truncate">@{user.handle}</p>
                     </div>
-                    {isPendingFollowing ? (
+                    {isPendingFollowing && pendingFollowVariables?.userId === user.id ? (
                         <button type="button" className="btn-solid shrink-0 !py-1 !px-3 !text-xs">
                             Following...
                         </button>

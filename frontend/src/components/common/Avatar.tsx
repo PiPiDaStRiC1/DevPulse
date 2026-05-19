@@ -5,6 +5,7 @@ interface AvatarProps {
     size?: "xs" | "sm" | "md" | "lg";
     className?: string;
     isLoading?: boolean;
+    isOnline?: boolean;
     link?: string;
 }
 
@@ -20,6 +21,7 @@ export const Avatar = ({
     size = "md",
     className = "",
     isLoading = false,
+    isOnline = false,
     link,
 }: AvatarProps) => {
     const { cls } = sizeMap[size];
@@ -38,17 +40,26 @@ export const Avatar = ({
         return (
             <Link
                 to={link}
-                className={`sq-avatar ${cls} ${className} bg-[var(--ink)] text-white`}
+                className={`relative sq-avatar ${cls} ${className} bg-[var(--ink)] text-white`}
                 title={handle}
             >
                 {initials}
+                {isOnline && (
+                    <span className="absolute bottom-[-1px] right-[-1px] w-2 h-2  rounded-full border-2 border-bg bg-green-500" />
+                )}
             </Link>
         );
     }
 
     return (
-        <div className={`sq-avatar ${cls} ${className} bg-[var(--ink)] text-white`} title={handle}>
+        <div
+            className={`relative sq-avatar ${cls} ${className} bg-[var(--ink)] text-white`}
+            title={handle}
+        >
             {initials}
+            {isOnline && (
+                <span className="absolute bottom-[-1px] right-[-1px] w-2 h-2 rounded-full border-2 border-bg bg-green-500" />
+            )}
         </div>
     );
 };

@@ -14,13 +14,16 @@ export const useFollowing = () => {
         queryFn: () => apiClient.getSuggestedUsers(),
         staleTime: 0,
     });
-    const { mutate: toggleFollowUser, isPending: isPendingFollowing } = useMutation<
+    const {
+        mutate: toggleFollowUser,
+        isPending: isPendingFollowing,
+        variables: pendingFollowVariables,
+    } = useMutation<
         User,
         Error,
         { userId: number; isFollowing: boolean },
         { previousData: User[] | undefined }
     >({
-        mutationKey: ["toggleFollowUser"],
         onMutate: async ({ userId }) => {
             await queryClient.cancelQueries({ queryKey: ["suggestedUsers"] });
 
@@ -71,5 +74,6 @@ export const useFollowing = () => {
         isErrorSuggested,
         toggleFollowUser,
         isPendingFollowing,
+        pendingFollowVariables,
     };
 };

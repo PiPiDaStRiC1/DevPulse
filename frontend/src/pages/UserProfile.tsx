@@ -15,7 +15,7 @@ import { Avatar, ErrorAlert, Preloader } from "@/components";
 import { apiClient } from "@/lib/api";
 import { safeParseDate } from "@/lib/utils";
 import { Link, useParams } from "react-router-dom";
-import { useFollowing, useSession } from "@/hooks";
+import { useFollowing, useOnline, useSession } from "@/hooks";
 import type { User } from "@shared/types";
 
 export const UserProfile = () => {
@@ -32,8 +32,7 @@ export const UserProfile = () => {
         queryFn: () => apiClient.getOneUserByHandle(handle!),
     });
     const isMe = Boolean(me?.id === user?.id);
-
-    console.log(isMe);
+    const isOnline = useOnline(user?.id);
 
     if (isLoading) {
         return <Preloader text="Loading profile" />;
@@ -117,6 +116,7 @@ export const UserProfile = () => {
                         <div className="rounded-[6px] border-2 border-ink bg-bg p-2 shadow-[4px_4px_0_var(--ink)]">
                             <Avatar
                                 handle={user.handle}
+                                isOnline={isOnline}
                                 size="lg"
                                 className="!w-[92px] !h-[92px] text-[26px]"
                             />
