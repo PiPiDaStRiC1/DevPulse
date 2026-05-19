@@ -7,6 +7,7 @@ import type {
     Acknowledgement,
     SocketReadChatPayload,
     SocketTypingMessagePayload,
+    SocketRoomCreatePayload,
 } from "@shared/types";
 
 const WS_URL = import.meta.env["VITE_WS_URL"] || "http://localhost:4000";
@@ -18,6 +19,7 @@ export const socket: Socket = io(WS_URL, {
 
 interface SocketState {
     joinRoom: (roomId: string) => void;
+    sendRoomCreateWithWS: ({ chatId, collocutorId }: SocketRoomCreatePayload) => void;
     sendMessageWithWS: ({ chatId, message }: SocketMessagePayload) => void;
     publishPostWithWS: ({ post }: SocketPostPayload) => void;
     readMessagesWithWS: ({ chatId }: SocketReadChatPayload) => void;
@@ -26,13 +28,15 @@ interface SocketState {
 
 export const useSocketStore = create<SocketState>(() => ({
     joinRoom: (roomId: string) => {
-        if (!socket) return;
         socket.emit("room:join", roomId, (res: Acknowledgement) => {
             if (!res.ok) {
                 toast.error(res.error);
                 return;
             }
         });
+    },
+    sendRoomCreateWithWS: ({ chatId, collocutorId }: SocketRoomCreatePayload) => {
+        socket.emit("room:create", { chatId, collocutorId });
     },
     sendTypingStatusWithWS: ({ chatId, isTyping }: SocketTypingMessagePayload) => {
         socket.emit("user:typing", { chatId, isTyping });

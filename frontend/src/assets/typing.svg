@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Simple typing indicator: three dark-gray dots on light-gray rounded background -->
+<svg xmlns="http://www.w3.org/2000/svg" width="72" height="28" viewBox="0 0 72 28" aria-hidden="true">
+  <rect x="0" y="0" width="72" height="28" rx="14" fill="#f3f4f6" />
+
+  <g fill="#4b5563">
+    <circle cx="18" cy="14" r="4" opacity="0.35">
+      <animate attributeName="opacity" values="0.35;1;0.35" dur="1s" repeatCount="indefinite" begin="0s"/>
+      <animate attributeName="cy" values="14;12;14" dur="1s" repeatCount="indefinite" begin="0s"/>
+    </circle>
+
+    <circle cx="36" cy="14" r="4" opacity="0.35">
+      <animate attributeName="opacity" values="0.35;1;0.35" dur="1s" repeatCount="indefinite" begin="0.12s"/>
+      <animate attributeName="cy" values="14;12;14" dur="1s" repeatCount="indefinite" begin="0.12s"/>
+    </circle>
+
+    <circle cx="54" cy="14" r="4" opacity="0.35">
+      <animate attributeName="opacity" values="0.35;1;0.35" dur="1s" repeatCount="indefinite" begin="0.24s"/>
+      <animate attributeName="cy" values="14;12;14" dur="1s" repeatCount="indefinite" begin="0.24s"/>
+    </circle>
+  </g>
+</svg>

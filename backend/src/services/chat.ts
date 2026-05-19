@@ -7,7 +7,7 @@ const parseChat = (chat: any, currentUserId: number): Chat => {
         (p: { userId: number; lastReadAt: string }) => p.userId === currentUserId,
     );
 
-    const lastReadAt = participant?.lastReadAt ?? new Date().toISOString();
+    const lastReadAt = participant?.lastReadAt ?? new Date(0).toISOString();
 
     const collocutor = chat.collocutor?.id === currentUserId ? chat.user : chat.collocutor;
 
@@ -28,7 +28,7 @@ const getUnreadCount = async (chatId: number, userId: number) => {
         select: { lastReadAt: true },
     });
 
-    const lastReadAt = participant?.lastReadAt ?? new Date().toISOString();
+    const lastReadAt = participant?.lastReadAt ?? new Date(0).toISOString();
 
     return prisma.message.count({
         where: { chatId, createdAt: { gt: lastReadAt }, senderId: { not: userId } },
@@ -188,7 +188,17 @@ export const postChat = async (req: Request<{}, {}, ChatDTO>, res: Response<ApiR
         }
 
         const chat = await prisma.chat.create({
-            data: { userId, messages: { create: lastMessage }, collocutorId },
+            data: {
+                userId,
+                messages: { create: lastMessage },
+                collocutorId,
+                participants: {
+                    create: [
+                        { userId: userId, lastReadAt: new Date().toISOString() },
+                        { userId: collocutorId, lastReadAt: new Date(0).toISOString() },
+                    ],
+                },
+            },
         });
 
         const fullChat = await prisma.chat.findUnique({

@@ -21,3 +21,8 @@ export interface SocketTypingMessagePayload {
     chatId: string;
     isTyping: boolean;
 }
+
+export interface SocketRoomCreatePayload {
+    chatId: string;
+    collocutorId: number;
+}

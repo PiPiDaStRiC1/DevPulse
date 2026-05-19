@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ErrorAlert, ChatRoomHeader } from "@/components";
 import { Send } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useSession } from "@/hooks";
+import { useSession, useSocket } from "@/hooks";
 import { apiClient } from "@/lib/api";
 import toast from "react-hot-toast";
 import type { ChatDTO } from "@shared/types";
@@ -10,13 +10,14 @@ import type { ChatDTO } from "@shared/types";
 export const NewChatRoom = () => {
     const { user: me } = useSession();
     const navigate = useNavigate();
+    const { sendRoomCreateWithWS } = useSocket();
     const [draft, setDraft] = useState("");
     const { handle } = useParams<{ handle: string }>();
     const isMe = Boolean(me?.handle === handle);
 
     const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (!handle || !draft.trim() || !me) throw new Error("Failed to create chat: missing data");
+        if (!handle || !draft.trim() || !me) return;
 
         try {
             const collocutor = await apiClient.getOneUserByHandle(handle);
@@ -30,7 +31,10 @@ export const NewChatRoom = () => {
             };
 
             const createdChat = await apiClient.postOneChat(chatPayload);
-            navigate(`/whispers/${createdChat.id}`);
+
+            sendRoomCreateWithWS({ chatId: String(createdChat.id), collocutorId: collocutor.id });
+
+            navigate(`/whispers/${createdChat.id}`, { replace: true });
         } catch (err) {
             toast.error("Failed to create chat");
             console.error(err);

@@ -94,10 +94,10 @@ export const useChat = () => {
             joinRoom(id);
         };
 
-        socket.on("connect", onConnect);
+        socket.on("user:connected", onConnect);
 
         return () => {
-            socket.off("connect", onConnect);
+            socket.off("user:connected", onConnect);
         };
     }, [id, joinRoom]);
 

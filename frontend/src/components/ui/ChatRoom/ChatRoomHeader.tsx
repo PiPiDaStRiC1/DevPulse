@@ -4,6 +4,7 @@ import { Avatar, Preloader, ErrorAlert } from "@/components";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
 import { useOnline, useTypingStatus } from "@/hooks";
+import Typing from "@/assets/typing.svg";
 import type { Chat } from "@shared/types";
 
 interface ChatRoomHeaderProps {
@@ -23,7 +24,7 @@ export const ChatRoomHeader = ({ chat, handle }: ChatRoomHeaderProps) => {
         queryKey: ["userByHandle", handle],
         queryFn: () => apiClient.getOneUserByHandle(handle!),
         enabled: shouldFetch,
-        staleTime: 5 * 60 * 1000,
+        staleTime: 0,
     });
 
     const user = collocutorFromChat ?? fetchedUser ?? null;
@@ -55,7 +56,8 @@ export const ChatRoomHeader = ({ chat, handle }: ChatRoomHeaderProps) => {
                         </span>
                         {isTyping ? (
                             <p className="flex items-center text-xs gap-1">
-                                <span className="text-gray-500">Печатает...</span>
+                                <img src={Typing} alt="Typing..." className="w-4 h-4" />
+                                <span className="text-gray-500">Печатает</span>
                             </p>
                         ) : isOnline ? (
                             <p className="flex items-center text-xs gap-1">

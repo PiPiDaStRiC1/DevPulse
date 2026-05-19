@@ -14,6 +14,7 @@ import type {
     Acknowledgement,
     ChatOnlineAcknowledgement,
     SocketTypingMessagePayload,
+    SocketRoomCreatePayload,
 } from "@shared/types";
 
 const PORT = Number(process.env["PORT"]) || 4000;
@@ -72,6 +73,15 @@ io.on("connection", (socket) => {
             return ack({ ok: true, data: { isUserOnline } });
         },
     );
+
+    socket.on("room:create", (payload: SocketRoomCreatePayload) => {
+        const collocutorId = payload.collocutorId;
+
+        if (onlineUsers.has(collocutorId)) {
+            const userSockets = Array.from(onlineUsers.get(collocutorId)!);
+            io.to(userSockets).emit("room:create:new", payload);
+        }
+    });
 
     socket.on("room:join", async (roomId: string, ack: (res: Acknowledgement) => void) => {
         const currentUserId = socket.data.user.userId;

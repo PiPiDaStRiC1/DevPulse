@@ -21,7 +21,7 @@ export const Whispers = () => {
     } = useQuery<Chat[]>({
         queryKey: ["chats"],
         queryFn: apiClient.getAllChats,
-        staleTime: 0,
+        staleTime: 5 * 60 * 1000,
         enabled: isAuthenticated,
     });
 

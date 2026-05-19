@@ -35,15 +35,21 @@ export const useSocketBootstrap = () => {
     }, []);
 
     useEffect(() => {
+        if (!chats) return;
+
+        // if socket is already connected by the time chats are loaded — join rooms immediately
+        if (socket.connected) {
+            chats.forEach((chat) => joinRoom(String(chat.id)));
+        }
+
         const onConnect = () => {
-            if (!chats) return;
             chats.forEach((chat) => joinRoom(String(chat.id)));
         };
 
-        socket.on("user:connected", onConnect);
+        socket.on("connect", onConnect);
 
         return () => {
-            socket.off("user:connected", onConnect);
+            socket.off("connect", onConnect);
         };
     }, [chats, joinRoom]);
 
@@ -54,9 +60,11 @@ export const useSocketBootstrap = () => {
         };
 
         socket.on("chat:message:new", onNewMessage);
+        socket.on("room:create:new", onNewMessage);
 
         return () => {
             socket.off("chat:message:new", onNewMessage);
+            socket.off("room:create:new", onNewMessage);
         };
     }, [queryClient]);
 
