@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Tips } from "@/components";
 import { FileText, Code2, BookOpenText } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -12,6 +12,8 @@ interface ComposerTabInfo {
 
 interface TextEditorProps {
     body: string;
+    heading: string;
+    setHeading: (value: string) => void;
     setBody: (value: string) => void;
 }
 
@@ -21,9 +23,25 @@ const composerTabs: ComposerTabInfo[] = [
     { label: "Article", icon: BookOpenText },
 ];
 
-export const TextEditor = ({ body, setBody }: TextEditorProps) => {
+export const TextEditor = ({ body, heading, setHeading, setBody }: TextEditorProps) => {
     const [activeTab, setActiveTab] = useState<ComposerTab>("Article");
     const [showTips, setShowTips] = useState(false);
+
+    const handleChangeHeading = (e: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => {
+        let value = e.target.value;
+        if (!value.startsWith("# ")) {
+            value = "# " + value.replace(/^#\s*/, "");
+        }
+        setHeading(value);
+    };
+
+    useEffect(() => {
+        document.body.style.overflow = "hidden";
+
+        return () => {
+            document.body.style.overflow = "auto";
+        };
+    });
 
     return (
         <div className="flex min-h-0 flex-col border-b-2 border-ink lg:border-b-0 lg:border-r-2">
@@ -69,18 +87,28 @@ export const TextEditor = ({ body, setBody }: TextEditorProps) => {
 
                     {showTips && <Tips />}
 
-                    <textarea
-                        value={body}
-                        onChange={(e) => setBody(e.target.value)}
-                        placeholder={
-                            activeTab === "Code"
-                                ? "Try:\n# What I learned today\n\n```ts\nconst result = await prisma.user.findMany();\n```\n\n- Why this works\n- Where it can fail"
-                                : activeTab === "Post"
-                                  ? "Try:\n# Main point\n\nShort intro paragraph.\n\n## Key takeaways\n- First insight\n- Second insight"
-                                  : "Write your article in Markdown. Start with # Heading and break ideas into short sections."
-                        }
-                        className="min-h-0 flex-1 resize-none border-0 bg-transparent px-4 py-4 text-[15px] leading-[1.72] text-text-base outline-none placeholder:text-subtle"
-                    />
+                    <div className="flex flex-col gap-5 h-full">
+                        <input
+                            autoFocus
+                            type="text"
+                            value={heading}
+                            placeholder="Heading"
+                            onChange={handleChangeHeading}
+                            className="px-4 pt-2 outline-none"
+                        />
+                        <textarea
+                            value={body}
+                            onChange={(e) => setBody(e.target.value)}
+                            placeholder={
+                                activeTab === "Code"
+                                    ? "Try:\n# What I learned today\n\n```ts\nconst result = await prisma.user.findMany();\n```\n\n- Why this works\n- Where it can fail"
+                                    : activeTab === "Post"
+                                      ? "Try:\n# Main point\n\nShort intro paragraph.\n\n## Key takeaways\n- First insight\n- Second insight"
+                                      : "Write your article in Markdown. Start with # Heading and break ideas into short sections."
+                            }
+                            className="min-h-0 h-full flex-1 resize-none border-0 bg-transparent px-4 pb-4 text-[15px] leading-[1.72] text-text-base outline-none placeholder:text-subtle"
+                        />
+                    </div>
                 </div>
 
                 <div className="mt-4 flex items-center justify-between text-[12px] text-muted">

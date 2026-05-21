@@ -1,12 +1,21 @@
 import { prisma } from "@/helpers";
 import { Prisma } from "@prisma/client";
-import type { Response, Request } from "express";
-import type { ApiResponse } from "@shared/types";
-import type { Post } from "@shared/types";
 import { postCreateSchema } from "@shared/schemas";
+import type { Response, Request } from "express";
+import type { Post, ApiResponse, PostDTO } from "@shared/types";
 
-const parsedPost = (post: any): Post => ({
+function countReadTime(content: string) {
+    const wordsCount = content.trim() ? content.trim().split(/\s+/).length : 0;
+    const WORDS_PER_MINUTE = 150;
+
+    return Math.max(1, Math.ceil(wordsCount / WORDS_PER_MINUTE));
+}
+
+const parsePost = (post: any): Post => ({
     id: post.id,
+    title: post.title,
+    coverImage: post.coverImage,
+    readTime: countReadTime(post.content),
     authorId: post.authorId,
     content: post.content,
     tags: post.tags.map((t: any) => t.name),
@@ -29,8 +38,9 @@ export const getPosts = async (_req: Request, res: Response<ApiResponse<Post[]>>
     try {
         const posts = await prisma.post.findMany({
             include: { tags: true, techStack: true, comments: true, codeSnippet: true },
+            orderBy: { createdAt: "desc" },
         });
-        return res.status(200).json({ success: true, data: posts.map(parsedPost) });
+        return res.status(200).json({ success: true, data: posts.map(parsePost) });
     } catch (error) {
         console.error("Error getting all posts:", error);
         return res.status(500).json({ success: false, error: "Failed to fetch posts" });
@@ -50,7 +60,7 @@ export const getOnePost = async (
             where: { id: postId },
             include: { tags: true, techStack: true, comments: true, codeSnippet: true },
         });
-        return res.status(200).json({ success: true, data: parsedPost(post) });
+        return res.status(200).json({ success: true, data: parsePost(post) });
     } catch (error) {
         console.error("Error getting post:", error);
         return res.status(500).json({ success: false, error: "Failed to fetch post" });
@@ -58,25 +68,30 @@ export const getOnePost = async (
 };
 
 export const postPost = async (
-    req: Request<{}, {}, Omit<Post, "id">, {}>,
+    req: Request<{}, {}, PostDTO, {}>,
     res: Response<ApiResponse<Post>>,
 ) => {
     try {
         const parsed = postCreateSchema.safeParse(req.body);
 
         if (!parsed.success) {
-            return res.status(400).json({ success: false, error: "Invalid post data" });
+            const parsedError = JSON.parse(parsed.error.message)[0];
+            console.error("Invalid post data:", parsedError.message);
+            return res.status(400).json({ success: false, error: parsedError.message });
         }
 
-        const { tags, techStack, comments, codeSnippet, image, content } = parsed.data;
+        const { tags, techStack, comments, codeSnippet, image, content, title, coverImage } =
+            parsed.data;
         const { userId } = req.user!;
 
         const data: Prisma.PostCreateInput = {
             content,
+            title,
+            coverImage,
             image: image === undefined ? null : image,
             author: { connect: { id: userId } },
-            tags: { create: tags.map((name) => ({ name })) },
-            techStack: { create: techStack.map((name) => ({ name })) },
+            tags: { create: tags.map((name: string) => ({ name })) },
+            techStack: { create: techStack.map((name: string) => ({ name })) },
             comments: { create: comments.map((comment) => ({ ...comment })) },
         };
 
@@ -91,7 +106,7 @@ export const postPost = async (
             include: { tags: true, techStack: true, comments: true, codeSnippet: true },
         });
 
-        return res.status(201).json({ success: true, data: parsedPost(post) });
+        return res.status(201).json({ success: true, data: parsePost(post) });
     } catch (error) {
         console.error("Error creating post:", error);
         return res.status(500).json({ success: false, error: "Failed to create post" });

@@ -1,7 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { X, Sparkles, Eye, Bookmark, Send, Maximize2 } from "lucide-react";
-import { Avatar, ErrorAlert, PostModalOptions, TextEditor } from "@/components";
+import { Avatar, ErrorAlert, PostModalOptions, TextEditor, PreviewModal } from "@/components";
 import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
@@ -10,12 +10,13 @@ import { usePostComposer } from "@/hooks";
 export const PostComposerModal = () => {
     const postModalRef = useRef<HTMLDivElement>(null);
     const fullPreviewModalRef = useRef<HTMLDivElement>(null);
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const {
         body,
         setBody,
+        heading,
+        setHeading,
         tags,
-        isPreviewOpen,
-        setIsPreviewOpen,
         isAddingTag,
         setIsAddingTag,
         previewBody,
@@ -29,6 +30,21 @@ export const PostComposerModal = () => {
         handlePostSubmit,
         onClose,
     } = usePostComposer();
+
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                if (isPreviewOpen) {
+                    setIsPreviewOpen(false);
+                }
+            }
+        };
+        window.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [isPreviewOpen, setIsPreviewOpen]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -94,7 +110,12 @@ export const PostComposerModal = () => {
                 </div>
 
                 <div className="grid flex-1 min-h-0 lg:grid-cols-[minmax(0,1fr)_340px]">
-                    <TextEditor body={body} setBody={setBody} />
+                    <TextEditor
+                        body={body}
+                        heading={heading}
+                        setHeading={setHeading}
+                        setBody={setBody}
+                    />
                     <aside className="flex min-h-0 flex-col bg-bg/65">
                         {isError ? (
                             <ErrorAlert message="Failed to load user" />
@@ -134,6 +155,11 @@ export const PostComposerModal = () => {
                                             <ReactMarkdown
                                                 remarkPlugins={[remarkGfm, remarkBreaks]}
                                             >
+                                                {heading}
+                                            </ReactMarkdown>
+                                            <ReactMarkdown
+                                                remarkPlugins={[remarkGfm, remarkBreaks]}
+                                            >
                                                 {previewExcerpt}
                                             </ReactMarkdown>
                                         </div>
@@ -154,6 +180,11 @@ export const PostComposerModal = () => {
                                                 type="text"
                                                 autoFocus
                                                 onBlur={(e) => handleAddTag(e.currentTarget.value)}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === "Enter") {
+                                                        handleAddTag(e.currentTarget.value);
+                                                    }
+                                                }}
                                                 className="tag-badge bg-bg border-2 border-ink p-1.5 text-[12px] text-muted rounded-[var(--radius)]"
                                             />
                                         )}
@@ -161,7 +192,7 @@ export const PostComposerModal = () => {
                                             <span
                                                 key={tag}
                                                 onClick={() => handleToggleTag(tag)}
-                                                className="tag-badge gap-2"
+                                                className="select-none tag-badge gap-2"
                                             >
                                                 {tag}
                                                 <X size={13} />
@@ -204,33 +235,12 @@ export const PostComposerModal = () => {
             </div>
 
             {isPreviewOpen && (
-                <div className="fixed inset-0 z-[70] flex items-center justify-center bg-[rgba(26,46,26,0.52)] px-4 py-6">
-                    <div
-                        ref={fullPreviewModalRef}
-                        className="flex h-[min(86vh,860px)] w-full max-w-[860px] flex-col overflow-hidden rounded-[var(--radius)] border-2 border-ink bg-surface shadow-[8px_8px_0_var(--ink)]"
-                    >
-                        <div className="flex items-center justify-between border-b-2 border-ink px-4 py-3">
-                            <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-muted">
-                                Full preview
-                            </p>
-                            <button
-                                onClick={() => setIsPreviewOpen(false)}
-                                className="cursor-pointer rounded-[var(--radius)] border-2 border-ink bg-bg p-2 text-muted transition-colors hover:text-text-base"
-                                aria-label="Close modal"
-                            >
-                                <X size={16} />
-                            </button>
-                        </div>
-
-                        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
-                            <div className="preview-markdown">
-                                <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
-                                    {body}
-                                </ReactMarkdown>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <PreviewModal
+                    body={body}
+                    heading={heading}
+                    closeModal={() => setIsPreviewOpen(false)}
+                    ref={fullPreviewModalRef}
+                />
             )}
         </div>,
         document.body,

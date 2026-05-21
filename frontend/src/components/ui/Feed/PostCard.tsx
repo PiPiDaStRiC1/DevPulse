@@ -45,6 +45,9 @@ export const PostCard = ({ post }: PostCardProps) => {
     const fmt = (n: number | undefined) => (n && n >= 1000 ? `${(n / 1000).toFixed(1)}k` : 0);
 
     const postDateLabel = safeParseDate(post.createdAt);
+    const MAX = 200;
+    const isLong = post.content && post.content.length > MAX;
+    const preview = isLong ? `${post.content.slice(0, MAX).trimEnd()}...` : post.content;
 
     return (
         <article className="card p-0 mb-4 overflow-hidden">
@@ -64,18 +67,37 @@ export const PostCard = ({ post }: PostCardProps) => {
                             <span className="text-subtle">·</span>
                             <span className="text-subtle">{postDateLabel}</span>
                             <span className="text-subtle">·</span>
-                            <span className="text-subtle">~3 min read</span>
+                            <span className="text-subtle">~{post.readTime} min read</span>
                         </div>
 
-                        <div className="preview-markdown">
+                        <div className="preview-markdown py-2">
+                            <Link
+                                to={`/posts/${post.id}`}
+                                className="!no-underline hover:!underline"
+                            >
+                                <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+                                    {post.title}
+                                </ReactMarkdown>
+                            </Link>
                             <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
-                                {post.content}
+                                {preview}
                             </ReactMarkdown>
+                            {isLong && (
+                                <div className="mt-2">
+                                    <Link
+                                        to={`/posts/${post.id}`}
+                                        className="btn-outline inline-flex items-center gap-2 !py-1 !px-3 !text-sm"
+                                        aria-label={`Read more about ${post.title}`}
+                                    >
+                                        Read more
+                                    </Link>
+                                </div>
+                            )}
                         </div>
 
-                        {post.image && (
+                        {post.coverImage && (
                             <div className="border-2 border-ink rounded-lg flex items-center justify-center">
-                                <img src={post.image} alt="user-picture" />
+                                <img src={post.coverImage} alt="user-picture" />
                             </div>
                         )}
 

@@ -7,22 +7,31 @@ import toast from "react-hot-toast";
 import type { Post, User } from "@shared/types";
 
 const PREVIEW_CHAR_LIMIT = 250;
-const SAVED_TIMER = 10000;
+const SAVED_TIMER = 30000;
 
-const initDraft = (): { body: string; tags: string[] } => {
+interface InitDraft {
+    heading: string;
+    body: string;
+    tags: string[];
+}
+
+const initDraft = (): InitDraft => {
     try {
         const raw = localStorage.getItem("draft-post");
-        if (!raw) return { body: "", tags: [] };
+        if (!raw) return { heading: "", body: "", tags: [] };
 
-        return JSON.parse(raw);
+        const parsed = JSON.parse(raw) as Partial<InitDraft>;
+
+        return { heading: parsed.heading ?? "", body: parsed.body ?? "", tags: parsed.tags ?? [] };
     } catch (error) {
         console.error("Failed to parse draft post from localStorage", error);
-        return { body: "", tags: [] };
+        return { heading: "", body: "", tags: [] };
     }
 };
 
 const initBody: () => string = () => initDraft().body;
 const initTags: () => string[] = () => initDraft().tags;
+const initHeading: () => string = () => initDraft().heading;
 
 export const usePostComposer = () => {
     const navigate = useNavigate();
@@ -30,9 +39,9 @@ export const usePostComposer = () => {
     const { publishPostWithWS } = useSocket();
     const saveTimer = useRef<number | null>(null);
     const [body, setBody] = useState(initBody);
-    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+    const [heading, setHeading] = useState(initHeading);
+    const [tags, setTags] = useState(initTags);
     const [isAddingTag, setIsAddingTag] = useState(false);
-    const [tags, setTags] = useState<string[]>(initTags);
 
     const previewBody = body.trim() || "You text will be here...";
     const previewExcerpt =
@@ -47,9 +56,9 @@ export const usePostComposer = () => {
     } = useQuery<User>({ queryKey: ["me"], queryFn: apiClient.me, staleTime: 30 * 60 * 1000 });
 
     const handleSaveDraft = useCallback(() => {
-        localStorage.setItem("draft-post", JSON.stringify({ body, tags }));
+        localStorage.setItem("draft-post", JSON.stringify({ body, tags, heading }));
         toast.success("Draft saved locally");
-    }, [body, tags]);
+    }, [body, tags, heading]);
 
     const handleAddTag = useCallback(
         (newTag: string) => {
@@ -73,6 +82,8 @@ export const usePostComposer = () => {
     const handlePostSubmit = useCallback(async () => {
         try {
             const post = await apiClient.postOnePost({
+                title: heading,
+                coverImage: null,
                 content: body,
                 tags: tags,
                 techStack: ["React", "TypeScript"],
@@ -86,15 +97,17 @@ export const usePostComposer = () => {
             queryClient.setQueryData(["feed"], (oldData: Post[] | undefined) => {
                 if (!oldData) return [post];
                 if (post.id && oldData.some((p) => p.id === post.id)) return oldData;
-                return [...oldData, post];
+                return [post, ...oldData];
             });
             localStorage.removeItem("draft-post");
             onClose();
         } catch (error) {
             console.error("Failed to create post", error);
-            toast.error("Failed to create post");
+            if (error instanceof Error) {
+                toast.error(error.message || "Failed to create post");
+            }
         }
-    }, [body, tags, publishPostWithWS, queryClient, onClose]);
+    }, [body, heading, tags, publishPostWithWS, queryClient, onClose]);
 
     useEffect(() => {
         saveTimer.current = setInterval(() => {
@@ -108,30 +121,12 @@ export const usePostComposer = () => {
         };
     }, [handleSaveDraft]);
 
-    useEffect(() => {
-        const onKeyDown = (event: KeyboardEvent) => {
-            if (event.key === "Escape") onClose();
-        };
-
-        window.addEventListener("keydown", onKeyDown);
-        return () => window.removeEventListener("keydown", onKeyDown);
-    }, [onClose]);
-
-    useEffect(() => {
-        document.body.style.overflow = "hidden";
-
-        return () => {
-            document.body.style.overflow = "auto";
-        };
-    }, []);
-
     return {
         body,
         setBody,
+        heading,
+        setHeading,
         tags,
-        setTags,
-        isPreviewOpen,
-        setIsPreviewOpen,
         isAddingTag,
         setIsAddingTag,
         previewBody,

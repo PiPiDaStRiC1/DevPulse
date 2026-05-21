@@ -12,6 +12,7 @@ import type {
     ChatDTO,
     Message,
     MessageDTO,
+    PostDTO,
 } from "@shared/types";
 
 const API_URL = import.meta.env["VITE_API_URL"];
@@ -153,7 +154,7 @@ export const apiClient = {
             throw new Error(error instanceof Error ? error.message : "Failed to fetch post");
         }
     },
-    async postOnePost(postData: Post) {
+    async postOnePost(postData: PostDTO) {
         try {
             const response = await genericFetch<ApiResponse<Post>>(`${API_URL}/posts`, {
                 method: "POST",

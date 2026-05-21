@@ -7,6 +7,9 @@ export interface CodeSnippet {
 
 export interface Post {
     id?: number;
+    title: string;
+    coverImage: string | null;
+    readTime: number;
     authorId?: number;
     content: string;
     tags: string[];
@@ -22,3 +25,5 @@ export interface Post {
     image: string | null;
     codeSnippet: CodeSnippet | null;
 }
+
+export type PostDTO = Omit<Post, "id" | "readTime">;

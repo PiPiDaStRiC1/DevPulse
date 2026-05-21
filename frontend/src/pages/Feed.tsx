@@ -23,7 +23,7 @@ export const Feed = () => {
             queryClient.setQueryData(["feed"], (oldData: Post[] | undefined) => {
                 if (!oldData) return [post];
                 if (post.id && oldData.some((p) => p.id === post.id)) return oldData;
-                return [...oldData, post];
+                return [post, ...oldData];
             });
         };
 
