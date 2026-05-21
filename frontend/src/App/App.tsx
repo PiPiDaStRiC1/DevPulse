@@ -12,6 +12,7 @@ import {
     PostComposerModal,
     ChatRoom,
     NewChatRoom,
+    PostInfo,
 } from "@/pages";
 import { ProtectedRoute, PublicRoute, NewChatRoute } from "@/features";
 import { ScrollToTop } from "@/lib/utils";
@@ -31,7 +32,6 @@ import { useAuthBootstrap, useSocketBootstrap } from "@/hooks";
 
 // JWT
 // позже сделать refreshToken
-
 
 function App() {
     // initial hook for "me" request at mount of App
@@ -94,6 +94,7 @@ function App() {
                         }
                     />
                     <Route path="/profile/:handle" element={<UserProfile />} />
+                    <Route path="/posts/:postId" element={<PostInfo />} />
                     {!state?.background && (
                         <Route
                             path="/editor"
