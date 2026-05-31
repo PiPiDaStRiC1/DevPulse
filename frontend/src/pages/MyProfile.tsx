@@ -139,7 +139,16 @@ export const MyProfile = () => {
                     <article className="card p-5 lg:col-span-2">
                         <div className="flex items-center justify-between gap-3 mb-4">
                             <h2 className="text-lg font-bold tracking-tight">Activity Overview</h2>
-                            <span className="text-xs text-subtle">Last 30 days</span>
+                            <select
+                                name="activity"
+                                id="activity"
+                                className="outline-none border border-ink rounded-lg px-2 py-1 text-sm"
+                            >
+                                <option value="30">Last 30 days</option>
+                                <option value="all" selected>
+                                    All time
+                                </option>
+                            </select>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
