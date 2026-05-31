@@ -29,7 +29,18 @@ export const getSuggestedUsers = async (
         const suggestedUsers = await prisma.user.findMany({
             where: whereCondition,
             take: take,
-            include: { _count: { select: { followers: true, following: true } }, followers: true },
+            include: {
+                _count: {
+                    select: {
+                        followers: true,
+                        following: true,
+                        likes: true,
+                        comments: true,
+                        posts: true,
+                    },
+                },
+                followers: true,
+            },
             orderBy: { createdAt: "desc" },
         });
 
@@ -56,7 +67,18 @@ export const postFollowUser = async (
 
         const userToFollow = await prisma.user.findUnique({
             where: { id: followingId },
-            include: { _count: { select: { followers: true, following: true } }, followers: true },
+            include: {
+                _count: {
+                    select: {
+                        followers: true,
+                        following: true,
+                        likes: true,
+                        comments: true,
+                        posts: true,
+                    },
+                },
+                followers: true,
+            },
         });
 
         if (!userToFollow) {
@@ -71,10 +93,20 @@ export const postFollowUser = async (
 
         const updated = await prisma.user.findUnique({
             where: { id: followingId },
-            include: { _count: { select: { followers: true, following: true } }, followers: true },
+            include: {
+                _count: {
+                    select: {
+                        followers: true,
+                        following: true,
+                        likes: true,
+                        comments: true,
+                        posts: true,
+                    },
+                },
+                followers: true,
+            },
         });
 
-        console.log(updated);
         return res.status(200).json({ success: true, data: parseUser(updated!, userId) });
     } catch (error) {
         return res.status(500).json({ success: false, error: "Failed to follow user" });
@@ -98,7 +130,18 @@ export const deleteUnfollowUser = async (
 
         const userToUnSubscribe = await prisma.user.findUnique({
             where: { id: followingId },
-            include: { _count: { select: { followers: true, following: true } }, followers: true },
+            include: {
+                _count: {
+                    select: {
+                        followers: true,
+                        following: true,
+                        likes: true,
+                        comments: true,
+                        posts: true,
+                    },
+                },
+                followers: true,
+            },
         });
 
         if (!userToUnSubscribe) {
@@ -111,7 +154,18 @@ export const deleteUnfollowUser = async (
 
         const updated = await prisma.user.findUnique({
             where: { id: followingId },
-            include: { _count: { select: { followers: true, following: true } }, followers: true },
+            include: {
+                _count: {
+                    select: {
+                        followers: true,
+                        following: true,
+                        likes: true,
+                        comments: true,
+                        posts: true,
+                    },
+                },
+                followers: true,
+            },
         });
 
         return res.status(200).json({ success: true, data: parseUser(updated!, userId) });
@@ -132,7 +186,18 @@ export const getOneUserById = async (
 
         const user = await prisma.user.findFirstOrThrow({
             where: { id: userId },
-            include: { _count: { select: { followers: true, following: true } }, followers: true },
+            include: {
+                _count: {
+                    select: {
+                        followers: true,
+                        following: true,
+                        likes: true,
+                        comments: true,
+                        posts: true,
+                    },
+                },
+                followers: true,
+            },
         });
 
         if (currentUserId) {
@@ -158,7 +223,18 @@ export const getOneUserByHandle = async (
 
         const user = await prisma.user.findFirstOrThrow({
             where: { handle },
-            include: { _count: { select: { followers: true, following: true } }, followers: true },
+            include: {
+                _count: {
+                    select: {
+                        followers: true,
+                        following: true,
+                        likes: true,
+                        comments: true,
+                        posts: true,
+                    },
+                },
+                followers: true,
+            },
         });
 
         if (currentUserId) {

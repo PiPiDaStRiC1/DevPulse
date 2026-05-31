@@ -16,11 +16,11 @@ export const Feed = () => {
         isLoading,
         isError,
         refetch,
-    } = useQuery({ queryKey: ["feed"], queryFn: apiClient.getAllPosts });
+    } = useQuery({ queryKey: ["posts"], queryFn: apiClient.getAllPosts });
 
     useEffect(() => {
         const handler = ({ post }: SocketPostPayload) => {
-            queryClient.setQueryData(["feed"], (oldData: Post[] | undefined) => {
+            queryClient.setQueryData(["posts"], (oldData: Post[] | undefined) => {
                 if (!oldData) return [post];
                 if (post.id && oldData.some((p) => p.id === post.id)) return oldData;
                 return [post, ...oldData];

@@ -8,3 +8,4 @@ export * from "./usePostComposer";
 export * from "./useFollowing";
 export * from "./useOnline";
 export * from "./useTypingStatus";
+export * from "./useTogglePostLike";

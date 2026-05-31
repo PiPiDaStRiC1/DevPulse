@@ -19,7 +19,18 @@ export const fetchMe = async (req: Request, res: Response<MeResponse>) => {
 
         const currentUser = await prisma.user.findUnique({
             where: { id: userId },
-            include: { _count: { select: { followers: true, following: true } } },
+            include: {
+                _count: {
+                    select: {
+                        followers: true,
+                        following: true,
+                        likes: true,
+                        comments: true,
+                        posts: true,
+                    },
+                },
+                followers: true,
+            },
         });
 
         if (!currentUser) {
@@ -47,7 +58,18 @@ export const loginUser = async (
 
         const user = await prisma.user.findUnique({
             where: { email },
-            include: { _count: { select: { followers: true, following: true } } },
+            include: {
+                _count: {
+                    select: {
+                        followers: true,
+                        following: true,
+                        likes: true,
+                        comments: true,
+                        posts: true,
+                    },
+                },
+                followers: true,
+            },
         });
 
         if (!user) {
@@ -92,7 +114,18 @@ export const registerUser = async (
 
         const user = await prisma.user.create({
             data: { email, password: hashed, handle, username },
-            include: { _count: { select: { followers: true, following: true } } },
+            include: {
+                _count: {
+                    select: {
+                        followers: true,
+                        following: true,
+                        likes: true,
+                        comments: true,
+                        posts: true,
+                    },
+                },
+                followers: true,
+            },
         });
 
         const token = createAccessToken(user.id);

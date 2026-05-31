@@ -8,6 +8,9 @@ export interface User {
     isVerified: boolean;
     followers: number;
     following: number;
+    likes: number;
+    comments: number;
+    posts: number;
     role: string;
     isFollowing: boolean;
     createdAt: Date;

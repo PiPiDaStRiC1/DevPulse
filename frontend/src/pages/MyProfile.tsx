@@ -147,19 +147,25 @@ export const MyProfile = () => {
                                 <p className="text-[12px] text-subtle font-semibold">
                                     Published posts
                                 </p>
-                                <p className="text-2xl font-extrabold tracking-tight mt-1">4</p>
+                                <p className="text-2xl font-extrabold tracking-tight mt-1">
+                                    {currentUser.posts}
+                                </p>
                             </div>
                             <div className="filter-card px-4 py-3">
                                 <p className="text-[12px] text-subtle font-semibold">
                                     Total reactions
                                 </p>
-                                <p className="text-2xl font-extrabold tracking-tight mt-1">321</p>
+                                <p className="text-2xl font-extrabold tracking-tight mt-1">
+                                    {currentUser.likes}
+                                </p>
                             </div>
                             <div className="filter-card px-4 py-3">
                                 <p className="text-[12px] text-subtle font-semibold">
                                     Comments written
                                 </p>
-                                <p className="text-2xl font-extrabold tracking-tight mt-1">27</p>
+                                <p className="text-2xl font-extrabold tracking-tight mt-1">
+                                    {currentUser.comments}
+                                </p>
                             </div>
                         </div>
 

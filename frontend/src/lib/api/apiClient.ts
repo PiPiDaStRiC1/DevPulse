@@ -13,6 +13,7 @@ import type {
     Message,
     MessageDTO,
     PostDTO,
+    Like,
 } from "@shared/types";
 
 const API_URL = import.meta.env["VITE_API_URL"];
@@ -133,7 +134,9 @@ export const apiClient = {
     },
     async getAllPosts() {
         try {
-            const response = await genericFetch<ApiResponse<Post[]>>(`${API_URL}/posts`);
+            const response = await genericFetch<ApiResponse<Post[]>>(`${API_URL}/posts`, {
+                headers: { ...JWTheaders() },
+            });
             if (!response.success) {
                 throw new Error(response.error);
             }
@@ -145,7 +148,9 @@ export const apiClient = {
     },
     async getOnePost(id: number) {
         try {
-            const response = await genericFetch<ApiResponse<Post>>(`${API_URL}/posts/${id}`);
+            const response = await genericFetch<ApiResponse<Post>>(`${API_URL}/posts/${id}`, {
+                headers: { ...JWTheaders() },
+            });
             if (!response.success) {
                 throw new Error(response.error);
             }
@@ -272,7 +277,9 @@ export const apiClient = {
 
             return response.data;
         } catch (error) {
-            throw new Error(error instanceof Error ? error.message : "Failed to follow user");
+            throw new Error(
+                error instanceof Error ? error.message : `Failed to follow user ${userId}`,
+            );
         }
     },
     async unfollowUser(userId: number) {
@@ -287,7 +294,43 @@ export const apiClient = {
 
             return response.data;
         } catch (error) {
-            throw new Error(error instanceof Error ? error.message : "Failed to unfollow user");
+            throw new Error(
+                error instanceof Error ? error.message : `Failed to unfollow user ${userId}`,
+            );
+        }
+    },
+    async likePost(postId: number) {
+        try {
+            const response = await genericFetch<ApiResponse<Like>>(
+                `${API_URL}/posts/${postId}/like`,
+                { method: "POST", headers: { ...JWTheaders() } },
+            );
+            if (!response.success) {
+                throw new Error(response.error);
+            }
+
+            return response.data;
+        } catch (error) {
+            throw new Error(
+                error instanceof Error ? error.message : `Failed to like post ${postId}`,
+            );
+        }
+    },
+    async dislikePost(postId: number) {
+        try {
+            const response = await genericFetch<ApiResponse<string>>(
+                `${API_URL}/posts/${postId}/like`,
+                { method: "DELETE", headers: { ...JWTheaders() } },
+            );
+            if (!response.success) {
+                throw new Error(response.error);
+            }
+
+            return response.data;
+        } catch (error) {
+            throw new Error(
+                error instanceof Error ? error.message : `Failed to dislike post ${postId}`,
+            );
         }
     },
 };

@@ -27,7 +27,7 @@ export const useFollowing = () => {
         onMutate: async ({ userId }) => {
             await queryClient.cancelQueries({ queryKey: ["suggestedUsers"] });
 
-            const previousData = queryClient.getQueryData<unknown, string[], User[] | undefined>([
+            const previousData = queryClient.getQueryData<unknown, string[], User[]>([
                 "suggestedUsers",
             ]);
 

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { apiClient } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, Link } from "react-router-dom";
@@ -8,6 +8,7 @@ import remarkBreaks from "remark-breaks";
 import { Avatar, ErrorAlert, PostSkeleton } from "@/components";
 import { safeParseDate } from "@/lib/utils";
 import { Heart, MessageCircle, Bookmark, ArrowLeft } from "lucide-react";
+import { useTogglePostLike } from "@/hooks";
 import type { Post } from "@shared/types";
 
 export const PostInfo = () => {
@@ -17,43 +18,14 @@ export const PostInfo = () => {
         isLoading,
         isError,
     } = useQuery<Post>({
-        queryKey: ["post", postId],
+        queryKey: ["posts", postId],
         queryFn: () => apiClient.getOnePost(Number(postId!)),
         enabled: !!postId,
         staleTime: 5 * 60 * 1000,
     });
+    const { toggleLikePost, author, isLoadingAuthor } = useTogglePostLike(post?.authorId);
 
-    const [liked, setLiked] = useState(false);
     const [bookmarked, setBookmarked] = useState(false);
-
-    const content = post?.content ?? "";
-    const toc = useMemo(() => {
-        if (!content) return [] as { id: string; text: string; level: number }[];
-        const headings: { id: string; text: string; level: number }[] = [];
-        const slug = (s: string) =>
-            String(s)
-                .toLowerCase()
-                .replace(/[^a-z0-9\s-а-яё]/gi, "")
-                .trim()
-                .replace(/\s+/g, "-");
-
-        const regex = /^(#{1,3})\s+(.*)$/gm;
-        let match: RegExpExecArray | null;
-        while ((match = regex.exec(content)) !== null) {
-            const level = match[1]!.length;
-            const text = match[2]!.trim();
-            headings.push({ id: slug(text), text, level });
-        }
-        return headings;
-    }, [content]);
-
-    const authorQueryEnabled = !!post?.authorId;
-    const { data: author, isLoading: isAuthorLoading } = useQuery({
-        queryKey: ["user", post?.authorId],
-        queryFn: () => apiClient.getOneUserById(post!.authorId!),
-        enabled: authorQueryEnabled,
-        staleTime: 30 * 60 * 1000,
-    });
 
     if (isLoading) return <PostSkeleton />;
     if (isError || !post) return <ErrorAlert message="Failed to load post" />;
@@ -64,7 +36,7 @@ export const PostInfo = () => {
         <div className="min-w-7xl mx-auto">
             <div className="mb-4 px-1">
                 <Link
-                    to="/feed"
+                    to="/"
                     className="inline-flex items-center gap-2 text-sm font-medium text-subtle hover:text-text-base transition-colors"
                 >
                     <ArrowLeft className="w-4 h-4" />
@@ -79,26 +51,26 @@ export const PostInfo = () => {
                             {post.title}
                         </ReactMarkdown>
                     </div>
-                    <div className="flex items-center gap-3 text-[13px] text-muted">
-                        <Link
-                            to={`/profile/${author?.handle ?? ""}`}
-                            className="flex items-center gap-3"
-                        >
-                            <Avatar
-                                handle={author?.handle ?? ""}
-                                size="sm"
-                                isLoading={isAuthorLoading}
-                            />
-                            <div className="min-w-0">
-                                <div className="font-semibold text-text-base">
-                                    {author?.username}
+                    <div className="flex gap-3 text-[13px] text-muted">
+                        {author && (
+                            <Link
+                                to={`/profile/${author.handle ?? ""}`}
+                                className="flex items-center gap-3"
+                            >
+                                <Avatar
+                                    handle={author.handle}
+                                    size="sm"
+                                    isLoading={isLoadingAuthor}
+                                />
+                                <div className="min-w-0">
+                                    <div className="font-semibold text-text-base">
+                                        {author.username}
+                                    </div>
+                                    <div className="text-subtle">@{author.handle}</div>
                                 </div>
-                                <div className="text-subtle">@{author?.handle}</div>
-                            </div>
-                        </Link>
-                        <span className="text-subtle">·</span>
+                            </Link>
+                        )}
                         <span className="text-subtle">{dateLabel}</span>
-                        <span className="text-subtle">·</span>
                         <span className="text-subtle">~{post.readTime} min read</span>
                     </div>
                 </header>
@@ -120,18 +92,7 @@ export const PostInfo = () => {
                         <div className="sticky top-20">
                             <div className="mb-4 text-sm text-subtle">Оглавление</div>
                             <nav className="space-y-1">
-                                {toc.length === 0 && (
-                                    <div className="text-subtle">Нет заголовков</div>
-                                )}
-                                {toc.map((h) => (
-                                    <a
-                                        key={h.id}
-                                        href={`#${h.id}`}
-                                        className={`block text-sm hover:underline ${h.level === 1 ? "font-medium" : "pl-3"}`}
-                                    >
-                                        {h.text}
-                                    </a>
-                                ))}
+                                <div className="text-subtle">Нет заголовков</div>
                             </nav>
                         </div>
                     </aside>
@@ -147,35 +108,28 @@ export const PostInfo = () => {
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-2 text-sm text-subtle">
-                            <button
-                                onClick={() => setLiked((v) => !v)}
-                                className={`action-btn${liked ? " liked" : ""}`}
-                                aria-label="Like"
-                            >
-                                <Heart size={16} />
-                            </button>
-                            <span className="text-xs">
-                                {(post as unknown as { likesCount?: number }).likesCount ?? "—"}
-                            </span>
-                        </div>
+                        <button
+                            className={`action-btn${post.isLiked ? " liked" : ""}`}
+                            onClick={() =>
+                                toggleLikePost({ postId: post.id, isLiked: post.isLiked })
+                            }
+                            aria-label="Like"
+                        >
+                            <Heart size={16} fill={post.isLiked ? "currentColor" : "none"} />
+                            <span>{post.likes}</span>
+                        </button>
 
-                        <div className="flex items-center gap-2 text-sm text-subtle">
-                            <button className="action-btn" aria-label="Comment">
-                                <MessageCircle size={16} />
-                            </button>
-                            <span className="text-xs">
-                                {(post as unknown as { commentsCount?: number }).commentsCount ??
-                                    "—"}
-                            </span>
-                        </div>
+                        <button className="action-btn" aria-label="Comment">
+                            <MessageCircle size={16} />
+                            <span>{post.comments.length}</span>
+                        </button>
 
                         <button
                             onClick={() => setBookmarked((v) => !v)}
-                            className={`action-btn ml-2${bookmarked ? " bookmarked" : ""}`}
+                            className={`action-btn ml-auto${bookmarked ? " bookmarked" : ""}`}
                             aria-label="Bookmark"
                         >
-                            <Bookmark size={16} />
+                            <Bookmark size={16} fill={bookmarked ? "currentColor" : "none"} />
                         </button>
                     </div>
                 </footer>

@@ -3,11 +3,10 @@ import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
 import { useState } from "react";
 import { Heart, MessageCircle, Repeat2, Bookmark, Share2, BadgeCheck } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
 import { Avatar, ErrorAlert, PostSkeleton } from "@/components";
-import { apiClient } from "@/lib/api";
 import { safeParseDate } from "@/lib/utils";
 import { Link } from "react-router-dom";
+import { useTogglePostLike } from "@/hooks";
 import type { Post } from "@shared/types";
 
 interface PostCardProps {
@@ -15,26 +14,22 @@ interface PostCardProps {
 }
 
 export const PostCard = ({ post }: PostCardProps) => {
-    const [liked, setLiked] = useState(post.isLiked!);
+    const { toggleLikePost, isErrorAuthor, isLoadingAuthor, author } = useTogglePostLike(
+        post.authorId,
+    );
     const [bookmarked, setBookmarked] = useState(post.isBookmarked!);
-    const [likeCount, setLikeCount] = useState(post.likes!);
 
-    const {
-        data: author,
-        isLoading,
-        isError,
-    } = useQuery({
-        queryKey: ["user", post.authorId],
-        queryFn: () => apiClient.getOneUserById(post.authorId!),
-        staleTime: 30 * 60 * 1000,
-        enabled: !!post.authorId,
-    });
+    const fmt = (n: number | undefined) => (n && n >= 1000 ? `${(n / 1000).toFixed(1)}k` : n);
 
-    if (isError) {
+    const MAX = 200;
+    const isLong = post.content && post.content.length > MAX;
+    const preview = isLong ? `${post.content.slice(0, MAX).trimEnd()}...` : post.content;
+
+    if (isErrorAuthor) {
         return <ErrorAlert message="Failed to load author information" />;
     }
 
-    if (isLoading) {
+    if (isLoadingAuthor) {
         return <PostSkeleton />;
     }
 
@@ -42,19 +37,12 @@ export const PostCard = ({ post }: PostCardProps) => {
         return <ErrorAlert message="Failed to fetch author information" />;
     }
 
-    const fmt = (n: number | undefined) => (n && n >= 1000 ? `${(n / 1000).toFixed(1)}k` : 0);
-
-    const postDateLabel = safeParseDate(post.createdAt);
-    const MAX = 200;
-    const isLong = post.content && post.content.length > MAX;
-    const preview = isLong ? `${post.content.slice(0, MAX).trimEnd()}...` : post.content;
-
     return (
         <article className="card p-0 mb-4 overflow-hidden">
             <div className="p-4 sm:p-5">
                 <div className="flex gap-3.5">
                     <Link to={`/profile/${author.handle}`} className="shrink-0">
-                        <Avatar handle={author.handle} size="sm" isLoading={isLoading} />
+                        <Avatar handle={author.handle} size="sm" isLoading={isLoadingAuthor} />
                     </Link>
 
                     <div className="flex-1 min-w-0">
@@ -65,7 +53,7 @@ export const PostCard = ({ post }: PostCardProps) => {
                             )}
                             <span className="text-muted">@{author.handle}</span>
                             <span className="text-subtle">·</span>
-                            <span className="text-subtle">{postDateLabel}</span>
+                            <span className="text-subtle">{safeParseDate(post.createdAt)}</span>
                             <span className="text-subtle">·</span>
                             <span className="text-subtle">~{post.readTime} min read</span>
                         </div>
@@ -131,7 +119,7 @@ export const PostCard = ({ post }: PostCardProps) => {
                                         className="tag-badge cursor-pointer"
                                         aria-label={`Tag ${tag}`}
                                     >
-                                        {tag}
+                                        #{tag}
                                     </button>
                                 ))}
                             </div>
@@ -142,15 +130,12 @@ export const PostCard = ({ post }: PostCardProps) => {
 
             <div className="border-t border-ink-soft px-3 py-2.5 flex items-center gap-1">
                 <button
-                    onClick={() => {
-                        setLiked((v) => !v);
-                        setLikeCount((c) => (liked ? c - 1 : c + 1));
-                    }}
-                    className={`action-btn${liked ? " liked" : ""}`}
+                    className={`action-btn${post.isLiked ? " liked" : ""}`}
+                    onClick={() => toggleLikePost({ postId: post.id, isLiked: post.isLiked })}
                     aria-label="Like"
                 >
-                    <Heart size={16} fill={liked ? "currentColor" : "none"} />
-                    <span>{fmt(likeCount)} reactions</span>
+                    <Heart size={16} fill={post.isLiked ? "currentColor" : "none"} />
+                    <span>{fmt(post.likes)} reactions</span>
                 </button>
 
                 <button className="action-btn" aria-label="Comment">

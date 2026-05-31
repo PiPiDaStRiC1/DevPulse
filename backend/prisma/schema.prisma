@@ -49,6 +49,16 @@ model Follow {
   @@unique([followerId, followingId])
 }
 
+model Like {
+  id Int @id @default(autoincrement())
+  postId Int
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId Int
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+}
+
 model User {
   id Int @id @default(autoincrement())
   username String
@@ -57,6 +67,7 @@ model User {
   avatar String?
   password String
   posts Post[]
+  likes Like[]
   comments PostComment[]
   messages Message[]
   chatsInitiated Chat[] @relation("ChatInitiator")
@@ -79,12 +90,11 @@ model Post {
   content String
   tags Tags[]
   techStack TechStack[]
-  likes Int @default(0)
+  likes Like[]
   comments PostComment[]
   reposts Int @default(0)
   bookmarks Int @default(0)
   createdAt DateTime @default(now())
-  isLiked Boolean @default(false)
   isBookmarked Boolean @default(false)
   isReposted Boolean @default(false)
   image String?

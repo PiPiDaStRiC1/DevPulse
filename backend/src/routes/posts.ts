@@ -1,11 +1,13 @@
 import { Router } from "express";
-import { verifyJWT } from "@/middleware";
-import { getOnePost, getPosts, postPost } from "@/services";
+import { optionalAuth, verifyJWT } from "@/middleware";
+import { getOnePost, getPosts, postPost, postLikePost, deleteDislikePost } from "@/services";
 
 const postsRouter = Router();
 
-postsRouter.get("/", getPosts);
+postsRouter.get("/", optionalAuth, getPosts);
 postsRouter.post("/", verifyJWT, postPost);
-postsRouter.get("/:id", getOnePost);
+postsRouter.get("/:id", optionalAuth, getOnePost);
+postsRouter.post("/:id/like", verifyJWT, postLikePost);
+postsRouter.delete("/:id/like", verifyJWT, deleteDislikePost);
 
 export { postsRouter };

@@ -20,6 +20,9 @@ export const parseUser = (user: PrismaUser, currentUserId?: number): User => {
         username: user.username,
         followers: user._count.followers,
         following: user._count.following,
+        likes: user._count.likes,
+        comments: user._count.comments,
+        posts: user._count.posts,
         isFollowing,
     };
 };

@@ -90,6 +90,8 @@ export const usePostComposer = () => {
                 codeSnippet: null,
                 comments: [],
                 image: null,
+                isLiked: false,
+                likes: 0,
             });
 
             publishPostWithWS({ post });
