@@ -15,6 +15,7 @@ import type {
     ChatOnlineAcknowledgement,
     SocketTypingMessagePayload,
     SocketRoomCreatePayload,
+    SocketCommentPayload,
 } from "@shared/types";
 
 const PORT = Number(process.env["PORT"]) || 4000;
@@ -120,9 +121,22 @@ io.on("connection", (socket) => {
             return ack({ ok: false, error: "Unauthorized or invalid payload" });
         }
 
-        io.emit("post:publish:new", payload);
+        socket.broadcast.emit("post:publish:new", payload);
         return ack({ ok: true });
     });
+
+    socket.on(
+        "comment:publish",
+        (payload: SocketCommentPayload, ack: (res: Acknowledgement) => void) => {
+            const currentUserId = socket.data.user.userId;
+            if (!currentUserId || !payload.comment) {
+                return ack({ ok: false, error: "Unauthorized or invalid payload" });
+            }
+
+            socket.broadcast.emit("comment:publish:new", payload);
+            return ack({ ok: true });
+        },
+    );
 
     socket.on("disconnect", () => {
         console.log("A user disconnected: " + socket.id, `(User ID: ${currentUserId})`);

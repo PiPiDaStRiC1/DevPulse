@@ -94,13 +94,14 @@ export const usePostComposer = () => {
                 likes: 0,
             });
 
-            publishPostWithWS({ post: newPost });
-
-            queryClient.setQueryData(["feed"], (oldData: Post[] | undefined) => {
+            queryClient.setQueryData(["posts"], (oldData: Post[] | undefined) => {
                 if (!oldData) return [newPost];
                 if (newPost.id && oldData.some((p) => p.id === newPost.id)) return oldData;
                 return [newPost, ...oldData];
             });
+
+            publishPostWithWS({ post: newPost });
+
             localStorage.removeItem("draft-post");
             onClose();
         } catch (error) {

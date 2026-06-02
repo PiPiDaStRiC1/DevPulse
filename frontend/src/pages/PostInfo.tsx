@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { apiClient } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
-import { useParams, Link } from "react-router-dom";
+import { useLocation, useParams, Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
@@ -13,6 +13,7 @@ import type { Post } from "@shared/types";
 
 export const PostInfo = () => {
     const { postId } = useParams<{ postId: string }>();
+    const location = useLocation();
     const {
         data: post,
         isLoading,
@@ -26,6 +27,15 @@ export const PostInfo = () => {
     const { toggleLikePost, author, isLoadingAuthor } = useTogglePostLike(post?.authorId);
 
     const [bookmarked, setBookmarked] = useState(false);
+
+    useEffect(() => {
+        if (isLoading || isError) return;
+
+        if (location.hash === "#comments") {
+            const commentsSection = document.getElementById("comments");
+            commentsSection?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    }, [isLoading, isError, location.hash]);
 
     if (isLoading) return <PostSkeleton />;
     if (isError || !post) return <ErrorAlert message="Failed to load post" />;
@@ -145,10 +155,14 @@ export const PostInfo = () => {
                                 <span>{post.likes}</span>
                             </button>
 
-                            <button className="action-btn" aria-label="Comment">
+                            <Link
+                                to={`/posts/${post.id}#comments`}
+                                className="action-btn"
+                                aria-label="Comment"
+                            >
                                 <MessageCircle size={16} />
                                 <span>{post.comments.length}</span>
-                            </button>
+                            </Link>
 
                             <button
                                 onClick={() => setBookmarked((v) => !v)}

@@ -8,6 +8,7 @@ import type {
     SocketReadChatPayload,
     SocketTypingMessagePayload,
     SocketRoomCreatePayload,
+    SocketCommentPayload,
 } from "@shared/types";
 
 const WS_URL = import.meta.env["VITE_WS_URL"] || "http://localhost:4000";
@@ -24,6 +25,7 @@ interface SocketState {
     publishPostWithWS: ({ post }: SocketPostPayload) => void;
     readMessagesWithWS: ({ chatId }: SocketReadChatPayload) => void;
     sendTypingStatusWithWS: ({ chatId, isTyping }: SocketTypingMessagePayload) => void;
+    publishCommentWithWS: ({ comment }: SocketCommentPayload) => void;
 }
 
 export const useSocketStore = create<SocketState>(() => ({
@@ -52,6 +54,14 @@ export const useSocketStore = create<SocketState>(() => ({
     },
     publishPostWithWS: ({ post }: SocketPostPayload) => {
         socket.emit("post:publish", { post }, (res: Acknowledgement) => {
+            if (!res.ok) {
+                toast.error(res.error);
+                return;
+            }
+        });
+    },
+    publishCommentWithWS: ({ comment }: SocketCommentPayload) => {
+        socket.emit("comment:publish", { comment }, (res: Acknowledgement) => {
             if (!res.ok) {
                 toast.error(res.error);
                 return;

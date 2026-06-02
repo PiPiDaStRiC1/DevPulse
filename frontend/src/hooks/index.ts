@@ -9,3 +9,4 @@ export * from "./useFollowing";
 export * from "./useOnline";
 export * from "./useTypingStatus";
 export * from "./useTogglePostLike";
+export * from "./usePostComments";

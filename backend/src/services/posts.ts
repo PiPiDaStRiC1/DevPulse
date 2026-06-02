@@ -163,7 +163,7 @@ export const getComments = async (
 
         const comments = await prisma.postComment.findMany({
             where: { postId },
-            orderBy: { createdAt: "asc" },
+            orderBy: { createdAt: "desc" },
             include: {
                 author: {
                     select: {

@@ -1,55 +1,19 @@
 import { PostComment, ErrorAlert, PostCommentSkeleton } from "@/components";
-import { apiClient } from "@/lib/api";
 import { useAuthStore } from "@/lib/store";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Comment, Post } from "@shared/types";
-import { useState } from "react";
-import toast from "react-hot-toast";
+import { usePostComments } from "@/hooks";
+import type { Post } from "@shared/types";
 
 interface PostCommentsListProps {
     post: Post;
 }
 
 export const PostCommentsList = ({ post }: PostCommentsListProps) => {
-    const queryClient = useQueryClient();
-    const [body, setBody] = useState("");
     const { status } = useAuthStore();
-
-    const {
-        data: comments,
-        isLoading,
-        isError,
-    } = useQuery<Comment[]>({
-        queryKey: ["posts", post.id, "comments"],
-        queryFn: () => apiClient.getAllCommentsByPostId(post.id),
-        enabled: !!post.id,
-        staleTime: 5 * 60 * 1000,
-    });
-
-    const handleCommentSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-
-        try {
-            const newComment = await apiClient.postComment({ postId: post.id, text: body });
-
-            queryClient.setQueryData(
-                ["posts", post.id, "comments"],
-                (oldData: Comment[] | undefined) => {
-                    if (!oldData) return [newComment];
-                    return [...oldData, newComment];
-                },
-            );
-            setBody("");
-        } catch (error) {
-            console.error("Failed to create post", error);
-            if (error instanceof Error) {
-                toast.error(error.message || "Failed to create post");
-            }
-        }
-    };
+    const { comments, isLoadingComments, isErrorComments, handleCommentSubmit, body, setBody } =
+        usePostComments(post.id);
 
     return (
-        <section className="border-t border-ink-soft pt-6">
+        <section id="comments" className="border-t border-ink-soft pt-6 scroll-mt-24">
             <div className="card p-4 sm:p-5 mb-5">
                 <div className="flex gap-3">
                     <form className="flex-1 min-w-0" onSubmit={handleCommentSubmit}>
@@ -80,9 +44,9 @@ export const PostCommentsList = ({ post }: PostCommentsListProps) => {
             </div>
 
             <div className="space-y-4">
-                {isError ? (
+                {isErrorComments ? (
                     <ErrorAlert message="Failed to load comments. Please try again later." />
-                ) : isLoading ? (
+                ) : isLoadingComments ? (
                     <div className="space-y-3">
                         <PostCommentSkeleton />
                         <PostCommentSkeleton />
