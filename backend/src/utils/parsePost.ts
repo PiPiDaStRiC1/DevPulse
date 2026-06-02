@@ -25,7 +25,7 @@ export const parsePost = (post: PrismaPost, currentUserId?: number): Post => {
         tags: post.tags.map((t: any) => t.name),
         techStack: post.techStack.map((t: any) => t.name),
         likes: post._count.likes,
-        comments: post.comments,
+        comments: post._count.comments,
         reposts: post.reposts,
         bookmarks: post.bookmarks,
         createdAt: post.createdAt,

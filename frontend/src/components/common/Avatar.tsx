@@ -17,9 +17,9 @@ const sizeMap = {
 };
 
 const statusMap = {
-    xs: { wrapper: "-bottom-0.5 -right-0.5", pulse: "h-3 w-3" },
-    sm: { wrapper: "-bottom-0.5 -right-0.5", pulse: "h-3.5 w-3.5" },
-    md: { wrapper: "-bottom-1 -right-1", pulse: "h-4.0 w-4.0" },
+    xs: { wrapper: "-bottom-0.5 -right-0.5", pulse: "h-2 w-2" },
+    sm: { wrapper: "-bottom-0.5 -right-0.5", pulse: "h-2.5 w-2.5" },
+    md: { wrapper: "-bottom-1 -right-1", pulse: "h-3 w-3" },
     lg: { wrapper: "-bottom-1.5 -right-1.5", pulse: "h-4.5 w-4.5" },
 };
 

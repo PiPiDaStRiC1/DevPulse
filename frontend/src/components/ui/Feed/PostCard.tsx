@@ -140,7 +140,7 @@ export const PostCard = ({ post }: PostCardProps) => {
 
                 <Link to={`/posts/${post.id}#comments`} className="action-btn" aria-label="Comment">
                     <MessageCircle size={16} />
-                    <span>{fmt(post.comments.length)} comments</span>
+                    <span>{fmt(post.comments)} comments</span>
                 </Link>
 
                 <button className="action-btn" aria-label="Repost">

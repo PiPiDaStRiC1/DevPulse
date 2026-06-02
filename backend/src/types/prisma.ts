@@ -11,11 +11,10 @@ export type PrismaUser = Prisma.UserGetPayload<{
 
 export type PrismaPost = Prisma.PostGetPayload<{
     include: {
-        comments: true;
         tags: true;
         codeSnippet: true;
         techStack: true;
-        _count: { select: { likes: true } };
+        _count: { select: { likes: true; comments: true } };
         likes: true;
     };
 }>;

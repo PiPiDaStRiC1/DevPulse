@@ -13,9 +13,8 @@ export const getPosts = async (req: Request, res: Response<ApiResponse<Post[]>>)
             include: {
                 tags: true,
                 techStack: true,
-                comments: true,
                 codeSnippet: true,
-                _count: { select: { likes: true } },
+                _count: { select: { likes: true, comments: true } },
                 likes: true,
             },
             orderBy: { createdAt: "desc" },
@@ -44,9 +43,8 @@ export const getOnePost = async (
             include: {
                 tags: true,
                 techStack: true,
-                comments: true,
                 codeSnippet: true,
-                _count: { select: { likes: true } },
+                _count: { select: { likes: true, comments: true } },
                 likes: true,
             },
         });
@@ -96,9 +94,8 @@ export const postPost = async (
             include: {
                 tags: true,
                 techStack: true,
-                comments: true,
                 codeSnippet: true,
-                _count: { select: { likes: true } },
+                _count: { select: { likes: true, comments: true } },
                 likes: true,
             },
         });

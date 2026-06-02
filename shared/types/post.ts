@@ -1,5 +1,3 @@
-import type { Comment } from "./comment";
-
 export interface CodeSnippet {
     language: string | null;
     code: string | null;
@@ -23,7 +21,7 @@ export interface Post {
     tags: string[];
     techStack: string[];
     likes: number;
-    comments: Comment[];
+    comments: number;
     reposts?: number;
     bookmarks?: number;
     createdAt?: Date;

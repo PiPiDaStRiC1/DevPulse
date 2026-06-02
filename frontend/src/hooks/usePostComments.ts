@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useSocket } from "@/hooks";
-import type { Comment, SocketCommentPayload } from "@shared/types";
+import type { Comment, Post, SocketCommentPayload } from "@shared/types";
 
 export const usePostComments = (postId: number) => {
     const queryClient = useQueryClient();
@@ -35,6 +35,10 @@ export const usePostComments = (postId: number) => {
                     return [newComment, ...oldData];
                 },
             );
+            queryClient.setQueryData(["posts", postId], (oldData: Post | undefined) => {
+                if (!oldData) return oldData;
+                return { ...oldData, comments: oldData.comments + 1 };
+            });
 
             publishCommentWithWS({ comment: newComment });
 
@@ -56,6 +60,10 @@ export const usePostComments = (postId: number) => {
                     return [payload.comment, ...oldData];
                 },
             );
+            queryClient.setQueryData(["posts", postId], (oldData: Post | undefined) => {
+                if (!oldData) return oldData;
+                return { ...oldData, comments: oldData.comments + 1 };
+            });
         };
 
         socket.on("comment:publish:new", handler);

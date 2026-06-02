@@ -19,10 +19,10 @@ export const PostInfo = () => {
         isLoading,
         isError,
     } = useQuery<Post>({
-        queryKey: ["posts", postId],
+        queryKey: ["posts", Number(postId)],
         queryFn: () => apiClient.getOnePost(Number(postId!)),
         enabled: !!postId,
-        staleTime: 5 * 60 * 1000,
+        staleTime: 0,
     });
     const { toggleLikePost, author, isLoadingAuthor } = useTogglePostLike(post?.authorId);
 
@@ -62,13 +62,11 @@ export const PostInfo = () => {
                         </div>
                         <div className="flex gap-3 text-[13px] text-muted">
                             {author && (
-                                <Link
-                                    to={`/profile/${author.handle ?? ""}`}
-                                    className="flex items-center gap-3"
-                                >
+                                <div className="flex items-center gap-3">
                                     <Avatar
                                         handle={author.handle}
                                         size="sm"
+                                        link={`/profile/${author.handle}`}
                                         isLoading={isLoadingAuthor}
                                     />
                                     <div className="min-w-0">
@@ -77,7 +75,7 @@ export const PostInfo = () => {
                                         </div>
                                         <div className="text-subtle">@{author.handle}</div>
                                     </div>
-                                </Link>
+                                </div>
                             )}
                             <span className="text-subtle">{safeParseDate(post.createdAt)}</span>
                             <span className="text-subtle">~{post.readTime} min read</span>
@@ -161,7 +159,7 @@ export const PostInfo = () => {
                                 aria-label="Comment"
                             >
                                 <MessageCircle size={16} />
-                                <span>{post.comments.length}</span>
+                                <span>{post.comments}</span>
                             </Link>
 
                             <button

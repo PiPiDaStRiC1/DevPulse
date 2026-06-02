@@ -7,12 +7,12 @@ import { createServer } from "http";
 import { postsRouter, authRouter, userRouter, chatRouter } from "@/routes";
 import { verifyToken, prisma } from "./helpers";
 import type {
+    Acknowledgement,
+    ChatOnlineAcknowledgement,
     SocketMessagePayload,
     SocketPostPayload,
     SocketReadChatPayload,
     SocketConnection,
-    Acknowledgement,
-    ChatOnlineAcknowledgement,
     SocketTypingMessagePayload,
     SocketRoomCreatePayload,
     SocketCommentPayload,
