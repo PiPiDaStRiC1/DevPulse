@@ -3,7 +3,7 @@ import { Prisma } from "@prisma/client";
 import { postCreateSchema } from "@shared/schemas";
 import { parsePost } from "@/utils";
 import type { Response, Request } from "express";
-import type { Post, ApiResponse, PostDTO, Like } from "@shared/types";
+import type { Post, ApiResponse, PostDTO, Like, Comment, CommentDTO } from "@shared/types";
 
 export const getPosts = async (req: Request, res: Response<ApiResponse<Post[]>>) => {
     try {
@@ -149,5 +149,68 @@ export const deleteDislikePost = async (
     } catch (error) {
         console.error("Error deleting like: ", error);
         return res.status(500).json({ success: false, error: "Failed to delete like" });
+    }
+};
+
+export const getComments = async (
+    req: Request<{ id: string }>,
+    res: Response<ApiResponse<Comment[]>>,
+) => {
+    try {
+        const { id } = req.params;
+
+        const postId = Number(id);
+
+        const comments = await prisma.postComment.findMany({
+            where: { postId },
+            orderBy: { createdAt: "asc" },
+            include: {
+                author: {
+                    select: {
+                        id: true,
+                        username: true,
+                        handle: true,
+                        avatar: true,
+                        isVerified: true,
+                    },
+                },
+            },
+        });
+
+        return res.status(200).json({ success: true, data: comments });
+    } catch (error) {
+        console.error("Error fetching comments: ", error);
+        return res.status(500).json({ success: false, error: "Failed to fetch comments" });
+    }
+};
+
+export const postComment = async (
+    req: Request<{}, {}, CommentDTO>,
+    res: Response<ApiResponse<Comment>>,
+) => {
+    try {
+        const { userId } = req.user!;
+
+        const { postId, text } = req.body;
+
+        const comment = await prisma.postComment.create({
+            data: { text, authorId: userId, postId },
+            include: {
+                author: {
+                    select: {
+                        id: true,
+                        username: true,
+                        handle: true,
+                        avatar: true,
+                        isVerified: true,
+                    },
+                },
+            },
+        });
+
+        return res.status(201).json({ success: true, data: comment });
+    } catch (error) {
+        console.error("Error creating comment: ", error);
+        return res.status(500).json({ success: false, error: "Failed to create comment" });
     }
 };

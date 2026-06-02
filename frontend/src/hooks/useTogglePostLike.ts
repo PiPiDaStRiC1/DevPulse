@@ -31,7 +31,11 @@ export const useTogglePostLike = (authorId: number | undefined) => {
                     await apiClient.likePost(postId);
                 }
             } catch (error) {
-                toast.error("Failed to like");
+                if (error instanceof Error && error.message === "Failed to get token") {
+                    toast.error("You must be logged in to like posts");
+                } else {
+                    toast.error("Failed to like post");
+                }
                 throw error;
             }
         },

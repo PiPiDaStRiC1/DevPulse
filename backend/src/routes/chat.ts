@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { verifyJWT } from "@/middleware";
-import { getChats, postChat, getOneChat, patchChat } from "@/services";
+import { getChats, postChat, getOneChat, patchChat, postMessage, getMessages } from "@/services";
 
 const chatRouter = Router();
 
@@ -8,5 +8,7 @@ chatRouter.get("/", verifyJWT, getChats);
 chatRouter.post("/", verifyJWT, postChat);
 chatRouter.get("/:id", verifyJWT, getOneChat);
 chatRouter.patch("/:id", verifyJWT, patchChat);
+chatRouter.post("/:id/messages", verifyJWT, postMessage);
+chatRouter.get("/:id/messages", verifyJWT, getMessages);
 
 export { chatRouter };

@@ -1,6 +1,6 @@
 import { prisma } from "@/helpers";
 import type { Response, Request } from "express";
-import type { Chat, ChatDTO, ApiResponse } from "@shared/types";
+import type { Chat, ChatDTO, ApiResponse, Message } from "@shared/types";
 
 const parseChat = (chat: any, currentUserId: number): Chat => {
     const participant = chat.participants?.find(
@@ -296,5 +296,76 @@ export const patchChat = async (req: Request<{ id: string }>, res: Response<ApiR
     } catch (error) {
         console.error("Error updating chat: ", error);
         return res.status(500).json({ success: false, error: "Failed to update chat" });
+    }
+};
+
+export const getMessages = async (
+    req: Request<{ id: string }>,
+    res: Response<ApiResponse<Message[]>>,
+) => {
+    try {
+        const { userId } = req.user!;
+        const { id } = req.params;
+
+        const chatId = Number(id);
+
+        const chat = await prisma.chat.findFirst({
+            where: { id: chatId, OR: [{ userId }, { collocutorId: userId }] },
+            select: { id: true },
+        });
+
+        if (!chat) {
+            return res.status(404).json({ success: false, error: "Chat not found" });
+        }
+
+        const messages = await prisma.message.findMany({
+            where: { chatId },
+            orderBy: { createdAt: "asc" },
+        });
+        return res.status(200).json({ success: true, data: messages });
+    } catch (error) {
+        console.error("Error getting all messages:", error);
+        return res.status(500).json({ success: false, error: "Failed to fetch messages" });
+    }
+};
+
+export const postMessage = async (req: Request, res: Response<ApiResponse<Message>>) => {
+    try {
+        const { userId } = req.user!;
+        const { text, chatId } = req.body;
+
+        const chat = await prisma.chat.findFirst({
+            where: { id: chatId, OR: [{ userId }, { collocutorId: userId }] },
+            select: { id: true },
+        });
+
+        if (!chat) {
+            return res
+                .status(403)
+                .json({ success: false, error: "Chat not found or access denied" });
+        }
+
+        const newMessage = await prisma.message.create({
+            data: { text, senderId: userId, chatId },
+        });
+
+        const now = new Date().toISOString();
+
+        await prisma.chat.update({ where: { id: chatId }, data: { updatedAt: now } });
+
+        // Ensure participant exists and update lastReadAt
+        const updated = await prisma.chatParticipant.updateMany({
+            where: { chatId, userId },
+            data: { lastReadAt: now },
+        });
+
+        if (updated.count === 0) {
+            await prisma.chatParticipant.create({ data: { chatId, userId, lastReadAt: now } });
+        }
+
+        return res.status(201).json({ success: true, data: newMessage });
+    } catch (error) {
+        console.error("Error creating message:", error);
+        return res.status(500).json({ success: false, error: "Failed to create message" });
     }
 };

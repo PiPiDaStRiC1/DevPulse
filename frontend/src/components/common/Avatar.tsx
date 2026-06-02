@@ -16,6 +16,13 @@ const sizeMap = {
     lg: { cls: "w-14 h-14 min-w-14 text-[18px]", side: "56px" },
 };
 
+const statusMap = {
+    xs: { wrapper: "-bottom-0.5 -right-0.5", pulse: "h-3 w-3" },
+    sm: { wrapper: "-bottom-0.5 -right-0.5", pulse: "h-3.5 w-3.5" },
+    md: { wrapper: "-bottom-1 -right-1", pulse: "h-4.0 w-4.0" },
+    lg: { wrapper: "-bottom-1.5 -right-1.5", pulse: "h-4.5 w-4.5" },
+};
+
 export const Avatar = ({
     handle,
     size = "md",
@@ -25,6 +32,7 @@ export const Avatar = ({
     link,
 }: AvatarProps) => {
     const { cls } = sizeMap[size];
+    const { wrapper, pulse } = statusMap[size];
     const initials = (handle ?? "")
         .split("@")
         .map((w) => w[0])
@@ -45,7 +53,14 @@ export const Avatar = ({
             >
                 {initials}
                 {isOnline && (
-                    <span className="absolute bottom-[-1px] right-[-1px] w-2 h-2  rounded-full border-2 border-bg bg-green-500" />
+                    <span className={`absolute ${wrapper}`} aria-label="Online status">
+                        <span
+                            className={`absolute inset-0 animate-ping rounded-full bg-emerald-400/45`}
+                        />
+                        <span
+                            className={`relative block ${pulse} rounded-full border-2 border-bg bg-emerald-500 shadow-[0_0_0_1px_rgba(16,185,129,0.35)]`}
+                        ></span>
+                    </span>
                 )}
             </Link>
         );
@@ -58,7 +73,12 @@ export const Avatar = ({
         >
             {initials}
             {isOnline && (
-                <span className="absolute bottom-[-1px] right-[-1px] w-2 h-2 rounded-full border-2 border-bg bg-green-500" />
+                <span className={`absolute ${wrapper}`} aria-label="Online status">
+                    <span className="absolute inset-0 animate-ping rounded-full bg-emerald-400/45" />
+                    <span
+                        className={`relative block ${pulse} rounded-full border-2 border-bg bg-emerald-500 shadow-[0_0_0_1px_rgba(16,185,129,0.35)]`}
+                    ></span>
+                </span>
             )}
         </div>
     );

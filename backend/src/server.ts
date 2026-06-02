@@ -4,7 +4,7 @@ import express from "express";
 import cors from "cors";
 import { Server } from "socket.io";
 import { createServer } from "http";
-import { postsRouter, authRouter, userRouter, chatRouter, messagesRouter } from "@/routes";
+import { postsRouter, authRouter, userRouter, chatRouter } from "@/routes";
 import { verifyToken, prisma } from "./helpers";
 import type {
     SocketMessagePayload,
@@ -33,7 +33,6 @@ app.use("/api/posts", postsRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 app.use("/api/chats", chatRouter);
-app.use("/api/messages", messagesRouter);
 
 const onlineUsers = new Map<number, Set<string>>();
 

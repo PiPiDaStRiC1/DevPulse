@@ -14,6 +14,8 @@ import type {
     MessageDTO,
     PostDTO,
     Like,
+    CommentDTO,
+    Comment,
 } from "@shared/types";
 
 const API_URL = import.meta.env["VITE_API_URL"];
@@ -217,6 +219,39 @@ export const apiClient = {
             throw new Error(error instanceof Error ? error.message : "Failed to create chat");
         }
     },
+    async getAllCommentsByPostId(id: number) {
+        try {
+            const response = await genericFetch<ApiResponse<Comment[]>>(
+                `${API_URL}/posts/${id}/comments`,
+            );
+            if (!response.success) {
+                throw new Error(response.error);
+            }
+
+            return response.data;
+        } catch (error) {
+            throw new Error(error instanceof Error ? error.message : "Failed to fetch comments");
+        }
+    },
+    async postComment(commentData: CommentDTO) {
+        try {
+            const response = await genericFetch<ApiResponse<Comment>>(
+                `${API_URL}/posts/${commentData.postId}/comments`,
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", ...JWTheaders() },
+                    body: JSON.stringify(commentData),
+                },
+            );
+            if (!response.success) {
+                throw new Error(response.error);
+            }
+
+            return response.data;
+        } catch (error) {
+            throw new Error(error instanceof Error ? error.message : "Failed to post comment");
+        }
+    },
     async readChat(chatId: number) {
         try {
             const response = await genericFetch<ApiResponse<Chat>>(`${API_URL}/chats/${chatId}`, {
@@ -232,10 +267,10 @@ export const apiClient = {
             throw new Error(error instanceof Error ? error.message : "Failed to patch chat");
         }
     },
-    async getAllMessagesByChatId(chatId: number) {
+    async getAllMessagesByChatId(id: number) {
         try {
             const response = await genericFetch<ApiResponse<Message[]>>(
-                `${API_URL}/messages/chat/${chatId}`,
+                `${API_URL}/chats/${id}/messages`,
                 { headers: { ...JWTheaders() } },
             );
             if (!response.success) {
@@ -251,11 +286,14 @@ export const apiClient = {
     },
     async postOneMessage(messageData: MessageDTO) {
         try {
-            const response = await genericFetch<ApiResponse<Message>>(`${API_URL}/messages/chat`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json", ...JWTheaders() },
-                body: JSON.stringify(messageData),
-            });
+            const response = await genericFetch<ApiResponse<Message>>(
+                `${API_URL}/chats/${messageData.chatId}/messages`,
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", ...JWTheaders() },
+                    body: JSON.stringify(messageData),
+                },
+            );
             if (!response.success) {
                 throw new Error(response.error);
             }
@@ -265,10 +303,10 @@ export const apiClient = {
             throw new Error(error instanceof Error ? error.message : "Failed to post chat message");
         }
     },
-    async followUser(userId: number) {
+    async followUser(id: number) {
         try {
             const response = await genericFetch<ApiResponse<User>>(
-                `${API_URL}/users/${userId}/follow`,
+                `${API_URL}/users/${id}/follow`,
                 { method: "POST", headers: { ...JWTheaders() } },
             );
             if (!response.success) {
@@ -277,15 +315,13 @@ export const apiClient = {
 
             return response.data;
         } catch (error) {
-            throw new Error(
-                error instanceof Error ? error.message : `Failed to follow user ${userId}`,
-            );
+            throw new Error(error instanceof Error ? error.message : `Failed to follow user ${id}`);
         }
     },
-    async unfollowUser(userId: number) {
+    async unfollowUser(id: number) {
         try {
             const response = await genericFetch<ApiResponse<User>>(
-                `${API_URL}/users/${userId}/follow`,
+                `${API_URL}/users/${id}/follow`,
                 { method: "DELETE", headers: { ...JWTheaders() } },
             );
             if (!response.success) {
@@ -295,31 +331,29 @@ export const apiClient = {
             return response.data;
         } catch (error) {
             throw new Error(
-                error instanceof Error ? error.message : `Failed to unfollow user ${userId}`,
+                error instanceof Error ? error.message : `Failed to unfollow user ${id}`,
             );
         }
     },
-    async likePost(postId: number) {
+    async likePost(id: number) {
         try {
-            const response = await genericFetch<ApiResponse<Like>>(
-                `${API_URL}/posts/${postId}/like`,
-                { method: "POST", headers: { ...JWTheaders() } },
-            );
+            const response = await genericFetch<ApiResponse<Like>>(`${API_URL}/posts/${id}/like`, {
+                method: "POST",
+                headers: { ...JWTheaders() },
+            });
             if (!response.success) {
                 throw new Error(response.error);
             }
 
             return response.data;
         } catch (error) {
-            throw new Error(
-                error instanceof Error ? error.message : `Failed to like post ${postId}`,
-            );
+            throw new Error(error instanceof Error ? error.message : `Failed to like post ${id}`);
         }
     },
-    async dislikePost(postId: number) {
+    async dislikePost(id: number) {
         try {
             const response = await genericFetch<ApiResponse<string>>(
-                `${API_URL}/posts/${postId}/like`,
+                `${API_URL}/posts/${id}/like`,
                 { method: "DELETE", headers: { ...JWTheaders() } },
             );
             if (!response.success) {
@@ -329,7 +363,7 @@ export const apiClient = {
             return response.data;
         } catch (error) {
             throw new Error(
-                error instanceof Error ? error.message : `Failed to dislike post ${postId}`,
+                error instanceof Error ? error.message : `Failed to dislike post ${id}`,
             );
         }
     },

@@ -56,6 +56,7 @@ function App() {
                         borderRadius: "var(--radius)",
                         fontSize: "14px",
                         fontWeight: 600,
+                        textAlign: "center",
                     },
                 }}
             />

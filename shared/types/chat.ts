@@ -32,7 +32,7 @@ export interface ChatDTO {
 }
 
 export interface MessageDTO {
-    chatId?: number;
+    chatId: number;
     senderId: number;
     text: string;
 }

@@ -81,7 +81,7 @@ export const usePostComposer = () => {
 
     const handlePostSubmit = useCallback(async () => {
         try {
-            const post = await apiClient.postOnePost({
+            const newPost = await apiClient.postOnePost({
                 title: heading,
                 coverImage: null,
                 content: body,
@@ -94,12 +94,12 @@ export const usePostComposer = () => {
                 likes: 0,
             });
 
-            publishPostWithWS({ post });
+            publishPostWithWS({ post: newPost });
 
             queryClient.setQueryData(["feed"], (oldData: Post[] | undefined) => {
-                if (!oldData) return [post];
-                if (post.id && oldData.some((p) => p.id === post.id)) return oldData;
-                return [post, ...oldData];
+                if (!oldData) return [newPost];
+                if (newPost.id && oldData.some((p) => p.id === newPost.id)) return oldData;
+                return [newPost, ...oldData];
             });
             localStorage.removeItem("draft-post");
             onClose();
