@@ -3,22 +3,66 @@ import { Prisma } from "@prisma/client";
 import { postCreateSchema } from "@shared/schemas";
 import { parsePost } from "@/utils";
 import type { Response, Request } from "express";
-import type { Post, ApiResponse, PostDTO, Like, Comment, CommentDTO } from "@shared/types";
+import type {
+    Post,
+    ApiResponse,
+    PostDTO,
+    Like,
+    Comment,
+    CommentDTO,
+    FeedPostsFilter,
+} from "@shared/types";
+
+const getQueryOptions = async (
+    filter: FeedPostsFilter | undefined,
+    currentUserId: number | undefined,
+) => {
+    const baseInclude = {
+        tags: true,
+        techStack: true,
+        codeSnippet: true,
+        _count: { select: { likes: true, comments: true } },
+        likes: true,
+    };
+
+    switch (filter) {
+        case "for-you":
+            return await prisma.post.findMany({
+                include: baseInclude,
+                orderBy: { createdAt: "desc" },
+            });
+        case "following":
+            if (!currentUserId) {
+                return await prisma.post.findMany({
+                    include: baseInclude,
+                    orderBy: { createdAt: "desc" },
+                });
+            }
+            return await prisma.post.findMany({
+                include: baseInclude,
+                where: { author: { followers: { some: { followerId: currentUserId } } } },
+                orderBy: { createdAt: "desc" },
+            });
+        case "trending":
+            return await prisma.post.findMany({
+                include: baseInclude,
+                orderBy: [{ likes: { _count: "desc" } }, { createdAt: "desc" }],
+            });
+        default:
+            return await prisma.post.findMany({
+                include: baseInclude,
+                orderBy: { createdAt: "desc" },
+            });
+    }
+};
 
 export const getPosts = async (req: Request, res: Response<ApiResponse<Post[]>>) => {
     try {
+        const filter = req.query.filter as FeedPostsFilter;
         const currentUserId = req.user?.userId;
 
-        const posts = await prisma.post.findMany({
-            include: {
-                tags: true,
-                techStack: true,
-                codeSnippet: true,
-                _count: { select: { likes: true, comments: true } },
-                likes: true,
-            },
-            orderBy: { createdAt: "desc" },
-        });
+        const posts = await getQueryOptions(filter, currentUserId);
+
         return res
             .status(200)
             .json({ success: true, data: posts.map((post) => parsePost(post, currentUserId)) });

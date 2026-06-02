@@ -50,10 +50,10 @@ export const MyProfile = () => {
     }
 
     const profileHighlights = [
-        { label: "Posts", value: 12 },
+        { label: "Posts", value: currentUser.posts },
         { label: "Followers", value: currentUser.followers },
         { label: "Following", value: currentUser.following },
-        { label: "Saved", value: 7 },
+        { label: "Saved", value: "-" },
     ];
 
     const accountFacts = [

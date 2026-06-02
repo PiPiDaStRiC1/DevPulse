@@ -16,6 +16,7 @@ import type {
     Like,
     CommentDTO,
     Comment,
+    FeedPostsFilter,
 } from "@shared/types";
 
 const API_URL = import.meta.env["VITE_API_URL"];
@@ -134,11 +135,12 @@ export const apiClient = {
             throw new Error(error instanceof Error ? error.message : "Failed to fetch user");
         }
     },
-    async getAllPosts() {
+    async getAllPosts(options: { filter: FeedPostsFilter } = { filter: "for-you" }) {
         try {
-            const response = await genericFetch<ApiResponse<Post[]>>(`${API_URL}/posts`, {
-                headers: { ...JWTheaders() },
-            });
+            const response = await genericFetch<ApiResponse<Post[]>>(
+                `${API_URL}/posts?filter=${options.filter}`,
+                { headers: { ...JWTheaders() } },
+            );
             if (!response.success) {
                 throw new Error(response.error);
             }

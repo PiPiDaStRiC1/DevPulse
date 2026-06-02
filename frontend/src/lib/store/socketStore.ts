@@ -3,7 +3,6 @@ import { io, type Socket } from "socket.io-client";
 import toast from "react-hot-toast";
 import type {
     SocketMessagePayload,
-    SocketPostPayload,
     Acknowledgement,
     SocketReadChatPayload,
     SocketTypingMessagePayload,
@@ -22,7 +21,7 @@ interface SocketState {
     joinRoom: (roomId: string) => void;
     sendRoomCreateWithWS: ({ chatId, collocutorId }: SocketRoomCreatePayload) => void;
     sendMessageWithWS: ({ chatId, message }: SocketMessagePayload) => void;
-    publishPostWithWS: ({ post }: SocketPostPayload) => void;
+    publishPostWithWS: () => void;
     readMessagesWithWS: ({ chatId }: SocketReadChatPayload) => void;
     sendTypingStatusWithWS: ({ chatId, isTyping }: SocketTypingMessagePayload) => void;
     publishCommentWithWS: ({ comment }: SocketCommentPayload) => void;
@@ -52,13 +51,8 @@ export const useSocketStore = create<SocketState>(() => ({
     readMessagesWithWS: ({ chatId }: SocketReadChatPayload) => {
         socket.emit("chat:read", { chatId });
     },
-    publishPostWithWS: ({ post }: SocketPostPayload) => {
-        socket.emit("post:publish", { post }, (res: Acknowledgement) => {
-            if (!res.ok) {
-                toast.error(res.error);
-                return;
-            }
-        });
+    publishPostWithWS: () => {
+        socket.emit("post:publish");
     },
     publishCommentWithWS: ({ comment }: SocketCommentPayload) => {
         socket.emit("comment:publish", { comment }, (res: Acknowledgement) => {

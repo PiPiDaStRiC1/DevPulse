@@ -58,6 +58,7 @@ function App() {
                         fontWeight: 600,
                         textAlign: "center",
                     },
+                    duration: 1000,
                 }}
             />
             <Header />

@@ -1,12 +1,8 @@
-import type { Message, Post, Comment } from "./index";
+import type { Message, Comment } from "./index";
 
 export interface SocketMessagePayload {
     chatId: string;
     message: Message;
-}
-
-export interface SocketPostPayload {
-    post: Post;
 }
 
 export interface SocketCommentPayload {

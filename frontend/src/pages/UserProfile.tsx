@@ -56,7 +56,7 @@ export const UserProfile = () => {
     const profileMetrics = [
         { label: "Followers", value: user.followers },
         { label: "Following", value: user.following },
-        { label: "Posts", value: "—" },
+        { label: "Posts", value: user.posts },
         { label: "Status", value: user.isVerified ? "Verified" : "Rising" },
     ];
 

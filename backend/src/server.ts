@@ -10,7 +10,6 @@ import type {
     Acknowledgement,
     ChatOnlineAcknowledgement,
     SocketMessagePayload,
-    SocketPostPayload,
     SocketReadChatPayload,
     SocketConnection,
     SocketTypingMessagePayload,
@@ -115,14 +114,8 @@ io.on("connection", (socket) => {
         socket.to(payload.chatId).emit("chat:read:new", payload);
     });
 
-    socket.on("post:publish", (payload: SocketPostPayload, ack: (res: Acknowledgement) => void) => {
-        const currentUserId = socket.data.user.userId;
-        if (!currentUserId || !payload.post) {
-            return ack({ ok: false, error: "Unauthorized or invalid payload" });
-        }
-
-        socket.broadcast.emit("post:publish:new", payload);
-        return ack({ ok: true });
+    socket.on("post:publish", () => {
+        io.emit("post:publish:new");
     });
 
     socket.on(

@@ -1,3 +1,5 @@
+import type { Comment } from "./comment";
+
 export interface CodeSnippet {
     language: string | null;
     code: string | null;
@@ -32,4 +34,4 @@ export interface Post {
     codeSnippet: CodeSnippet | null;
 }
 
-export type PostDTO = Omit<Post, "id" | "readTime">;
+export type PostDTO = Omit<Post, "id" | "readTime" | "comments"> & { comments: Comment[] };

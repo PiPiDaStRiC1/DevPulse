@@ -100,7 +100,7 @@ export const usePostComposer = () => {
                 return [newPost, ...oldData];
             });
 
-            publishPostWithWS({ post: newPost });
+            publishPostWithWS();
 
             localStorage.removeItem("draft-post");
             onClose();

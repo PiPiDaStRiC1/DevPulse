@@ -1,26 +1,7 @@
 import { prisma } from "@/helpers";
+import { parseChat } from "@/utils";
 import type { Response, Request } from "express";
 import type { Chat, ChatDTO, ApiResponse, Message } from "@shared/types";
-
-const parseChat = (chat: any, currentUserId: number): Chat => {
-    const participant = chat.participants?.find(
-        (p: { userId: number; lastReadAt: string }) => p.userId === currentUserId,
-    );
-
-    const lastReadAt = participant?.lastReadAt ?? new Date(0).toISOString();
-
-    const collocutor = chat.collocutor?.id === currentUserId ? chat.user : chat.collocutor;
-
-    return {
-        id: chat.id,
-        collocutor,
-        lastMessage: chat.messages[0] || null,
-        unreadCount: chat.unreadCount ?? 0,
-        updatedAt: chat.updatedAt,
-        lastReadAt,
-        userId: chat.userId,
-    };
-};
 
 const getUnreadCount = async (chatId: number, userId: number) => {
     const participant = await prisma.chatParticipant.findUnique({
