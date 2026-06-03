@@ -2,11 +2,11 @@ import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
 import { useState } from "react";
-import { Heart, MessageCircle, Repeat2, Bookmark, Share2, BadgeCheck } from "lucide-react";
+import { Heart, MessageCircle, Bookmark, Share2, BadgeCheck, Check } from "lucide-react";
 import { Avatar, ErrorAlert, PostSkeleton } from "@/components";
 import { safeParseDate } from "@/lib/utils";
 import { Link } from "react-router-dom";
-import { useTogglePostLike } from "@/hooks";
+import { useTogglePostLike, useCopyToClipboard } from "@/hooks";
 import type { Post } from "@shared/types";
 
 interface PostCardProps {
@@ -17,6 +17,7 @@ export const PostCard = ({ post }: PostCardProps) => {
     const { toggleLikePost, isErrorAuthor, isLoadingAuthor, author } = useTogglePostLike(
         post.authorId,
     );
+    const { copy, isCopied } = useCopyToClipboard();
     const [bookmarked, setBookmarked] = useState(post.isBookmarked!);
 
     const fmt = (n: number | undefined) => (n && n >= 1000 ? `${(n / 1000).toFixed(1)}k` : n);
@@ -41,9 +42,12 @@ export const PostCard = ({ post }: PostCardProps) => {
         <article className="card p-0 mb-4 overflow-hidden">
             <div className="p-4 sm:p-5">
                 <div className="flex gap-3.5">
-                    <Link to={`/profile/${author.handle}`} className="shrink-0">
-                        <Avatar handle={author.handle} size="sm" isLoading={isLoadingAuthor} />
-                    </Link>
+                    <Avatar
+                        handle={author.handle}
+                        size="sm"
+                        link={`/profile/${author.handle}`}
+                        isLoading={isLoadingAuthor}
+                    />
 
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap text-[12px] leading-tight">
@@ -143,13 +147,12 @@ export const PostCard = ({ post }: PostCardProps) => {
                     <span>{fmt(post.comments)} comments</span>
                 </Link>
 
-                <button className="action-btn" aria-label="Repost">
-                    <Repeat2 size={16} />
-                    <span>{fmt(post.reposts)} reposts</span>
-                </button>
-
-                <button className="action-btn" aria-label="Share">
-                    <Share2 size={16} />
+                <button
+                    className="action-btn"
+                    onClick={() => copy(`posts/${post.id}`)}
+                    aria-label="Share"
+                >
+                    {isCopied ? <Check size={16} /> : <Share2 size={16} />}
                 </button>
 
                 <button

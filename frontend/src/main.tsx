@@ -10,7 +10,7 @@ const client = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
-        <BrowserRouter basename="/DevPulse/">
+        <BrowserRouter basename={import.meta.env.BASE_URL}>
             <QueryClientProvider client={client}>
                 <ErrorBoundary>
                     <App />

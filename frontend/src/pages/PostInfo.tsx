@@ -7,8 +7,8 @@ import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
 import { Avatar, ErrorAlert, PostSkeleton, PostCommentsList, RelatedPosts } from "@/components";
 import { safeParseDate } from "@/lib/utils";
-import { Heart, MessageCircle, Bookmark, ArrowLeft } from "lucide-react";
-import { useTogglePostLike } from "@/hooks";
+import { Heart, MessageCircle, Bookmark, ArrowLeft, Share2, Check } from "lucide-react";
+import { useCopyToClipboard, useTogglePostLike } from "@/hooks";
 import type { Post } from "@shared/types";
 
 export const PostInfo = () => {
@@ -25,6 +25,7 @@ export const PostInfo = () => {
         staleTime: 0,
     });
     const { toggleLikePost, author, isLoadingAuthor } = useTogglePostLike(post?.authorId);
+    const { copy, isCopied } = useCopyToClipboard();
 
     const [bookmarked, setBookmarked] = useState(false);
 
@@ -161,6 +162,14 @@ export const PostInfo = () => {
                                 <MessageCircle size={16} />
                                 <span>{post.comments}</span>
                             </Link>
+
+                            <button
+                                className="action-btn"
+                                onClick={() => copy()}
+                                aria-label="Share"
+                            >
+                                {isCopied ? <Check size={16} /> : <Share2 size={16} />}
+                            </button>
 
                             <button
                                 onClick={() => setBookmarked((v) => !v)}
