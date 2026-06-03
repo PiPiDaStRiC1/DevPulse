@@ -1,67 +1,23 @@
 import { prisma } from "@/helpers";
 import { Prisma } from "@prisma/client";
 import { postCreateSchema } from "@shared/schemas";
-import { parsePost } from "@/utils";
+import { parsePost, getQueryOptionsForPosts } from "@/utils";
 import type { Response, Request } from "express";
 import type {
     Post,
     ApiResponse,
     PostDTO,
-    Like,
     Comment,
     CommentDTO,
     FeedPostsFilter,
 } from "@shared/types";
-
-const getQueryOptions = async (
-    filter: FeedPostsFilter | undefined,
-    currentUserId: number | undefined,
-) => {
-    const baseInclude = {
-        tags: true,
-        techStack: true,
-        codeSnippet: true,
-        _count: { select: { likes: true, comments: true } },
-        likes: true,
-    };
-
-    switch (filter) {
-        case "for-you":
-            return await prisma.post.findMany({
-                include: baseInclude,
-                orderBy: { createdAt: "desc" },
-            });
-        case "following":
-            if (!currentUserId) {
-                return await prisma.post.findMany({
-                    include: baseInclude,
-                    orderBy: { createdAt: "desc" },
-                });
-            }
-            return await prisma.post.findMany({
-                include: baseInclude,
-                where: { author: { followers: { some: { followerId: currentUserId } } } },
-                orderBy: { createdAt: "desc" },
-            });
-        case "trending":
-            return await prisma.post.findMany({
-                include: baseInclude,
-                orderBy: [{ likes: { _count: "desc" } }, { createdAt: "desc" }],
-            });
-        default:
-            return await prisma.post.findMany({
-                include: baseInclude,
-                orderBy: { createdAt: "desc" },
-            });
-    }
-};
 
 export const getPosts = async (req: Request, res: Response<ApiResponse<Post[]>>) => {
     try {
         const filter = req.query.filter as FeedPostsFilter;
         const currentUserId = req.user?.userId;
 
-        const posts = await getQueryOptions(filter, currentUserId);
+        const posts = await getQueryOptionsForPosts(filter, currentUserId);
 
         return res
             .status(200)
@@ -88,6 +44,7 @@ export const getOnePost = async (
                 tags: true,
                 techStack: true,
                 codeSnippet: true,
+                bookmarks: true,
                 _count: { select: { likes: true, comments: true } },
                 likes: true,
             },
@@ -139,6 +96,7 @@ export const postPost = async (
                 tags: true,
                 techStack: true,
                 codeSnippet: true,
+                bookmarks: true,
                 _count: { select: { likes: true, comments: true } },
                 likes: true,
             },
@@ -153,7 +111,7 @@ export const postPost = async (
 
 export const postLikePost = async (
     req: Request<{ id: string }>,
-    res: Response<ApiResponse<Like>>,
+    res: Response<ApiResponse<string>>,
 ) => {
     try {
         const { userId } = req.user!;
@@ -161,13 +119,19 @@ export const postLikePost = async (
 
         const postId = Number(id);
 
-        const like = await prisma.like.upsert({
+        const post = await prisma.post.findUnique({ where: { id: postId } });
+
+        if (!post) {
+            return res.status(404).json({ success: false, error: "Post not found" });
+        }
+
+        await prisma.like.upsert({
             where: { postId_userId: { postId, userId } },
             create: { postId, userId },
             update: {},
         });
 
-        return res.status(201).json({ success: true, data: like });
+        return res.status(201).json({ success: true, data: "Success" });
     } catch (error) {
         console.error("Error creating like: ", error);
         return res.status(500).json({ success: false, error: "Failed to create like" });
@@ -184,12 +148,72 @@ export const deleteDislikePost = async (
 
         const postId = Number(id);
 
-        await prisma.like.delete({ where: { postId_userId: { postId: postId, userId: userId } } });
+        const post = await prisma.post.findUnique({ where: { id: postId } });
+
+        if (!post) {
+            return res.status(404).json({ success: false, error: "Post not found" });
+        }
+
+        await prisma.like.deleteMany({ where: { postId: postId, userId: userId } });
 
         return res.status(200).json({ success: true, data: "Success" });
     } catch (error) {
         console.error("Error deleting like: ", error);
         return res.status(500).json({ success: false, error: "Failed to delete like" });
+    }
+};
+
+export const postBookmarkPost = async (
+    req: Request<{ id: string }>,
+    res: Response<ApiResponse<string>>,
+) => {
+    try {
+        const { userId } = req.user!;
+        const { id } = req.params;
+
+        const postId = Number(id);
+
+        const post = await prisma.post.findUnique({ where: { id: postId } });
+
+        if (!post) {
+            return res.status(404).json({ success: false, error: "Post not found" });
+        }
+
+        await prisma.bookmark.upsert({
+            where: { postId_userId: { postId, userId } },
+            create: { postId, userId },
+            update: {},
+        });
+
+        return res.status(201).json({ success: true, data: "Success" });
+    } catch (error) {
+        console.error("Error creating bookmark: ", error);
+        return res.status(500).json({ success: false, error: "Failed to create bookmark" });
+    }
+};
+
+export const deleteBookmarkPost = async (
+    req: Request<{ id: string }>,
+    res: Response<ApiResponse<string>>,
+) => {
+    try {
+        const { userId } = req.user!;
+        const { id } = req.params;
+
+        const postId = Number(id);
+
+        const post = await prisma.post.findUnique({ where: { id: postId } });
+
+        if (!post) {
+            return res.status(404).json({ success: false, error: "Post not found" });
+        }
+
+        await prisma.bookmark.deleteMany({ where: { postId: postId, userId: userId } });
+
+        return res.status(200).json({ success: true, data: "Success" });
+    } catch (error) {
+        console.error("Error deleting bookmark: ", error);
+        return res.status(500).json({ success: false, error: "Failed to delete bookmark" });
     }
 };
 

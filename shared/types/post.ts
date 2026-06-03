@@ -5,14 +5,6 @@ export interface CodeSnippet {
     code: string | null;
 }
 
-export interface Like {
-    id: number;
-    postId: number;
-    userId: number;
-}
-
-export type LikeDTO = Omit<Like, "id" | "userId">;
-
 export interface Post {
     id: number;
     title: string;
@@ -25,13 +17,14 @@ export interface Post {
     likes: number;
     comments: number;
     reposts?: number;
-    bookmarks?: number;
-    createdAt?: Date;
+    createdAt: Date;
     isLiked: boolean;
-    isBookmarked?: boolean;
+    isBookmarked: boolean;
     isReposted?: boolean;
     image: string | null;
     codeSnippet: CodeSnippet | null;
 }
 
-export type PostDTO = Omit<Post, "id" | "readTime" | "comments"> & { comments: Comment[] };
+export type PostDTO = Omit<Post, "id" | "readTime" | "comments" | "createdAt"> & {
+    comments: Comment[];
+};

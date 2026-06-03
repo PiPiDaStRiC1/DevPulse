@@ -14,6 +14,7 @@ export type PrismaPost = Prisma.PostGetPayload<{
         tags: true;
         codeSnippet: true;
         techStack: true;
+        bookmarks: true;
         _count: { select: { likes: true; comments: true } };
         likes: true;
     };

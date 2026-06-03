@@ -10,9 +10,11 @@ function countReadTime(content: string) {
 
 export const parsePost = (post: PrismaPost, currentUserId?: number): Post => {
     let isLiked = false;
+    let isBookmarked = false;
 
     if (currentUserId) {
         isLiked = post.likes.some((like) => like.userId === currentUserId);
+        isBookmarked = post.bookmarks.some((bookmark) => bookmark.userId === currentUserId);
     }
 
     return {
@@ -27,10 +29,9 @@ export const parsePost = (post: PrismaPost, currentUserId?: number): Post => {
         likes: post._count.likes,
         comments: post._count.comments,
         reposts: post.reposts,
-        bookmarks: post.bookmarks,
         createdAt: post.createdAt,
         isLiked: isLiked,
-        isBookmarked: post.isBookmarked,
+        isBookmarked: isBookmarked,
         isReposted: post.isReposted,
         image: post.image,
         codeSnippet: post.codeSnippet

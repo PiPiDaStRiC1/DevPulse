@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { apiClient } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation, useParams, Link } from "react-router-dom";
@@ -8,7 +8,7 @@ import remarkBreaks from "remark-breaks";
 import { Avatar, ErrorAlert, PostSkeleton, PostCommentsList, RelatedPosts } from "@/components";
 import { safeParseDate } from "@/lib/utils";
 import { Heart, MessageCircle, Bookmark, ArrowLeft, Share2, Check } from "lucide-react";
-import { useCopyToClipboard, useTogglePostLike } from "@/hooks";
+import { useCopyToClipboard, useTogglePostStats } from "@/hooks";
 import type { Post } from "@shared/types";
 
 export const PostInfo = () => {
@@ -24,10 +24,10 @@ export const PostInfo = () => {
         enabled: !!postId,
         staleTime: 0,
     });
-    const { toggleLikePost, author, isLoadingAuthor } = useTogglePostLike(post?.authorId);
     const { copy, isCopied } = useCopyToClipboard();
-
-    const [bookmarked, setBookmarked] = useState(false);
+    const { toggleLikePost, toggleBookmarkPost, author, isLoadingAuthor } = useTogglePostStats(
+        post?.authorId,
+    );
 
     useEffect(() => {
         if (isLoading || isError) return;
@@ -172,11 +172,19 @@ export const PostInfo = () => {
                             </button>
 
                             <button
-                                onClick={() => setBookmarked((v) => !v)}
-                                className={`action-btn ml-auto${bookmarked ? " bookmarked" : ""}`}
+                                onClick={() =>
+                                    toggleBookmarkPost({
+                                        postId: post.id,
+                                        isBookmarked: post.isBookmarked,
+                                    })
+                                }
+                                className={`action-btn ml-auto${post.isBookmarked ? " bookmarked" : ""}`}
                                 aria-label="Bookmark"
                             >
-                                <Bookmark size={16} fill={bookmarked ? "currentColor" : "none"} />
+                                <Bookmark
+                                    size={16}
+                                    fill={post.isBookmarked ? "currentColor" : "none"}
+                                />
                             </button>
                         </div>
                     </footer>

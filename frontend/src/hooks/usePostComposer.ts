@@ -91,6 +91,7 @@ export const usePostComposer = () => {
                 comments: [],
                 image: null,
                 isLiked: false,
+                isBookmarked: false,
                 likes: 0,
             });
 

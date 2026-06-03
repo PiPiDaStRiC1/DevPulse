@@ -8,6 +8,8 @@ import {
     deleteDislikePost,
     getComments,
     postComment,
+    postBookmarkPost,
+    deleteBookmarkPost,
 } from "@/services";
 
 const postsRouter = Router();
@@ -17,6 +19,8 @@ postsRouter.post("/", verifyJWT, postPost);
 postsRouter.get("/:id", optionalAuth, getOnePost);
 postsRouter.post("/:id/like", verifyJWT, postLikePost);
 postsRouter.delete("/:id/like", verifyJWT, deleteDislikePost);
+postsRouter.post("/:id/bookmark", verifyJWT, postBookmarkPost);
+postsRouter.delete("/:id/bookmark", verifyJWT, deleteBookmarkPost);
 postsRouter.get("/:id/comments", getComments);
 postsRouter.post("/:id/comments", verifyJWT, postComment);
 

@@ -1,12 +1,11 @@
 import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
-import { useState } from "react";
 import { Heart, MessageCircle, Bookmark, Share2, BadgeCheck, Check } from "lucide-react";
 import { Avatar, ErrorAlert, PostSkeleton } from "@/components";
 import { safeParseDate } from "@/lib/utils";
 import { Link } from "react-router-dom";
-import { useTogglePostLike, useCopyToClipboard } from "@/hooks";
+import { useTogglePostStats, useCopyToClipboard } from "@/hooks";
 import type { Post } from "@shared/types";
 
 interface PostCardProps {
@@ -14,11 +13,9 @@ interface PostCardProps {
 }
 
 export const PostCard = ({ post }: PostCardProps) => {
-    const { toggleLikePost, isErrorAuthor, isLoadingAuthor, author } = useTogglePostLike(
-        post.authorId,
-    );
     const { copy, isCopied } = useCopyToClipboard();
-    const [bookmarked, setBookmarked] = useState(post.isBookmarked!);
+    const { toggleLikePost, toggleBookmarkPost, isErrorAuthor, isLoadingAuthor, author } =
+        useTogglePostStats(post.authorId);
 
     const fmt = (n: number | undefined) => (n && n >= 1000 ? `${(n / 1000).toFixed(1)}k` : n);
 
@@ -156,11 +153,13 @@ export const PostCard = ({ post }: PostCardProps) => {
                 </button>
 
                 <button
-                    onClick={() => setBookmarked((v) => !v)}
-                    className={`action-btn ml-auto${bookmarked ? " bookmarked" : ""}`}
+                    onClick={() =>
+                        toggleBookmarkPost({ postId: post.id, isBookmarked: post.isBookmarked })
+                    }
+                    className={`action-btn ml-auto${post.isBookmarked ? " bookmarked" : ""}`}
                     aria-label="Bookmark"
                 >
-                    <Bookmark size={16} fill={bookmarked ? "currentColor" : "none"} />
+                    <Bookmark size={16} fill={post.isBookmarked ? "currentColor" : "none"} />
                 </button>
             </div>
         </article>

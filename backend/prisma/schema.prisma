@@ -38,6 +38,16 @@ model CodeSnippet {
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 }
 
+model Bookmark {
+  id Int @id @default(autoincrement())
+  postId Int
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId Int
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+}
+
 model Follow {
   id Int @id @default(autoincrement())
   followingId Int
@@ -68,6 +78,7 @@ model User {
   password String
   posts Post[]
   likes Like[]
+  bookmarks Bookmark[]
   comments PostComment[]
   messages Message[]
   chatsInitiated Chat[] @relation("ChatInitiator")
@@ -93,9 +104,8 @@ model Post {
   likes Like[]
   comments PostComment[]
   reposts Int @default(0)
-  bookmarks Int @default(0)
+  bookmarks Bookmark[]
   createdAt DateTime @default(now())
-  isBookmarked Boolean @default(false)
   isReposted Boolean @default(false)
   image String?
   codeSnippet CodeSnippet?

@@ -13,7 +13,6 @@ import type {
     Message,
     MessageDTO,
     PostDTO,
-    Like,
     CommentDTO,
     Comment,
     FeedPostsFilter,
@@ -339,10 +338,10 @@ export const apiClient = {
     },
     async likePost(id: number) {
         try {
-            const response = await genericFetch<ApiResponse<Like>>(`${API_URL}/posts/${id}/like`, {
-                method: "POST",
-                headers: { ...JWTheaders() },
-            });
+            const response = await genericFetch<ApiResponse<string>>(
+                `${API_URL}/posts/${id}/like`,
+                { method: "POST", headers: { ...JWTheaders() } },
+            );
             if (!response.success) {
                 throw new Error(response.error);
             }
@@ -366,6 +365,40 @@ export const apiClient = {
         } catch (error) {
             throw new Error(
                 error instanceof Error ? error.message : `Failed to dislike post ${id}`,
+            );
+        }
+    },
+    async bookmarkPost(id: number) {
+        try {
+            const response = await genericFetch<ApiResponse<string>>(
+                `${API_URL}/posts/${id}/bookmark`,
+                { method: "POST", headers: { ...JWTheaders() } },
+            );
+            if (!response.success) {
+                throw new Error(response.error);
+            }
+
+            return response.data;
+        } catch (error) {
+            throw new Error(
+                error instanceof Error ? error.message : `Failed to add bookmark for post ${id}`,
+            );
+        }
+    },
+    async unbookmarkPost(id: number) {
+        try {
+            const response = await genericFetch<ApiResponse<string>>(
+                `${API_URL}/posts/${id}/bookmark`,
+                { method: "DELETE", headers: { ...JWTheaders() } },
+            );
+            if (!response.success) {
+                throw new Error(response.error);
+            }
+
+            return response.data;
+        } catch (error) {
+            throw new Error(
+                error instanceof Error ? error.message : `Failed to remove bookmark for post ${id}`,
             );
         }
     },

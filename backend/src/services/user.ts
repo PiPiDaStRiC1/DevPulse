@@ -148,9 +148,7 @@ export const deleteUnfollowUser = async (
             return res.status(404).json({ success: false, error: "User not found" });
         }
 
-        await prisma.follow.delete({
-            where: { followerId_followingId: { followerId: userId, followingId: followingId } },
-        });
+        await prisma.follow.deleteMany({ where: { followerId: userId, followingId: followingId } });
 
         const updated = await prisma.user.findUnique({
             where: { id: followingId },
