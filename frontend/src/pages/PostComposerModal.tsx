@@ -2,9 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { X, Sparkles, Eye, Bookmark, Send, Maximize2 } from "lucide-react";
 import { Avatar, ErrorAlert, PostModalOptions, TextEditor, PreviewModal } from "@/components";
-import ReactMarkdown from "react-markdown";
-import remarkBreaks from "remark-breaks";
-import remarkGfm from "remark-gfm";
+import { CustomReactMarkdown } from "@/features";
 import { usePostComposer } from "@/hooks";
 
 export const PostComposerModal = () => {
@@ -152,16 +150,8 @@ export const PostComposerModal = () => {
                                 <div className="space-y-3">
                                     <div className="text-[13px] leading-[1.7] text-base overflow-y-auto">
                                         <div className="preview-markdown">
-                                            <ReactMarkdown
-                                                remarkPlugins={[remarkGfm, remarkBreaks]}
-                                            >
-                                                {heading}
-                                            </ReactMarkdown>
-                                            <ReactMarkdown
-                                                remarkPlugins={[remarkGfm, remarkBreaks]}
-                                            >
-                                                {previewExcerpt}
-                                            </ReactMarkdown>
+                                            <CustomReactMarkdown content={heading} />
+                                            <CustomReactMarkdown content={previewExcerpt} />
                                         </div>
                                     </div>
                                     {previewBody.length > 250 && (

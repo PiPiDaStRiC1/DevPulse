@@ -1,9 +1,7 @@
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import remarkBreaks from "remark-breaks";
 import { BadgeCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 import { safeParseDate } from "@/lib/utils";
+import { CustomReactMarkdown } from "@/features";
 import { Avatar } from "@/components";
 import type { Comment } from "@shared/types";
 
@@ -37,9 +35,7 @@ export const PostComment = ({ comment }: PostCommentProps) => {
                     </div>
 
                     <div className="preview-markdown rounded-md border border-ink-soft bg-bg/60 px-3 py-2 text-[14px]">
-                        <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
-                            {comment.text}
-                        </ReactMarkdown>
+                        <CustomReactMarkdown content={comment.text} />
                     </div>
                 </div>
             </div>

@@ -2,10 +2,15 @@ import { useEffect } from "react";
 import { apiClient } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation, useParams, Link } from "react-router-dom";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import remarkBreaks from "remark-breaks";
-import { Avatar, ErrorAlert, PostSkeleton, PostCommentsList, RelatedPosts } from "@/components";
+import {
+    Avatar,
+    ErrorAlert,
+    PostSkeleton,
+    PostCommentsList,
+    RelatedPosts,
+    HeadingTable,
+} from "@/components";
+import { CustomReactMarkdown } from "@/features";
 import { safeParseDate } from "@/lib/utils";
 import { Heart, MessageCircle, Bookmark, ArrowLeft, Share2, Check } from "lucide-react";
 import { useCopyToClipboard, useTogglePostStats } from "@/hooks";
@@ -57,9 +62,7 @@ export const PostInfo = () => {
                 <article className="card p-6 sm:p-8 min-w-0 flex-1">
                     <header className="flex flex-col gap-4 mb-6">
                         <div className="preview-markdown">
-                            <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
-                                {post.title}
-                            </ReactMarkdown>
+                            <CustomReactMarkdown content={post.title} />
                         </div>
                         <div className="flex gap-3 text-[13px] text-muted">
                             {author && (
@@ -95,42 +98,10 @@ export const PostInfo = () => {
 
                     <div className="flex justify-between gap-10 min-w-0">
                         <div className="preview-markdown min-w-0 flex-1">
-                            <ReactMarkdown
-                                remarkPlugins={[remarkGfm, remarkBreaks]}
-                                components={{
-                                    pre: ({ children }) => (
-                                        <pre className="max-w-full overflow-x-auto whitespace-pre rounded border-2 border-ink bg-[#f0ede3] px-4 py-3 shadow-[2px_2px_0_var(--ink)]">
-                                            {children}
-                                        </pre>
-                                    ),
-                                    code: ({ className, children, ...props }) => {
-                                        const isBlockCode = !!className;
-
-                                        return isBlockCode ? (
-                                            <code
-                                                className="block whitespace-pre min-w-max"
-                                                {...props}
-                                            >
-                                                {children}
-                                            </code>
-                                        ) : (
-                                            <code {...props}>{children}</code>
-                                        );
-                                    },
-                                }}
-                            >
-                                {post.content}
-                            </ReactMarkdown>
+                            <CustomReactMarkdown content={post.content} />
                         </div>
 
-                        <aside className="hidden lg:block w-50 shrink-0">
-                            <div className="sticky top-20">
-                                <div className="mb-4 text-sm text-subtle">Table of Contents</div>
-                                <nav className="space-y-1">
-                                    <div className="text-subtle">No headings</div>
-                                </nav>
-                            </div>
-                        </aside>
+                        <HeadingTable content={post.content} />
                     </div>
 
                     <footer className="mt-8 border-t border-ink-soft py-4 flex items-center justify-between">

@@ -1,8 +1,6 @@
-import ReactMarkdown from "react-markdown";
-import remarkBreaks from "remark-breaks";
-import remarkGfm from "remark-gfm";
 import { Heart, MessageCircle, Bookmark, Share2, BadgeCheck, Check } from "lucide-react";
 import { Avatar, ErrorAlert, PostSkeleton } from "@/components";
+import { CustomReactMarkdown } from "@/features";
 import { safeParseDate } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { useTogglePostStats, useCopyToClipboard } from "@/hooks";
@@ -64,13 +62,9 @@ export const PostCard = ({ post }: PostCardProps) => {
                                 to={`/posts/${post.id}`}
                                 className="!no-underline hover:!underline"
                             >
-                                <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
-                                    {post.title}
-                                </ReactMarkdown>
+                                <CustomReactMarkdown content={post.title} />
                             </Link>
-                            <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
-                                {preview}
-                            </ReactMarkdown>
+                            <CustomReactMarkdown content={preview} />
                             {isLong && (
                                 <div className="mt-2">
                                     <Link

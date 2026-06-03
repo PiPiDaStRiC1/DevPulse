@@ -1,8 +1,6 @@
 import { forwardRef } from "react";
 import { X } from "lucide-react";
-import ReactMarkdown from "react-markdown";
-import remarkBreaks from "remark-breaks";
-import remarkGfm from "remark-gfm";
+import { CustomReactMarkdown } from "@/features";
 import type { ForwardedRef } from "react";
 
 interface PreviewModalProps {
@@ -37,12 +35,8 @@ export const PreviewModal = forwardRef(
                     <div className="min-h-0 flex-1 overflow-y-auto px-5">
                         <div className="preview-markdown">
                             <div className="flex flex-col gap-3">
-                                <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
-                                    {heading}
-                                </ReactMarkdown>
-                                <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
-                                    {body}
-                                </ReactMarkdown>
+                                <CustomReactMarkdown content={heading} />
+                                <CustomReactMarkdown content={body} />
                             </div>
                         </div>
                     </div>

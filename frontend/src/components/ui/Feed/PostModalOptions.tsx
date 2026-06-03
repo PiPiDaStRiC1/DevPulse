@@ -13,10 +13,6 @@ export const PostModalOptions = () => {
                     <span className="text-muted">Format</span>
                     <span className="font-semibold">Article</span>
                 </div>
-                <div className="flex items-center justify-between">
-                    <span className="text-muted">Reading time</span>
-                    <span className="font-semibold">3 min</span>
-                </div>
                 <p className="pt-2 text-[12px] leading-relaxed text-muted">
                     Keep the main writing area dominant. The sidebar is only for context, preview,
                     and publishing state.
