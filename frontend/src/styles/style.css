@@ -250,22 +250,22 @@ body {
   color: var(--text);
   font-weight: 800;
   letter-spacing: -0.02em;
-  line-height: 1.22;
+  line-height: 1;
   margin: 0.2em 0 0.4em;
 }
 
 .preview-markdown h1 {
-  font-size: 1.72rem;
+  font-size: 1.6rem;
   border-bottom: 2px solid var(--ink-soft);
   padding-bottom: 0.28em;
 }
 
 .preview-markdown h2 {
-  font-size: 1.35rem;
+  font-size: 1.5rem;
 }
 
 .preview-markdown h3 {
-  font-size: 1.15rem;
+  font-size: 1.4rem;
 }
 
 .preview-markdown p {

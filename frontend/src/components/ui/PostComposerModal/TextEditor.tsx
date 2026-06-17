@@ -27,14 +27,6 @@ export const TextEditor = ({ body, heading, setHeading, setBody }: TextEditorPro
     const [activeTab, setActiveTab] = useState<ComposerTab>("Article");
     const [showTips, setShowTips] = useState(false);
 
-    const handleChangeHeading = (e: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => {
-        let value = e.target.value;
-        if (!value.startsWith("# ")) {
-            value = "# " + value.replace(/^#\s*/, "");
-        }
-        setHeading(value);
-    };
-
     useEffect(() => {
         document.body.style.overflow = "hidden";
 
@@ -93,7 +85,7 @@ export const TextEditor = ({ body, heading, setHeading, setBody }: TextEditorPro
                             type="text"
                             value={heading}
                             placeholder="Heading"
-                            onChange={handleChangeHeading}
+                            onChange={(e) => setHeading(e.target.value)}
                             className="px-4 pt-2 outline-none"
                         />
                         <textarea

@@ -3,7 +3,14 @@ import type { Prisma } from "@prisma/client";
 export type PrismaUser = Prisma.UserGetPayload<{
     include: {
         _count: {
-            select: { followers: true; following: true; likes: true; comments: true; posts: true };
+            select: {
+                followers: true;
+                following: true;
+                likes: true;
+                comments: true;
+                posts: true;
+                bookmarks: true;
+            };
         };
         followers: true;
     };

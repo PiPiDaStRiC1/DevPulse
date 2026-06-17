@@ -62,7 +62,7 @@ export const PostCard = ({ post }: PostCardProps) => {
                                 to={`/posts/${post.id}`}
                                 className="!no-underline hover:!underline"
                             >
-                                <CustomReactMarkdown content={post.title} />
+                                <h1 className="preview-markdown">{post.title}</h1>
                             </Link>
                             <CustomReactMarkdown content={preview} />
                             {isLong && (

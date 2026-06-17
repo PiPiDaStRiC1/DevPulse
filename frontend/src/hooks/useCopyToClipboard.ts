@@ -6,9 +6,10 @@ export const useCopyToClipboard = () => {
     const timerRef = useRef<number | null>(null);
 
     const copy = (text: string = "") => {
-        const url = `${window.location.href}${text}`;
+        const rowUrl = `${window.location.href}${text}`;
+        const parsedUrl = rowUrl.replace(/(#[A-ZА-ЯЁa-zа-яё]+)*/gi, "");
 
-        navigator.clipboard.writeText(url);
+        navigator.clipboard.writeText(parsedUrl);
 
         setIsCopied(true);
         toast.success("Link copied to clipboard!");

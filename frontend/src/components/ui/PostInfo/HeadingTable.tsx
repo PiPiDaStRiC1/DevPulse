@@ -43,8 +43,6 @@ const buildNestedHeadings = (content: string) => {
 export const HeadingTable = ({ content }: HeadingTableProps) => {
     const headingTree = useMemo(() => buildNestedHeadings(content), [content]);
 
-    console.log(headingTree);
-
     return (
         <aside className="hidden lg:block w-70">
             <div className="sticky top-20">

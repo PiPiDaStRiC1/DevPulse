@@ -4,3 +4,4 @@ export * from "./PostComposerModal";
 export * from "./Whispers";
 export * from "./ChatRoom";
 export * from "./PostInfo";
+export * from "./Bookmarks";

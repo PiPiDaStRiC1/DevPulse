@@ -9,11 +9,12 @@ import {
     PostCommentsList,
     RelatedPosts,
     HeadingTable,
+    PostActions,
 } from "@/components";
 import { CustomReactMarkdown } from "@/features";
 import { safeParseDate } from "@/lib/utils";
-import { Heart, MessageCircle, Bookmark, ArrowLeft, Share2, Check } from "lucide-react";
-import { useCopyToClipboard, useTogglePostStats } from "@/hooks";
+import { ArrowLeft } from "lucide-react";
+import { useTogglePostStats } from "@/hooks";
 import type { Post } from "@shared/types";
 
 export const PostInfo = () => {
@@ -29,7 +30,7 @@ export const PostInfo = () => {
         enabled: !!postId,
         staleTime: 0,
     });
-    const { copy, isCopied } = useCopyToClipboard();
+
     const { toggleLikePost, toggleBookmarkPost, author, isLoadingAuthor } = useTogglePostStats(
         post?.authorId,
     );
@@ -62,7 +63,7 @@ export const PostInfo = () => {
                 <article className="card p-6 sm:p-8 min-w-0 flex-1">
                     <header className="flex flex-col gap-4 mb-6">
                         <div className="preview-markdown">
-                            <CustomReactMarkdown content={post.title} />
+                            <h1>{post.title}</h1>
                         </div>
                         <div className="flex gap-3 text-[13px] text-muted">
                             {author && (
@@ -112,57 +113,16 @@ export const PostInfo = () => {
                                 </Link>
                             ))}
                         </div>
-
-                        <div className="flex items-center gap-3">
-                            <button
-                                className={`action-btn${post.isLiked ? " liked" : ""}`}
-                                onClick={() =>
-                                    toggleLikePost({ postId: post.id, isLiked: post.isLiked })
-                                }
-                                aria-label="Like"
-                            >
-                                <Heart size={16} fill={post.isLiked ? "currentColor" : "none"} />
-                                <span>{post.likes}</span>
-                            </button>
-
-                            <Link
-                                to={`/posts/${post.id}#comments`}
-                                className="action-btn"
-                                aria-label="Comment"
-                            >
-                                <MessageCircle size={16} />
-                                <span>{post.comments}</span>
-                            </Link>
-
-                            <button
-                                className="action-btn"
-                                onClick={() => copy()}
-                                aria-label="Share"
-                            >
-                                {isCopied ? <Check size={16} /> : <Share2 size={16} />}
-                            </button>
-
-                            <button
-                                onClick={() =>
-                                    toggleBookmarkPost({
-                                        postId: post.id,
-                                        isBookmarked: post.isBookmarked,
-                                    })
-                                }
-                                className={`action-btn ml-auto${post.isBookmarked ? " bookmarked" : ""}`}
-                                aria-label="Bookmark"
-                            >
-                                <Bookmark
-                                    size={16}
-                                    fill={post.isBookmarked ? "currentColor" : "none"}
-                                />
-                            </button>
-                        </div>
+                        <PostActions
+                            post={post}
+                            toggleLikePost={toggleLikePost}
+                            toggleBookmarkPost={toggleBookmarkPost}
+                        />
                     </footer>
                     <PostCommentsList post={post} />
                 </article>
 
-                <RelatedPosts />
+                <RelatedPosts post={post} />
             </div>
         </div>
     );

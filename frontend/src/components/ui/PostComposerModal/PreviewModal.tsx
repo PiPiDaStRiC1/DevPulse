@@ -35,7 +35,7 @@ export const PreviewModal = forwardRef(
                     <div className="min-h-0 flex-1 overflow-y-auto px-5">
                         <div className="preview-markdown">
                             <div className="flex flex-col gap-3">
-                                <CustomReactMarkdown content={heading} />
+                                <h1>{heading}</h1>
                                 <CustomReactMarkdown content={body} />
                             </div>
                         </div>

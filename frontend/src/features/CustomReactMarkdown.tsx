@@ -30,33 +30,33 @@ export const CustomReactMarkdown = ({ content }: CustomReactMarkdownProps) => {
                     );
                 },
                 h1: ({ children, ...props }) => (
-                    <h1 {...props} className="scroll-mt-18">
-                        {children}
-                    </h1>
-                ),
-
-                h2: ({ children, ...props }) => (
                     <h2 {...props} className="scroll-mt-18">
                         {children}
                     </h2>
                 ),
 
-                h3: ({ children, ...props }) => (
+                h2: ({ children, ...props }) => (
                     <h3 {...props} className="scroll-mt-18">
                         {children}
                     </h3>
                 ),
 
-                h4: ({ children, ...props }) => (
+                h3: ({ children, ...props }) => (
                     <h4 {...props} className="scroll-mt-18">
                         {children}
                     </h4>
                 ),
 
-                h5: ({ children, ...props }) => (
+                h4: ({ children, ...props }) => (
                     <h5 {...props} className="scroll-mt-18">
                         {children}
                     </h5>
+                ),
+
+                h5: ({ children, ...props }) => (
+                    <h6 {...props} className="scroll-mt-18">
+                        {children}
+                    </h6>
                 ),
 
                 h6: ({ children, ...props }) => (

@@ -150,7 +150,7 @@ export const PostComposerModal = () => {
                                 <div className="space-y-3">
                                     <div className="text-[13px] leading-[1.7] text-base overflow-y-auto">
                                         <div className="preview-markdown">
-                                            <CustomReactMarkdown content={heading} />
+                                            <h1>{heading}</h1>
                                             <CustomReactMarkdown content={previewExcerpt} />
                                         </div>
                                     </div>

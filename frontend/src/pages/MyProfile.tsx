@@ -53,7 +53,7 @@ export const MyProfile = () => {
         { label: "Posts", value: currentUser.posts },
         { label: "Followers", value: currentUser.followers },
         { label: "Following", value: currentUser.following },
-        { label: "Saved", value: "-" },
+        { label: "Saved", value: currentUser.bookmarks },
     ];
 
     const accountFacts = [

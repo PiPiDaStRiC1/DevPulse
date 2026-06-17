@@ -13,11 +13,19 @@ import {
     ChatRoom,
     NewChatRoom,
     PostInfo,
+    Bookmarks,
 } from "@/pages";
 import { ProtectedRoute, PublicRoute, NewChatRoute } from "@/features";
 import { ScrollToTop } from "@/lib/utils";
 import { Toaster } from "react-hot-toast";
 import { useAuthBootstrap, useSocketBootstrap } from "@/hooks";
+
+// TODO on session:
+// 1) Сделать отображение Related posts в PostInfo
+// 2) Что-то придумать для заголовков h1 в постах (нужно чтобы они были другие по стилизации
+// в отличии от оглавления поста) (done)
+// 3) Сделать загрузку bookmarks на соответствующую страницу (можно сверху написать надпись
+// не откуда пост был сохранен, а когда именно)
 
 // ToDo:
 // сделать debounce для сохранения draft для поста
@@ -96,6 +104,7 @@ function App() {
                     />
                     <Route path="/profile/:handle" element={<UserProfile />} />
                     <Route path="/posts/:postId" element={<PostInfo />} />
+                    <Route path="/bookmarks" element={<Bookmarks />} />
                     {!state?.background && (
                         <Route
                             path="/editor"

@@ -11,6 +11,7 @@ export interface User {
     likes: number;
     comments: number;
     posts: number;
+    bookmarks: number;
     role: string;
     isFollowing: boolean;
     createdAt: Date;
