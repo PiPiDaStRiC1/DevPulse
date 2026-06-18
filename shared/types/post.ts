@@ -13,6 +13,7 @@ export interface Post {
     readTime: number;
     authorId?: number;
     content: string;
+    excerpt: string;
     tags: string[];
     techStack: string[];
     likes: number;

@@ -1,6 +1,19 @@
-import { CollectionList } from "@/components";
+import { CollectionList, BookmarkCard, Preloader, ErrorAlert } from "@/components";
+import { apiClient } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
+import type { Bookmark } from "@shared/types";
 
 export const Bookmarks = () => {
+    const {
+        data: bookmarks,
+        isLoading,
+        isError,
+    } = useQuery<Bookmark[]>({
+        queryKey: ["bookmarks"],
+        queryFn: apiClient.getAllBookmarks,
+        staleTime: 5 * 60 * 1000,
+    });
+
     return (
         <div className="flex justify-between gap-6">
             <section>
@@ -27,7 +40,13 @@ export const Bookmarks = () => {
                                 <div className="text-[11px] uppercase tracking-[0.18em] text-subtle mb-1">
                                     Saved
                                 </div>
-                                <div className="text-2xl font-black leading-none">24</div>
+                                {isLoading ? (
+                                    <div className="w-10 h-6 bg-ink-soft/70 animate-pulse" />
+                                ) : (
+                                    <div className="text-2xl font-black leading-none">
+                                        {bookmarks?.length ?? 0}
+                                    </div>
+                                )}
                             </div>
                             <div className="rounded-md border-2 border-ink bg-bg px-4 py-3 shadow-[var(--ink)]">
                                 <div className="text-[11px] uppercase tracking-[0.18em] text-subtle mb-1">
@@ -57,90 +76,25 @@ export const Bookmarks = () => {
                         </div>
 
                         <div className="grid gap-5">
-                            <article className="card p-5 sm:p-6">
-                                <div className="text-xs text-subtle uppercase tracking-[0.18em] mb-1">
-                                    Saved 2 days ago
-                                </div>
-
-                                <h3 className="text-lg sm:text-xl font-extrabold tracking-tight mb-2">
-                                    Build a responsive command palette with keyboard navigation.
-                                </h3>
-                                <p className="text-sm sm:text-[15px] text-muted mb-4 max-w-3xl">
-                                    A compact pattern for quick access actions, layered
-                                    interactions, and accessible focus states that feels polished in
-                                    a product UI.
-                                </p>
-
-                                <div className="flex flex-wrap gap-2 mb-4">
-                                    {["UI", "Accessibility", "React"].map((tag) => (
-                                        <span key={tag} className="tag-badge cursor-default">
-                                            #{tag}
-                                        </span>
-                                    ))}
-                                </div>
-
-                                <div className="flex flex-wrap gap-3">
-                                    <button className="btn-solid !py-2 !px-4 !text-sm">
-                                        Open article
-                                    </button>
-                                    <button className="btn-outline !py-2 !px-4 !text-sm">
-                                        Move to collection
-                                    </button>
-                                </div>
-                            </article>
-
-                            <article className="card p-5 sm:p-6">
-                                <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
-                                    <div className="flex items-center gap-3 min-w-0">
-                                        <div className="sq-avatar w-11 h-11 bg-av-green text-white text-[12px]">
-                                            BW
-                                        </div>
-                                        <div className="min-w-0">
-                                            <div className="text-xs text-subtle uppercase tracking-[0.18em] mb-1">
-                                                Saved from
-                                            </div>
-                                            <div className="font-semibold text-text-base">
-                                                Backend Workshop
-                                            </div>
-                                        </div>
+                            {isLoading ? (
+                                <Preloader />
+                            ) : isError ? (
+                                <ErrorAlert />
+                            ) : bookmarks && bookmarks.length > 0 ? (
+                                bookmarks.map((bookmark) => (
+                                    <BookmarkCard key={bookmark.id} bookmark={bookmark} />
+                                ))
+                            ) : (
+                                <div className="rounded-md border-2 border-dashed border-ink-soft bg-surface px-5 py-8 text-center">
+                                    <div className="text-lg font-extrabold mb-2">
+                                        Nothing else to show
                                     </div>
-                                    <div className="text-xs text-subtle">Saved last week</div>
+                                    <p className="text-sm text-subtle max-w-md mx-auto">
+                                        Bookmarks you add later can live here as a tidy reading
+                                        queue.
+                                    </p>
                                 </div>
-
-                                <h3 className="text-lg sm:text-xl font-extrabold tracking-tight mb-2">
-                                    Nested REST routes that stay readable as the app grows.
-                                </h3>
-                                <p className="text-sm sm:text-[15px] text-muted mb-4 max-w-3xl">
-                                    A clean reference for modelling resources like posts, comments,
-                                    chats, and messages without losing the connection between them.
-                                </p>
-
-                                <div className="flex flex-wrap gap-2 mb-4">
-                                    {["REST", "API", "Architecture"].map((tag) => (
-                                        <span key={tag} className="tag-badge cursor-default">
-                                            #{tag}
-                                        </span>
-                                    ))}
-                                </div>
-
-                                <div className="flex flex-wrap gap-3">
-                                    <button className="btn-solid !py-2 !px-4 !text-sm">
-                                        Open article
-                                    </button>
-                                    <button className="btn-outline !py-2 !px-4 !text-sm">
-                                        Archive
-                                    </button>
-                                </div>
-                            </article>
-
-                            <div className="rounded-md border-2 border-dashed border-ink-soft bg-surface px-5 py-8 text-center">
-                                <div className="text-lg font-extrabold mb-2">
-                                    Nothing else to show
-                                </div>
-                                <p className="text-sm text-subtle max-w-md mx-auto">
-                                    Bookmarks you add later can live here as a tidy reading queue.
-                                </p>
-                            </div>
+                            )}
                         </div>
                     </section>
                 </div>

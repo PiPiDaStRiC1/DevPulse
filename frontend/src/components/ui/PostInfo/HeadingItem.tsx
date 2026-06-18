@@ -26,22 +26,27 @@ export const HeadingItem = ({ heading }: HeadingItemProps) => {
     return (
         <div>
             <div
-                className="text-subtle flex-1 flex items-center gap-1 hover:text-text-base transition-colors"
+                className="relative text-text-base flex-1 flex items-center gap-1 hover:text-text-base transition-colors"
                 style={{ marginLeft: `${marginLeft}px` }}
             >
                 {hasChildren && (
-                    <button className="cursor-pointer flex items-center" onClick={toggleNesting}>
+                    <button
+                        className="absolute cursor-pointer flex items-center"
+                        onClick={toggleNesting}
+                    >
                         <ArrowDown
                             size={18}
                             className={`transform ${isNestingOpen ? "-rotate-90" : ""}`}
                         />
                     </button>
                 )}
-                <a href={parseHeading(heading.text)}>{heading.text}</a>
+                <a className="ml-5" href={parseHeading(heading.text)}>
+                    {heading.text}
+                </a>
             </div>
 
             {isNestingOpen && (
-                <ul className="ml-4">
+                <ul>
                     {heading.children.map((child, index) => (
                         <HeadingItem key={index} heading={child} />
                     ))}

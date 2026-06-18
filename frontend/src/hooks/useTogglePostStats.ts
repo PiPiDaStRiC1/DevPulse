@@ -130,6 +130,7 @@ export const useTogglePostStats = (authorId: number | undefined) => {
         onSuccess: (_data, { postId }) => {
             queryClient.invalidateQueries({ queryKey: ["posts"] });
             queryClient.invalidateQueries({ queryKey: ["posts", postId] });
+            queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
         },
     });
 

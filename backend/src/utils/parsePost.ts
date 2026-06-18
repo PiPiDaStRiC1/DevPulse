@@ -1,4 +1,4 @@
-import { countReadTime } from "./countReadTime";
+import { countReadTime } from "./index";
 import type { Post } from "@shared/types";
 import type { PrismaPost } from "@/types";
 
@@ -18,6 +18,7 @@ export const parsePost = (post: PrismaPost, currentUserId?: number): Post => {
         readTime: countReadTime(post.content),
         authorId: post.authorId,
         content: post.content,
+        excerpt: post.excerpt,
         tags: post.tags.map((t: any) => t.name),
         techStack: post.techStack.map((t: any) => t.name),
         likes: post._count.likes,

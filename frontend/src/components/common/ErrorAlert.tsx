@@ -1,7 +1,7 @@
 import { AlertTriangle, RefreshCcw } from "lucide-react";
 
 interface ErrorAlertProps {
-    message: string;
+    message?: string;
     onRetry?: () => void;
 }
 

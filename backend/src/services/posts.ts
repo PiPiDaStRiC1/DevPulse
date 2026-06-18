@@ -1,7 +1,7 @@
 import { prisma } from "@/helpers";
 import { Prisma } from "@prisma/client";
 import { postCreateSchema } from "@shared/schemas";
-import { parsePost, getQueryOptionsForPosts, countReadTime } from "@/utils";
+import { parsePost, getQueryOptionsForPosts, countReadTime, generateExcerpt } from "@/utils";
 import type { Response, Request } from "express";
 import type {
     Post,
@@ -76,6 +76,7 @@ export const postPost = async (
 
         const data: Prisma.PostCreateInput = {
             content,
+            excerpt: generateExcerpt(content),
             title,
             coverImage,
             image: image === undefined ? null : image,

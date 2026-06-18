@@ -17,9 +17,7 @@ export const PostCard = ({ post }: PostCardProps) => {
 
     const fmt = (n: number | undefined) => (n && n >= 1000 ? `${(n / 1000).toFixed(1)}k` : n);
 
-    const MAX = 200;
-    const isLong = post.content && post.content.length > MAX;
-    const preview = isLong ? `${post.content.slice(0, MAX).trimEnd()}...` : post.content;
+    const isLong = post.excerpt.endsWith("...");
 
     if (isErrorAuthor) {
         return <ErrorAlert message="Failed to load author information" />;
@@ -64,7 +62,7 @@ export const PostCard = ({ post }: PostCardProps) => {
                             >
                                 <h1 className="preview-markdown">{post.title}</h1>
                             </Link>
-                            <CustomReactMarkdown content={preview} />
+                            <CustomReactMarkdown content={post.excerpt} />
                             {isLong && (
                                 <div className="mt-2">
                                     <Link

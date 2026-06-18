@@ -26,3 +26,19 @@ export type PrismaPost = Prisma.PostGetPayload<{
         likes: true;
     };
 }>;
+
+export type PrismaBookmark = Prisma.BookmarkGetPayload<{
+    select: {
+        id: true;
+        createdAt: true;
+        post: {
+            select: {
+                id: true;
+                title: true;
+                excerpt: true;
+                author: { select: { username: true; avatar: true; handle: true } };
+                tags: true;
+            };
+        };
+    };
+}>;

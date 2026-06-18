@@ -47,7 +47,7 @@ export const HeadingTable = ({ content }: HeadingTableProps) => {
         <aside className="hidden lg:block w-70">
             <div className="sticky top-20">
                 <div className="max-h-[80vh] overflow-y-auto">
-                    <div className="mb-4 text-lg text-text-base">Table of Contents</div>
+                    <div className="mb-4 text-lg text-text-base">Content</div>
                     <nav className="flex flex-col justify-center space-y-1">
                         {headingTree.length > 0 ? (
                             headingTree.map((heading, index) => (

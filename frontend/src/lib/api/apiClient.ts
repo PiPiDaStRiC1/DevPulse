@@ -17,6 +17,7 @@ import type {
     Comment,
     FeedPostsFilter,
     RelatedPost,
+    Bookmark,
 } from "@shared/types";
 
 const API_URL = import.meta.env["VITE_API_URL"];
@@ -383,6 +384,22 @@ export const apiClient = {
         } catch (error) {
             throw new Error(
                 error instanceof Error ? error.message : `Failed to dislike post ${id}`,
+            );
+        }
+    },
+    async getAllBookmarks() {
+        try {
+            const response = await genericFetch<ApiResponse<Bookmark[]>>(`${API_URL}/bookmarks`, {
+                headers: { ...JWTheaders() },
+            });
+            if (!response.success) {
+                throw new Error(response.error);
+            }
+
+            return response.data;
+        } catch (error) {
+            throw new Error(
+                error instanceof Error ? error.message : "Failed to fetch all bookmarks",
             );
         }
     },
