@@ -16,6 +16,7 @@ import type {
     CommentDTO,
     Comment,
     FeedPostsFilter,
+    RelatedPost,
 } from "@shared/types";
 
 const API_URL = import.meta.env["VITE_API_URL"];
@@ -175,6 +176,23 @@ export const apiClient = {
             return response.data;
         } catch (error) {
             throw new Error(error instanceof Error ? error.message : "Failed to create post");
+        }
+    },
+    async getAllRelatedPostsByPostId(id: number) {
+        try {
+            const response = await genericFetch<ApiResponse<RelatedPost[]>>(
+                `${API_URL}/posts/${id}/related`,
+                { headers: { ...JWTheaders() } },
+            );
+            if (!response.success) {
+                throw new Error(response.error);
+            }
+
+            return response.data;
+        } catch (error) {
+            throw new Error(
+                error instanceof Error ? error.message : "Failed to fetch related posts",
+            );
         }
     },
     async getAllChats() {

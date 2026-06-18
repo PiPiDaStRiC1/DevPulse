@@ -59,7 +59,7 @@ export const PostInfo = () => {
                 </Link>
             </div>
 
-            <div className="flex justify-between gap-10 items-start">
+            <div className="flex justify-between gap-5 items-start">
                 <article className="card p-6 sm:p-8 min-w-0 flex-1">
                     <header className="flex flex-col gap-4 mb-6">
                         <div className="preview-markdown">

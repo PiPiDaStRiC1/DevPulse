@@ -1,4 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
+import { apiClient } from "@/lib/api";
+import { RelatedPost, Preloader, ErrorAlert } from "@/components";
 import type { Post } from "@shared/types";
 
 interface RelatedPostsProps {
@@ -12,7 +14,7 @@ export const RelatedPosts = ({ post }: RelatedPostsProps) => {
         isError,
     } = useQuery({
         queryKey: ["relatedPosts", post.id],
-        queryFn: () => Promise.resolve([]),
+        queryFn: () => apiClient.getAllRelatedPostsByPostId(post.id),
         enabled: !!post.id,
         staleTime: 0,
     });
@@ -22,14 +24,18 @@ export const RelatedPosts = ({ post }: RelatedPostsProps) => {
             <div className="card p-4">
                 <div className="text-sm font-semibold mb-2">Related posts</div>
                 {isLoading ? (
-                    <div className="text-subtle text-sm">Loading related posts...</div>
+                    <Preloader />
                 ) : isError ? (
-                    <div className="text-subtle text-sm">Error loading related posts.</div>
+                    <ErrorAlert message="Error loading related posts." />
                 ) : relatedPosts && relatedPosts.length > 0 ? (
-                    <div className="text-subtle text-sm">
-                        Relevant posts will appear here later.
+                    <div className="space-y-3">
+                        {relatedPosts.map((relatedPost) => (
+                            <RelatedPost key={relatedPost.id} post={relatedPost} />
+                        ))}
                     </div>
-                ) : null}
+                ) : (
+                    <div className="text-subtle text-sm">No related posts found.</div>
+                )}
             </div>
         </aside>
     );

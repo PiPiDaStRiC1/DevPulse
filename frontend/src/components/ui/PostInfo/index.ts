@@ -5,3 +5,4 @@ export * from "./PostCommentSkeleton";
 export * from "./HeadingTable";
 export * from "./HeadingItem";
 export * from "./PostActions";
+export * from "./RelatedPost";

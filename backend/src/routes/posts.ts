@@ -10,6 +10,7 @@ import {
     postComment,
     postBookmarkPost,
     deleteBookmarkPost,
+    getRelatedPosts,
 } from "@/services";
 
 const postsRouter = Router();
@@ -23,6 +24,7 @@ postsRouter.post("/:id/bookmark", verifyJWT, postBookmarkPost);
 postsRouter.delete("/:id/bookmark", verifyJWT, deleteBookmarkPost);
 postsRouter.get("/:id/comments", getComments);
 postsRouter.post("/:id/comments", verifyJWT, postComment);
+postsRouter.get("/:id/related", optionalAuth, getRelatedPosts);
 
 
 export { postsRouter };

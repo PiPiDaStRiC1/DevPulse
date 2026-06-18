@@ -1,7 +1,7 @@
 import { prisma } from "@/helpers";
 import { Prisma } from "@prisma/client";
 import { postCreateSchema } from "@shared/schemas";
-import { parsePost, getQueryOptionsForPosts } from "@/utils";
+import { parsePost, getQueryOptionsForPosts, countReadTime } from "@/utils";
 import type { Response, Request } from "express";
 import type {
     Post,
@@ -10,6 +10,7 @@ import type {
     Comment,
     CommentDTO,
     FeedPostsFilter,
+    RelatedPost,
 } from "@shared/types";
 
 export const getPosts = async (req: Request, res: Response<ApiResponse<Post[]>>) => {
@@ -277,5 +278,86 @@ export const postComment = async (
     } catch (error) {
         console.error("Error creating comment: ", error);
         return res.status(500).json({ success: false, error: "Failed to create comment" });
+    }
+};
+
+export const getRelatedPosts = async (
+    req: Request<{ id: string }>,
+    res: Response<ApiResponse<RelatedPost[]>>,
+) => {
+    try {
+        const { id } = req.params;
+        const currentUserId = req.user?.userId;
+
+        const postId = Number(id);
+
+        const currentPost = await prisma.post.findUnique({
+            where: { id: postId },
+            include: { tags: true },
+        });
+
+        if (!currentPost) {
+            return res.status(404).json({ success: false, error: "Current post not found" });
+        }
+
+        let whereCondition = {
+            id: { not: postId },
+            tags: { some: { name: { in: currentPost.tags.map((tag) => tag.name) } } },
+        } as Prisma.PostWhereInput;
+
+        if (currentUserId) {
+            const followingIds = await prisma.user.findUnique({
+                where: { id: currentUserId },
+                select: { following: { select: { followingId: true } } },
+            });
+            const followingIdsList = followingIds?.following.map((el) => el.followingId) ?? [];
+
+            whereCondition = {
+                ...whereCondition,
+                authorId: { in: followingIdsList, notIn: [currentUserId] },
+            };
+        }
+
+        const candidateRelatedPosts = await prisma.post.findMany({
+            where: whereCondition,
+            take: 5,
+            orderBy: { createdAt: "desc" },
+            select: {
+                id: true,
+                title: true,
+                content: true,
+                _count: { select: { likes: true } },
+                author: { select: { username: true, handle: true, avatar: true } },
+            },
+        });
+
+        const fallbackRelatedPosts = await prisma.post.findMany({
+            where: { id: { not: postId } },
+            take: 5 - candidateRelatedPosts.length,
+            orderBy: { createdAt: "desc" },
+            select: {
+                id: true,
+                title: true,
+                content: true,
+                _count: { select: { likes: true } },
+                author: { select: { username: true, handle: true, avatar: true } },
+            },
+        });
+
+        const parsedRelatedPosts: RelatedPost[] = [
+            ...candidateRelatedPosts,
+            ...fallbackRelatedPosts,
+        ].map((post) => ({
+            id: post.id,
+            title: post.title,
+            author: post.author,
+            likes: post._count.likes,
+            readTime: countReadTime(post.content),
+        }));
+
+        return res.status(200).json({ success: true, data: parsedRelatedPosts });
+    } catch (error) {
+        console.error("Error fetching related posts: ", error);
+        return res.status(500).json({ success: false, error: "Failed to fetch related posts" });
     }
 };

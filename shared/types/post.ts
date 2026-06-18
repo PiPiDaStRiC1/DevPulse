@@ -1,4 +1,5 @@
 import type { Comment } from "./comment";
+import type { User } from "./user";
 
 export interface CodeSnippet {
     language: string | null;
@@ -23,6 +24,14 @@ export interface Post {
     isReposted?: boolean;
     image: string | null;
     codeSnippet: CodeSnippet | null;
+}
+
+export interface RelatedPost {
+    id: number;
+    title: string;
+    author: Pick<User, "username" | "avatar" | "handle">;
+    likes: number;
+    readTime: number;
 }
 
 export type PostDTO = Omit<Post, "id" | "readTime" | "comments" | "createdAt"> & {

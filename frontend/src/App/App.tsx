@@ -21,7 +21,7 @@ import { Toaster } from "react-hot-toast";
 import { useAuthBootstrap, useSocketBootstrap } from "@/hooks";
 
 // TODO on session:
-// 1) Сделать отображение Related posts в PostInfo
+// 1) Сделать отображение Related posts в PostInfo (done)
 // 2) Что-то придумать для заголовков h1 в постах (нужно чтобы они были другие по стилизации
 // в отличии от оглавления поста) (done)
 // 3) Сделать загрузку bookmarks на соответствующую страницу (можно сверху написать надпись
