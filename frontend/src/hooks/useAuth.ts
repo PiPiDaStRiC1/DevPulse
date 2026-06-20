@@ -6,9 +6,11 @@ import { loginSchema, registerSchema } from "@shared/schemas";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { socket } from "@/lib/store";
+import { useQueryClient } from "@tanstack/react-query";
 import type { LoginSchema, RegisterSchema } from "@shared/schemas";
 
 export const useAuth = () => {
+    const queryClient = useQueryClient();
     const navigate = useNavigate();
     const setAuth = useAuthStore((state) => state.setAuth);
 
@@ -44,6 +46,7 @@ export const useAuth = () => {
             }
 
             socket.connect();
+            queryClient.invalidateQueries({ queryKey: ["posts"] });
 
             navigate("/profile");
         } catch (error) {

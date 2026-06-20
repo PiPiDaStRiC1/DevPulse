@@ -5,3 +5,5 @@ export * from "./parseBookmark";
 export * from "./getQueryOptionsForPosts";
 export * from "./countReadTime";
 export * from "./generateExcerpt";
+export * from "./createSlug";
+export * from "./parseTopicTag";

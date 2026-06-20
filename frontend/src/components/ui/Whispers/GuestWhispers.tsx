@@ -23,7 +23,9 @@ export const GuestWhispers = () => {
                 </div>
 
                 <div className="flex flex-col items-center gap-3 text-center max-w-sm">
-                    <h2 className="text-2xl font-bold text-ink">No messages yet</h2>
+                    <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-ink">
+                        No messages yet
+                    </h2>
                     <p className="leading-relaxed">
                         Sign in to your account to view and manage your conversations with other
                         developers.

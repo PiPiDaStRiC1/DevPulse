@@ -33,11 +33,11 @@ export const BookmarkCard = ({ bookmark }: BookmarkCardProps) => {
                     <Delete size={21} className="text-ink shrink-0" />
                 </button>
             </div>
-            <div className="preview-markdown">
+            <div className="preview-markdown mb-2">
                 <CustomReactMarkdown content={bookmark.postExcerpt} />
             </div>
 
-            <div className="flex flex-wrap gap-2 mb-4">
+            <div className="flex flex-wrap gap-2 mb-2">
                 {bookmark.tags.map((tag) => (
                     <span key={tag} className="tag-badge cursor-default">
                         #{tag}

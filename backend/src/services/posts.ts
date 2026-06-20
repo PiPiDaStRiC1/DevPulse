@@ -1,7 +1,13 @@
 import { prisma } from "@/helpers";
 import { Prisma } from "@prisma/client";
 import { postCreateSchema } from "@shared/schemas";
-import { parsePost, getQueryOptionsForPosts, countReadTime, generateExcerpt } from "@/utils";
+import {
+    parsePost,
+    getQueryOptionsForPosts,
+    countReadTime,
+    generateExcerpt,
+    createSlug,
+} from "@/utils";
 import type { Response, Request } from "express";
 import type {
     Post,
@@ -42,7 +48,7 @@ export const getOnePost = async (
         const post = await prisma.post.findFirstOrThrow({
             where: { id: postId },
             include: {
-                tags: true,
+                tags: { select: { tag: { select: { name: true } } } },
                 techStack: true,
                 codeSnippet: true,
                 bookmarks: true,
@@ -81,7 +87,16 @@ export const postPost = async (
             coverImage,
             image: image === undefined ? null : image,
             author: { connect: { id: userId } },
-            tags: { create: tags.map((name: string) => ({ name })) },
+            tags: {
+                create: tags.map((name: string) => ({
+                    tag: {
+                        connectOrCreate: {
+                            where: { slug: createSlug(name) },
+                            create: { name, slug: createSlug(name) },
+                        },
+                    },
+                })),
+            },
             techStack: { create: techStack.map((name: string) => ({ name })) },
             comments: { create: comments.map((comment) => ({ ...comment })) },
         };
@@ -95,7 +110,7 @@ export const postPost = async (
         const post = await prisma.post.create({
             data,
             include: {
-                tags: true,
+                tags: { select: { tag: { select: { name: true } } } },
                 techStack: true,
                 codeSnippet: true,
                 bookmarks: true,
@@ -294,7 +309,7 @@ export const getRelatedPosts = async (
 
         const currentPost = await prisma.post.findUnique({
             where: { id: postId },
-            include: { tags: true },
+            include: { tags: { select: { tag: { select: { name: true } } } } },
         });
 
         if (!currentPost) {
@@ -303,7 +318,7 @@ export const getRelatedPosts = async (
 
         let whereCondition = {
             id: { not: postId },
-            tags: { some: { name: { in: currentPost.tags.map((tag) => tag.name) } } },
+            tags: { some: { tag: { name: { in: currentPost.tags.map((tag) => tag.tag.name) } } } },
         } as Prisma.PostWhereInput;
 
         if (currentUserId) {

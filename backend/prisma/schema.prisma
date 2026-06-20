@@ -13,11 +13,22 @@ model TechStack {
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 }
 
-model Tags {
+model Tag {
   id Int @id @default(autoincrement())
-  name String @default("")
+  name String
+  slug String @unique
+  tags PostTag[]
+  createdAt DateTime @default(now())
+}
+
+model PostTag {
+  id Int @id @default(autoincrement())
   postId Int
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tagId Int
+  tag Tag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, tagId])
 }
 
 model PostComment {
@@ -101,7 +112,7 @@ model Post {
   author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
   content String
   excerpt String
-  tags Tags[]
+  tags PostTag[]
   techStack TechStack[]
   likes Like[]
   comments PostComment[]

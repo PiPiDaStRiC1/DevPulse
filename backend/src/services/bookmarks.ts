@@ -19,7 +19,7 @@ export const getBookmarks = async (req: Request, res: Response<ApiResponse<Bookm
                         title: true,
                         excerpt: true,
                         author: { select: { username: true, avatar: true, handle: true } },
-                        tags: true,
+                        tags: { select: { tag: { select: { name: true } } } },
                     },
                 },
             },

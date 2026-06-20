@@ -1,9 +1,11 @@
-import { CollectionList, BookmarkCard, Preloader, ErrorAlert } from "@/components";
+import { CollectionList, BookmarkCard, Preloader, ErrorAlert, GuestBookmarks } from "@/components";
 import { apiClient } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
+import { useAuthStore } from "@/lib/store";
 import type { Bookmark } from "@shared/types";
 
 export const Bookmarks = () => {
+    const { status } = useAuthStore();
     const {
         data: bookmarks,
         isLoading,
@@ -12,7 +14,12 @@ export const Bookmarks = () => {
         queryKey: ["bookmarks"],
         queryFn: apiClient.getAllBookmarks,
         staleTime: 5 * 60 * 1000,
+        enabled: status === "authenticated",
     });
+
+    if (status === "guest") {
+        return <GuestBookmarks />;
+    }
 
     return (
         <div className="flex justify-between gap-6">

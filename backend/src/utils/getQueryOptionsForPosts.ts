@@ -6,7 +6,7 @@ export const getQueryOptionsForPosts = async (
     currentUserId: number | undefined,
 ) => {
     const baseInclude = {
-        tags: true,
+        tags: { select: { tag: { select: { name: true } } } },
         techStack: true,
         codeSnippet: true,
         bookmarks: true,

@@ -18,6 +18,7 @@ import type {
     FeedPostsFilter,
     RelatedPost,
     Bookmark,
+    TopicTag,
 } from "@shared/types";
 
 const API_URL = import.meta.env["VITE_API_URL"];
@@ -434,6 +435,36 @@ export const apiClient = {
         } catch (error) {
             throw new Error(
                 error instanceof Error ? error.message : `Failed to remove bookmark for post ${id}`,
+            );
+        }
+    },
+    async getAllTopics() {
+        try {
+            const response = await genericFetch<ApiResponse<TopicTag[]>>(
+                `${API_URL}/explore/topics`,
+            );
+            if (!response.success) {
+                throw new Error(response.error);
+            }
+
+            return response.data;
+        } catch (error) {
+            throw new Error(error instanceof Error ? error.message : `Failed to fetch all topics`);
+        }
+    },
+    async getAllTrending() {
+        try {
+            const response = await genericFetch<ApiResponse<TopicTag[]>>(
+                `${API_URL}/explore/trending`,
+            );
+            if (!response.success) {
+                throw new Error(response.error);
+            }
+
+            return response.data;
+        } catch (error) {
+            throw new Error(
+                error instanceof Error ? error.message : `Failed to fetch all trending topics`,
             );
         }
     },

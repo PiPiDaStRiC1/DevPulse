@@ -18,7 +18,7 @@ export type PrismaUser = Prisma.UserGetPayload<{
 
 export type PrismaPost = Prisma.PostGetPayload<{
     include: {
-        tags: true;
+        tags: { select: { tag: { select: { name: true } } } };
         codeSnippet: true;
         techStack: true;
         bookmarks: true;
@@ -37,8 +37,10 @@ export type PrismaBookmark = Prisma.BookmarkGetPayload<{
                 title: true;
                 excerpt: true;
                 author: { select: { username: true; avatar: true; handle: true } };
-                tags: true;
+                tags: { select: { tag: { select: { name: true } } } };
             };
         };
     };
 }>;
+
+export type PrismaTag = Prisma.TagGetPayload<{ include: { _count: { select: { tags: true } } } }>;

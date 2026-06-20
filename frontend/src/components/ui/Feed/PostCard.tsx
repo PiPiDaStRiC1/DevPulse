@@ -1,7 +1,7 @@
 import { Heart, MessageCircle, Bookmark, Share2, BadgeCheck, Check } from "lucide-react";
 import { Avatar, ErrorAlert, PostSkeleton } from "@/components";
 import { CustomReactMarkdown } from "@/features";
-import { safeParseDate } from "@/lib/utils";
+import { safeParseDate, fmt } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { useTogglePostStats, useCopyToClipboard } from "@/hooks";
 import type { Post } from "@shared/types";
@@ -14,8 +14,6 @@ export const PostCard = ({ post }: PostCardProps) => {
     const { copy, isCopied } = useCopyToClipboard();
     const { toggleLikePost, toggleBookmarkPost, isErrorAuthor, isLoadingAuthor, author } =
         useTogglePostStats(post.authorId);
-
-    const fmt = (n: number | undefined) => (n && n >= 1000 ? `${(n / 1000).toFixed(1)}k` : n);
 
     const isLong = post.excerpt.endsWith("...");
 

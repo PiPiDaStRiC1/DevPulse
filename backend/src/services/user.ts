@@ -22,8 +22,11 @@ export const getSuggestedUsers = async (
             });
             const followingIdsList = followingIds?.following.map((el) => el.followingId) ?? [];
 
-            whereCondition = { id: { notIn: [userId] } };
-            // whereCondition = { id: { notIn: [...followingIdsList, userId] } };
+            if (followingIdsList.length >= take) {
+                whereCondition = { id: { notIn: [...followingIdsList, userId] } };
+            } else {
+                whereCondition = { id: { notIn: [userId] } };
+            }
         }
 
         const suggestedUsers = await prisma.user.findMany({

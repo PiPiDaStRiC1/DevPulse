@@ -12,7 +12,7 @@ export const parseBookmark = (bookmark: PrismaBookmark): Bookmark => {
             avatar: bookmark.post.author.avatar,
             handle: bookmark.post.author.handle,
         },
-        tags: bookmark.post.tags.map((tag) => tag.name),
+        tags: bookmark.post.tags.map((tag) => tag.tag.name),
         createdAt: bookmark.createdAt,
     };
 };

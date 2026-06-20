@@ -4,7 +4,14 @@ import express from "express";
 import cors from "cors";
 import { Server } from "socket.io";
 import { createServer } from "http";
-import { postsRouter, authRouter, userRouter, chatRouter, bookmarksRouter } from "@/routes";
+import {
+    postsRouter,
+    authRouter,
+    userRouter,
+    chatRouter,
+    bookmarksRouter,
+    exploreRouter,
+} from "@/routes";
 import { verifyToken, prisma } from "./helpers";
 import type {
     Acknowledgement,
@@ -30,6 +37,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/posts", postsRouter);
+app.use("/api/explore", exploreRouter);
 app.use("/api/bookmarks", bookmarksRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);

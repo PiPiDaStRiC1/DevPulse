@@ -17,16 +17,16 @@ export const Auth = () => {
 
     return (
         <div className="min-h-[calc(100vh-49px)] -my-9 bg-bg flex overflow-hidden">
-            <div className="hidden lg:flex flex-col gap-20 bg-ink text-accent-fg p-12">
-                <Logo theme="light" size="lg" />
+            <div className="hidden lg:flex flex-col gap-20 bg-[var(--surface)] border border-subtle text-ink p-12">
+                <Logo theme="dark" size="lg" />
 
                 <div className="flex flex-col gap-6">
                     <h1 className="text-4xl font-bold leading-[1.15] tracking-tight">
                         Where developers
                         <br />
                         <span
-                            className="inline-block mt-1 px-2 py-0.5 border-2 border-accent-fg"
-                            style={{ boxShadow: "3px 3px 0 var(--accent-fg)" }}
+                            className="inline-block mt-1 px-2 py-0.5 border-2 border-ink"
+                            style={{ boxShadow: "3px 3px 0 var(--ink)" }}
                         >
                             ship &amp; share
                         </span>
@@ -40,15 +40,12 @@ export const Auth = () => {
                         {perks.map(({ icon: Icon, text }) => (
                             <li key={text} className="flex items-start gap-3">
                                 <div
-                                    className="mt-0.5 w-6 h-6 shrink-0 border border-accent-fg rounded-[var(--radius)] flex items-center justify-center"
+                                    className="mt-0.5 w-6 h-6 shrink-0 border border-ink rounded-[var(--radius)] flex items-center justify-center"
                                     style={{ background: "rgba(255,254,248,0.08)" }}
                                 >
                                     <Icon size={12} />
                                 </div>
-                                <span
-                                    className="text-[13px] leading-relaxed"
-                                    style={{ color: "#c2d4c0" }}
-                                >
+                                <span className="text-[13px] text-subtle leading-relaxed">
                                     {text}
                                 </span>
                             </li>
