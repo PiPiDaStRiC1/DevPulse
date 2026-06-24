@@ -19,6 +19,7 @@ import type {
     RelatedPost,
     Bookmark,
     TopicTag,
+    TrendingPost,
 } from "@shared/types";
 
 const API_URL = import.meta.env["VITE_API_URL"];
@@ -452,9 +453,9 @@ export const apiClient = {
             throw new Error(error instanceof Error ? error.message : `Failed to fetch all topics`);
         }
     },
-    async getAllTrending() {
+    async getAllTrendingPosts() {
         try {
-            const response = await genericFetch<ApiResponse<TopicTag[]>>(
+            const response = await genericFetch<ApiResponse<TrendingPost[]>>(
                 `${API_URL}/explore/trending`,
             );
             if (!response.success) {

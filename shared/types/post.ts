@@ -35,6 +35,6 @@ export interface RelatedPost {
     readTime: number;
 }
 
-export type PostDTO = Omit<Post, "id" | "readTime" | "comments" | "createdAt"> & {
+export type PostDTO = Omit<Post, "id" | "readTime" | "comments" | "createdAt" | "excerpt"> & {
     comments: Comment[];
 };

@@ -1,4 +1,4 @@
-import { countReadTime } from "./index";
+import { countReadTime } from "@/utils/posts/countReadTime";
 import type { Post } from "@shared/types";
 import type { PrismaPost } from "@/types";
 

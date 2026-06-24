@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { apiClient } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
-import { useLocation, useParams, Link } from "react-router-dom";
+import { useLocation, useParams, Link, useNavigate } from "react-router-dom";
 import {
     Avatar,
     ErrorAlert,
@@ -18,6 +18,7 @@ import { useTogglePostStats } from "@/hooks";
 import type { Post } from "@shared/types";
 
 export const PostInfo = () => {
+    const navigate = useNavigate();
     const { postId } = useParams<{ postId: string }>();
     const location = useLocation();
     const {
@@ -50,13 +51,13 @@ export const PostInfo = () => {
     return (
         <div className="min-w-full max-w-7xl">
             <div className="mb-4 px-1">
-                <Link
-                    to="/"
-                    className="inline-flex items-center gap-2 text-sm font-medium text-subtle hover:text-text-base transition-colors"
+                <button
+                    className="cursor-pointer inline-flex items-center gap-2 text-sm font-medium text-subtle hover:text-text-base transition-colors"
+                    onClick={() => navigate(-1)}
                 >
                     <ArrowLeft className="w-4 h-4" />
-                    Back to Feed
-                </Link>
+                    Back
+                </button>
             </div>
 
             <div className="flex justify-between gap-5 items-start">

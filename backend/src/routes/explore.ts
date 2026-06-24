@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { getTopics, getTrending } from "@/services";
+import { getTopics, getTrendingPosts } from "@/services";
 
 const exploreRouter = Router();
 
 exploreRouter.get("/topics", getTopics);
-exploreRouter.get("/trending", getTrending);
+exploreRouter.get("/trending", getTrendingPosts);
 
 export { exploreRouter };

@@ -100,6 +100,7 @@ export const usePostComposer = () => {
                 if (newPost.id && oldData.some((p) => p.id === newPost.id)) return oldData;
                 return [newPost, ...oldData];
             });
+            queryClient.invalidateQueries({ queryKey: ["exploreTopics"] });
 
             publishPostWithWS();
 

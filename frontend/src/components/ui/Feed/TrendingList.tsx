@@ -1,4 +1,4 @@
-import { trendingTopics } from "@/lib/constants";
+const trendingTopics = [];
 
 export const TrendingList = () => {
     return (

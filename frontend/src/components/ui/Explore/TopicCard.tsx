@@ -22,7 +22,7 @@ export const TopicCard = ({ topicTag }: TopicCardProps) => {
             <p className="text-[13px] font-bold text-text-base group-hover:underline">
                 {topicTag.name}
             </p>
-            <p className="text-[11px] text-muted mt-0.5">{fmt(topicTag.postsCount)} posts</p>
+            <p className="text-[11px] text-muted mt-0.5">{fmt(topicTag.postsCount)} post(s)</p>
         </Link>
     );
 };

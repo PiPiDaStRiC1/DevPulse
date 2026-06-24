@@ -85,7 +85,7 @@ export const postPost = async (
             excerpt: generateExcerpt(content),
             title,
             coverImage,
-            image: image === undefined ? null : image,
+            image: image ?? null,
             author: { connect: { id: userId } },
             tags: {
                 create: tags.map((name: string) => ({

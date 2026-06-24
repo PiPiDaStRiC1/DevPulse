@@ -28,7 +28,7 @@ export interface Chat {
 
 export interface ChatDTO {
     collocutorId: number;
-    lastMessage: MessageDTO;
+    lastMessage: Omit<MessageDTO, "chatId">;
 }
 
 export interface MessageDTO {

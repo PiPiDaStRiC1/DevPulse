@@ -44,3 +44,13 @@ export type PrismaBookmark = Prisma.BookmarkGetPayload<{
 }>;
 
 export type PrismaTag = Prisma.TagGetPayload<{ include: { _count: { select: { tags: true } } } }>;
+
+export type PrismaTrendingPost = Prisma.PostGetPayload<{
+    select: {
+        id: true;
+        title: true;
+        createdAt: true;
+        author: { select: { username: true; avatar: true; handle: true } };
+        _count: { select: { likes: true; bookmarks: true; comments: true } };
+    };
+}>;

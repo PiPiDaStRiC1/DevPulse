@@ -5,9 +5,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useSession, useSocket } from "@/hooks";
 import { apiClient } from "@/lib/api";
 import toast from "react-hot-toast";
+import { useQueryClient } from "@tanstack/react-query";
 import type { ChatDTO } from "@shared/types";
 
 export const NewChatRoom = () => {
+    const queryClient = useQueryClient();
     const { user: me } = useSession();
     const navigate = useNavigate();
     const { sendRoomCreateWithWS } = useSocket();
@@ -33,6 +35,7 @@ export const NewChatRoom = () => {
             const createdChat = await apiClient.postOneChat(chatPayload);
 
             sendRoomCreateWithWS({ chatId: String(createdChat.id), collocutorId: collocutor.id });
+            await queryClient.invalidateQueries({ queryKey: ["chats"] });
 
             navigate(`/whispers/${createdChat.id}`, { replace: true });
         } catch (err) {
