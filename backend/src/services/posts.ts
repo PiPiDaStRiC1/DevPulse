@@ -1,13 +1,7 @@
 import { prisma } from "@/helpers";
 import { Prisma } from "@prisma/client";
 import { postCreateSchema } from "@shared/schemas";
-import {
-    parsePost,
-    getQueryOptionsForPosts,
-    countReadTime,
-    generateExcerpt,
-    createSlug,
-} from "@/utils";
+import { parsePost, buildPostsQuery, countReadTime, generateExcerpt, createSlug } from "@/utils";
 import type { Response, Request } from "express";
 import type {
     Post,
@@ -18,13 +12,20 @@ import type {
     FeedPostsFilter,
     RelatedPost,
 } from "@shared/types";
+import type { PrismaPost } from "@/types";
 
-export const getPosts = async (req: Request, res: Response<ApiResponse<Post[]>>) => {
+export const getPosts = async (
+    req: Request<{}, {}, {}, { filter: FeedPostsFilter }>,
+    res: Response<ApiResponse<Post[]>>,
+) => {
     try {
-        const filter = req.query.filter as FeedPostsFilter;
+        const filter = req.query.filter;
         const currentUserId = req.user?.userId;
 
-        const posts = await getQueryOptionsForPosts(filter, currentUserId);
+        const query = buildPostsQuery(filter, currentUserId);
+
+        // change with exact type checking
+        const posts = (await prisma.post.findMany(query)) as PrismaPost[];
 
         return res
             .status(200)
@@ -52,7 +53,7 @@ export const getOnePost = async (
                 techStack: true,
                 codeSnippet: true,
                 bookmarks: true,
-                _count: { select: { likes: true, comments: true } },
+                _count: { select: { likes: true, comments: true, bookmarks: true } },
                 likes: true,
             },
         });
@@ -114,7 +115,7 @@ export const postPost = async (
                 techStack: true,
                 codeSnippet: true,
                 bookmarks: true,
-                _count: { select: { likes: true, comments: true } },
+                _count: { select: { likes: true, comments: true, bookmarks: true } },
                 likes: true,
             },
         });

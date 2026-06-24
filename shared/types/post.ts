@@ -18,6 +18,7 @@ export interface Post {
     techStack: string[];
     likes: number;
     comments: number;
+    bookmarks: number;
     reposts?: number;
     createdAt: Date;
     isLiked: boolean;

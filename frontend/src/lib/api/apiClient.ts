@@ -20,6 +20,7 @@ import type {
     Bookmark,
     TopicTag,
     TrendingPost,
+    FeedPostsSort,
 } from "@shared/types";
 
 const API_URL = import.meta.env["VITE_API_URL"];
@@ -138,10 +139,15 @@ export const apiClient = {
             throw new Error(error instanceof Error ? error.message : "Failed to fetch user");
         }
     },
-    async getAllPosts(options: { filter: FeedPostsFilter } = { filter: "for-you" }) {
+    async getAllPosts(
+        options: { filter?: FeedPostsFilter; sort?: FeedPostsSort } = {
+            filter: "for-you",
+            sort: "newest",
+        },
+    ) {
         try {
             const response = await genericFetch<ApiResponse<Post[]>>(
-                `${API_URL}/posts?filter=${options.filter}`,
+                `${API_URL}/posts?filter=${options.filter}&sort=${options.sort}`,
                 { headers: { ...JWTheaders() } },
             );
             if (!response.success) {
@@ -451,6 +457,22 @@ export const apiClient = {
             return response.data;
         } catch (error) {
             throw new Error(error instanceof Error ? error.message : `Failed to fetch all topics`);
+        }
+    },
+    async getOneTopicBySlug(slug: string) {
+        try {
+            const response = await genericFetch<ApiResponse<TopicTag>>(
+                `${API_URL}/explore/topics/${slug}`,
+            );
+            if (!response.success) {
+                throw new Error(response.error);
+            }
+
+            return response.data;
+        } catch (error) {
+            throw new Error(
+                error instanceof Error ? error.message : `Failed to fetch topic with slug ${slug}`,
+            );
         }
     },
     async getAllTrendingPosts(limit: number = 5) {

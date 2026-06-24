@@ -6,3 +6,4 @@ export * from "./ChatRoom";
 export * from "./PostInfo";
 export * from "./Bookmarks";
 export * from "./Explore";
+export * from "./ExploreInfo";

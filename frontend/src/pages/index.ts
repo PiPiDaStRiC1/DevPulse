@@ -11,3 +11,4 @@ export * from "./ChatRoom";
 export * from "./NewChatRoom";
 export * from "./PostInfo";
 export * from "./Bookmarks";
+export * from "./ExploreInfo";

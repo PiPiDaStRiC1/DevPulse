@@ -17,6 +17,28 @@ export const getTopics = async (_req: Request, res: Response<ApiResponse<TopicTa
     }
 };
 
+export const getOneTopicBySlug = async (
+    req: Request<{ slug: string }>,
+    res: Response<ApiResponse<TopicTag>>,
+) => {
+    try {
+        const { slug } = req.params;
+
+        const topic = await prisma.tag.findFirst({
+            where: { slug: slug },
+            include: { _count: { select: { tags: true } } },
+        });
+
+        if (!topic) {
+            return res.status(404).json({ success: false, error: "Not found" });
+        }
+
+        return res.status(200).json({ success: true, data: parseTopicTag(topic) });
+    } catch (error) {
+        return res.status(500).json({ success: false, error: "Failed to fetch topics" });
+    }
+};
+
 export const getTrendingPosts = async (
     req: Request<{}, {}, {}, { limit: string }>,
     res: Response<ApiResponse<TrendingPost[]>>,

@@ -19,11 +19,11 @@ export type PrismaUser = Prisma.UserGetPayload<{
 export type PrismaPost = Prisma.PostGetPayload<{
     include: {
         tags: { select: { tag: { select: { name: true } } } };
-        codeSnippet: true;
         techStack: true;
+        codeSnippet: true;
         bookmarks: true;
-        _count: { select: { likes: true; comments: true } };
         likes: true;
+        _count: { select: { likes: true; comments: true; bookmarks: true } };
     };
 }>;
 

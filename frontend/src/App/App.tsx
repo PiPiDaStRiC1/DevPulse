@@ -14,6 +14,7 @@ import {
     NewChatRoom,
     PostInfo,
     Bookmarks,
+    ExploreInfo,
 } from "@/pages";
 import { ProtectedRoute, PublicRoute, NewChatRoute } from "@/features";
 import { ScrollToTop } from "@/lib/utils";
@@ -22,6 +23,8 @@ import { useAuthBootstrap, useSocketBootstrap } from "@/hooks";
 
 // TODO on session:
 // 1) Начать реализовывать коллекции для закладок
+// 2) Сделать более строгую типизацию в этом файле \backend\src\services\posts.ts
+// (проблема с include)
 
 // ToDo:
 // Пофиксить баг связанный с переходом по ссылке в дереве контента, если имеются два
@@ -72,6 +75,7 @@ function App() {
                 <Route element={<Main />}>
                     <Route path="/" index element={<Feed />} />
                     <Route path="/explore" element={<Explore />} />
+                    <Route path="/explore/:tag" element={<ExploreInfo />} />
                     <Route path="/whispers" element={<Whispers />}>
                         <Route
                             path="/whispers/new/:handle"

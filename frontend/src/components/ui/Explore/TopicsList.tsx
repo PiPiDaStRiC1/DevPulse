@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { ErrorAlert, TopicCard, TopicCardSkeleton } from "@/components";
-import { ArrowDownRight, Flame } from "lucide-react";
+import { Flame } from "lucide-react";
 import { apiClient } from "@/lib/api";
 
 export const TopicsList = () => {
@@ -11,7 +11,7 @@ export const TopicsList = () => {
     } = useQuery({
         queryKey: ["exploreTopics"],
         queryFn: apiClient.getAllTopics,
-        staleTime: 5 * 60 * 1000,
+        staleTime: 10 * 60 * 1000,
     });
 
     return (
@@ -31,21 +31,8 @@ export const TopicsList = () => {
                         topics &&
                         topics.map((topic, index) => {
                             const isLast = index === topics.length - 1;
-                            return (
-                                <>
-                                    <TopicCard key={topic.id} topicTag={topic} />
-                                    {isLast && (
-                                        <button className="card p-4 text-left cursor-pointer group bg-surface">
-                                            <div className="w-8 h-8 rounded-[var(--radius)] bg-ink mb-3 border-2 border-ink flex items-center justify-center">
-                                                <ArrowDownRight size={13} className="text-white" />
-                                            </div>
-                                            <p className="text-[13px] font-bold text-text-base group-hover:underline">
-                                                Load more
-                                            </p>
-                                        </button>
-                                    )}
-                                </>
-                            );
+
+                            return <TopicCard key={topic.id} topicTag={topic} isLast={isLast} />;
                         })
                     )}
                 </div>
