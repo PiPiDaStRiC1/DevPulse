@@ -453,10 +453,10 @@ export const apiClient = {
             throw new Error(error instanceof Error ? error.message : `Failed to fetch all topics`);
         }
     },
-    async getAllTrendingPosts() {
+    async getAllTrendingPosts(limit: number = 5) {
         try {
             const response = await genericFetch<ApiResponse<TrendingPost[]>>(
-                `${API_URL}/explore/trending`,
+                `${API_URL}/explore/trending?limit=${limit}`,
             );
             if (!response.success) {
                 throw new Error(response.error);

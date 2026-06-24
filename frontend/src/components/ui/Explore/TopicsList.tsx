@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { ErrorAlert, TopicCard, TopicCardSkeleton } from "@/components";
-import { Flame } from "lucide-react";
+import { ArrowDownRight, Flame } from "lucide-react";
 import { apiClient } from "@/lib/api";
 
 export const TopicsList = () => {
@@ -29,15 +29,25 @@ export const TopicsList = () => {
                         <ErrorAlert />
                     ) : (
                         topics &&
-                        topics.map((topic) => <TopicCard key={topic.id} topicTag={topic} />)
+                        topics.map((topic, index) => {
+                            const isLast = index === topics.length - 1;
+                            return (
+                                <>
+                                    <TopicCard key={topic.id} topicTag={topic} />
+                                    {isLast && (
+                                        <button className="card p-4 text-left cursor-pointer group bg-surface">
+                                            <div className="w-8 h-8 rounded-[var(--radius)] bg-ink mb-3 border-2 border-ink flex items-center justify-center">
+                                                <ArrowDownRight size={13} className="text-white" />
+                                            </div>
+                                            <p className="text-[13px] font-bold text-text-base group-hover:underline">
+                                                Load more
+                                            </p>
+                                        </button>
+                                    )}
+                                </>
+                            );
+                        })
                     )}
-                    <button
-                        className="disabled:opacity-50 disabled:!cursor-not-allowed max-w-40 justify-self-center sm:col-start-2 lg:col-start-2 col-span-2 sm:col-span-1 lg:col-span-2 btn-outline inline-flex items-center justify-center gap-2 !text-sm"
-                        aria-label="Load more topics"
-                        disabled={isLoading || isError}
-                    >
-                        Load more
-                    </button>
                 </div>
             </div>
         </div>

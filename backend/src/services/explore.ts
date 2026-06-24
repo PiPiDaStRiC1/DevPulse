@@ -18,10 +18,14 @@ export const getTopics = async (_req: Request, res: Response<ApiResponse<TopicTa
 };
 
 export const getTrendingPosts = async (
-    _req: Request,
+    req: Request<{}, {}, {}, { limit: string }>,
     res: Response<ApiResponse<TrendingPost[]>>,
 ) => {
     try {
+        const { limit } = req.query;
+        const limitNumber = Number(limit);
+        const take = isNaN(limitNumber) ? 5 : limitNumber;
+
         const trendingPosts = await prisma.post.findMany({
             select: {
                 id: true,
@@ -34,13 +38,25 @@ export const getTrendingPosts = async (
 
         const parsedTrendingPosts = trendingPosts.map(parseTrendingPost);
 
-        const sortedTrendingPosts = parsedTrendingPosts.sort((a, b) => {
-            const scoreA = calculateTrendingScore(a.likes, a.comments, a.bookmarks, a.createdAt);
-            const scoreB = calculateTrendingScore(b.likes, b.comments, b.bookmarks, b.createdAt);
-            return scoreB - scoreA;
-        });
+        const sortedAndSlicedTrendingPosts = parsedTrendingPosts
+            .sort((a, b) => {
+                const scoreA = calculateTrendingScore(
+                    a.likes,
+                    a.comments,
+                    a.bookmarks,
+                    a.createdAt,
+                );
+                const scoreB = calculateTrendingScore(
+                    b.likes,
+                    b.comments,
+                    b.bookmarks,
+                    b.createdAt,
+                );
+                return scoreB - scoreA;
+            })
+            .slice(0, take);
 
-        return res.status(200).json({ success: true, data: sortedTrendingPosts });
+        return res.status(200).json({ success: true, data: sortedAndSlicedTrendingPosts });
     } catch (error) {
         return res.status(500).json({ success: false, error: "Failed to fetch trending posts" });
     }

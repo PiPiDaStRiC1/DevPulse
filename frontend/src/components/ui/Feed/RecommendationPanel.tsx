@@ -1,5 +1,6 @@
-import { Users } from "lucide-react";
+import { TrendingUp, Users } from "lucide-react";
 import { FollowingList, TrendingList } from "@/components";
+import { Link } from "react-router-dom";
 
 export const RecommendationPanel = () => {
     return (
@@ -12,10 +13,13 @@ export const RecommendationPanel = () => {
                 <FollowingList />
             </div>
 
-            <div className="card p-4">
-                <h3 className="text-sm font-bold mb-3.5 tracking-[0.01em]">Trending</h3>
+            <Link to="/explore" className="card p-4">
+                <div className="flex items-center gap-2 mb-2">
+                    <TrendingUp size={15} className="text-ink shrink-0" />
+                    <h3 className="text-sm font-bold tracking-[0.01em]">Trending</h3>
+                </div>
                 <TrendingList />
-            </div>
+            </Link>
         </aside>
     );
 };

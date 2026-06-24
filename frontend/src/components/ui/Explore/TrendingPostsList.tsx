@@ -9,8 +9,8 @@ export const TrendingPostsList = () => {
         isLoading,
         isError,
     } = useQuery({
-        queryKey: ["trendingPosts"],
-        queryFn: apiClient.getAllTrendingPosts,
+        queryKey: ["exploreTrendingPosts"],
+        queryFn: () => apiClient.getAllTrendingPosts(),
         staleTime: 10 * 60 * 1000,
     });
 
