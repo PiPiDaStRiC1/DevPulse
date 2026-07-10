@@ -1,7 +1,7 @@
 import { Bookmark, Heart, MessageCircle } from "lucide-react";
 import { useTogglePostStats } from "@/hooks";
 import { ErrorAlert } from "@/components/common";
-import { fmt } from "@/lib/utils";
+import { fmt, safeParseDate } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import type { Post } from "@shared/types";
 
@@ -33,6 +33,10 @@ export const TinyPostCard = ({ post }: TinyPostCardProps) => {
                     <span className="font-semibold text-text-base">{author.username}</span>
                     <span>@{author.handle}</span>
                 </Link>
+
+                <span>·</span>
+
+                <span>{safeParseDate(post.createdAt)}</span>
 
                 <span>·</span>
 

@@ -3,9 +3,18 @@ import { apiClient } from "@/lib/api";
 import { fmt, safeParseDate } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { Flame, Hash } from "lucide-react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
+
+const exploreFilters = [
+    { name: "Trending", value: "trending" },
+    { name: "Newest", value: "newest" },
+] as const;
+
+type ExploreFilter = (typeof exploreFilters)[number]["value"];
 
 export const ExploreInfo = () => {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const activeFilter = (searchParams.get("sort") as ExploreFilter) || "trending";
     const { tag } = useParams<{ tag: string }>();
     const { data: topic, isLoading: isLoadingTopic } = useQuery({
         queryKey: ["exploreTopics", tag],
@@ -19,10 +28,22 @@ export const ExploreInfo = () => {
         isLoading: isLoadingPosts,
         isError: isErrorPosts,
     } = useQuery({
-        queryKey: ["posts"],
-        queryFn: () => apiClient.getAllPosts(),
-        staleTime: 1 * 60 * 1000,
+        queryKey: ["posts", tag, activeFilter],
+        queryFn: () => apiClient.getAllPosts({ sort: activeFilter, tag }),
+        staleTime: 5 * 60 * 1000,
     });
+
+    const toggleSearchParam = (param: ExploreFilter) => {
+        setSearchParams((prev) => {
+            if (param === "trending") {
+                prev.delete("sort");
+            } else {
+                prev.set("sort", param);
+            }
+
+            return prev;
+        });
+    };
 
     return (
         <div className="min-w-0 flex-1 flex flex-col gap-5">
@@ -56,13 +77,19 @@ export const ExploreInfo = () => {
                 </div>
 
                 <div className="flex gap-3">
-                    <button className="rounded-md border-2 border-ink bg-accent px-4 py-2 font-bold text-accent-fg">
-                        Trending
-                    </button>
-
-                    <button className="rounded-md border-2 border-ink px-4 py-2">Newest</button>
-
-                    <button className="rounded-md border-2 border-ink px-4 py-2">Top</button>
+                    {exploreFilters.map((filter) => (
+                        <button
+                            key={filter.value}
+                            onClick={() => toggleSearchParam(filter.value)}
+                            className={`cursor-pointer rounded-md border-2 border-ink px-4 py-2 font-bold ${
+                                activeFilter === filter.value
+                                    ? "bg-accent text-accent-fg"
+                                    : "bg-bg text-text-base"
+                            }`}
+                        >
+                            {filter.name}
+                        </button>
+                    ))}
                 </div>
             </section>
 

@@ -140,14 +140,19 @@ export const apiClient = {
         }
     },
     async getAllPosts(
-        options: { filter?: FeedPostsFilter; sort?: FeedPostsSort } = {
+        options: { filter?: FeedPostsFilter; sort?: FeedPostsSort; tag?: string | undefined } = {
             filter: "for-you",
             sort: "newest",
         },
     ) {
         try {
+            const queryOptions = new URLSearchParams();
+            if (options.filter) queryOptions.append("filter", options.filter);
+            if (options.sort) queryOptions.append("sort", options.sort);
+            if (options.tag) queryOptions.append("tag", options.tag);
+
             const response = await genericFetch<ApiResponse<Post[]>>(
-                `${API_URL}/posts?filter=${options.filter}&sort=${options.sort}`,
+                `${API_URL}/posts?${queryOptions.toString()}`,
                 { headers: { ...JWTheaders() } },
             );
             if (!response.success) {

@@ -11,18 +11,21 @@ import type {
     CommentDTO,
     FeedPostsFilter,
     RelatedPost,
+    FeedPostsSort,
 } from "@shared/types";
 import type { PrismaPost } from "@/types";
 
 export const getPosts = async (
-    req: Request<{}, {}, {}, { filter: FeedPostsFilter }>,
+    req: Request<{}, {}, {}, { filter: FeedPostsFilter; sort?: FeedPostsSort; tag?: string }>,
     res: Response<ApiResponse<Post[]>>,
 ) => {
     try {
         const filter = req.query.filter;
+        const sort = req.query?.sort;
+        const tag = req.query?.tag;
         const currentUserId = req.user?.userId;
 
-        const query = buildPostsQuery(filter, currentUserId);
+        const query = buildPostsQuery(filter, sort, tag, currentUserId);
 
         // change with exact type checking
         const posts = (await prisma.post.findMany(query)) as PrismaPost[];

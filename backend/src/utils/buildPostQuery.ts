@@ -1,8 +1,10 @@
 import { Prisma } from "@prisma/client";
-import type { FeedPostsFilter } from "@shared/types";
+import type { FeedPostsFilter, FeedPostsSort } from "@shared/types";
 
 export const buildPostsQuery = (
-    filter: FeedPostsFilter | undefined,
+    filter: FeedPostsFilter,
+    sort: FeedPostsSort | undefined,
+    tag: string | undefined,
     currentUserId?: number,
 ): Prisma.PostFindManyArgs => {
     const query: Prisma.PostFindManyArgs = {
@@ -17,10 +19,29 @@ export const buildPostsQuery = (
         orderBy: { createdAt: "desc" },
     };
 
+    if (tag) {
+        query.where = { tags: { some: { tag: { name: tag } } } };
+    }
+
+    switch (sort) {
+        case "newest":
+            query.orderBy = { createdAt: "desc" };
+            break;
+        case "oldest":
+            query.orderBy = { createdAt: "asc" };
+            break;
+        case "trending":
+            query.orderBy = [{ likes: { _count: "desc" } }];
+            break;
+    }
+
     switch (filter) {
         case "following":
             if (currentUserId) {
-                query.where = { author: { followers: { some: { followerId: currentUserId } } } };
+                query.where = {
+                    ...query.where,
+                    author: { followers: { some: { followerId: currentUserId } } },
+                };
             }
             break;
 
