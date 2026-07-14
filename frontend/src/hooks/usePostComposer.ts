@@ -93,6 +93,7 @@ export const usePostComposer = () => {
                 isLiked: false,
                 isBookmarked: false,
                 likes: 0,
+                bookmarks: 0,
             });
 
             queryClient.setQueryData(["posts"], (oldData: Post[] | undefined) => {
@@ -101,6 +102,7 @@ export const usePostComposer = () => {
                 return [newPost, ...oldData];
             });
             queryClient.invalidateQueries({ queryKey: ["exploreTopics"] });
+            queryClient.invalidateQueries({ queryKey: ["weeklyTopPosts"] });
 
             publishPostWithWS();
 

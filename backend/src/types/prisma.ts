@@ -54,3 +54,17 @@ export type PrismaTrendingPost = Prisma.PostGetPayload<{
         _count: { select: { likes: true; bookmarks: true; comments: true } };
     };
 }>;
+
+export type PrismaWeeklyTopPost = Prisma.PostGetPayload<{
+    select: { id: true; title: true; _count: { select: { likes: true } } };
+}>;
+
+export type PrismaWeeklyTopUser = Prisma.UserGetPayload<{
+    select: {
+        id: true;
+        username: true;
+        avatar: true;
+        handle: true;
+        _count: { select: { followers: true; posts: true } };
+    };
+}>;

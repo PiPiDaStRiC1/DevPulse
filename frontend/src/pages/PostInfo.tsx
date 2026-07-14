@@ -26,10 +26,10 @@ export const PostInfo = () => {
         isLoading,
         isError,
     } = useQuery<Post>({
-        queryKey: ["posts", Number(postId)],
+        queryKey: ["posts", postId],
         queryFn: () => apiClient.getOnePost(Number(postId!)),
         enabled: !!postId,
-        staleTime: 0,
+        staleTime: 5 * 60 * 1000,
     });
 
     const { toggleLikePost, toggleBookmarkPost, author, isLoadingAuthor } = useTogglePostStats(

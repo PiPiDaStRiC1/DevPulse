@@ -11,16 +11,18 @@ import type {
     Chat,
     ChatDTO,
     Message,
+    Comment,
     MessageDTO,
     PostDTO,
     CommentDTO,
-    Comment,
     FeedPostsFilter,
     RelatedPost,
     Bookmark,
     TopicTag,
     TrendingPost,
     FeedPostsSort,
+    TopTrendingPost,
+    TopTrendingUser,
 } from "@shared/types";
 
 const API_URL = import.meta.env["VITE_API_URL"];
@@ -493,6 +495,47 @@ export const apiClient = {
         } catch (error) {
             throw new Error(
                 error instanceof Error ? error.message : `Failed to fetch all trending topics`,
+            );
+        }
+    },
+    async getWeeklyTopPosts(tag?: string, limit: number = 5) {
+        try {
+            const queryOptions = new URLSearchParams();
+            if (tag) queryOptions.set("tag", tag);
+
+            queryOptions.set("limit", limit.toString());
+
+            const response = await genericFetch<ApiResponse<TopTrendingPost[]>>(
+                `${API_URL}/posts/weekly-top?${queryOptions.toString()}`,
+            );
+            if (!response.success) {
+                throw new Error(response.error);
+            }
+
+            return response.data;
+        } catch (error) {
+            throw new Error(
+                error instanceof Error ? error.message : "Failed to fetch weekly top posts",
+            );
+        }
+    },
+    async getWeeklyTopUsers(tag?: string, limit: number = 5) {
+        try {
+            const queryOptions = new URLSearchParams();
+            if (tag) queryOptions.set("tag", tag);
+            queryOptions.set("limit", limit.toString());
+
+            const response = await genericFetch<ApiResponse<TopTrendingUser[]>>(
+                `${API_URL}/users/weekly-top?${queryOptions.toString()}`,
+            );
+            if (!response.success) {
+                throw new Error(response.error);
+            }
+
+            return response.data;
+        } catch (error) {
+            throw new Error(
+                error instanceof Error ? error.message : "Failed to fetch weekly top users",
             );
         }
     },

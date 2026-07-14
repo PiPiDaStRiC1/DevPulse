@@ -1,4 +1,4 @@
-import { ErrorAlert, PostSkeleton, TinyPostCard } from "@/components";
+import { ErrorAlert, PostSkeleton, TinyPostCard, TopPanel } from "@/components";
 import { apiClient } from "@/lib/api";
 import { fmt, safeParseDate } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
@@ -115,50 +115,7 @@ export const ExploreInfo = () => {
                     </div>
                 </section>
 
-                <aside className="space-y-4">
-                    <div className="card p-4">
-                        <h3 className="mb-4 font-extrabold">Top Authors</h3>
-
-                        <div className="space-y-4">
-                            {[
-                                { name: "Андрюха", posts: 54 },
-                                { name: "Kate", posts: 41 },
-                                { name: "John", posts: 32 },
-                            ].map((author) => (
-                                <div key={author.name} className="flex items-center gap-3">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-md border-2 border-ink bg-accent font-bold text-accent-fg">
-                                        {author.name[0]}
-                                    </div>
-
-                                    <div>
-                                        <p className="font-semibold">{author.name}</p>
-
-                                        <p className="text-xs text-subtle">{author.posts} posts</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="card p-4">
-                        <h3 className="mb-4 font-extrabold">Top This Week</h3>
-
-                        <div className="space-y-3">
-                            {[
-                                "React Compiler Deep Dive",
-                                "React Server Components",
-                                "State Management in 2025",
-                                "Advanced Suspense Patterns",
-                            ].map((title, index) => (
-                                <div key={title} className="flex gap-3 text-sm">
-                                    <span className="font-extrabold text-subtle">#{index + 1}</span>
-
-                                    <span className="font-medium">{title}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </aside>
+                <TopPanel />
             </div>
         </div>
     );

@@ -1,7 +1,9 @@
 import { prisma } from "@/helpers";
-import { parseUser } from "@/utils";
+import { checkNaN, parseUser } from "@/utils";
 import type { Request, Response } from "express";
-import type { ApiResponse, User } from "@shared/types";
+import type { ApiResponse, TopTrendingUser, User } from "@shared/types";
+import type { Prisma } from "@prisma/client";
+import { parseWeeklyTopUser } from "@/utils/parsers/parseWeeklyTopUser";
 
 export const getSuggestedUsers = async (
     req: Request<{}, {}, {}, { limit: string }>,
@@ -251,5 +253,77 @@ export const getOneUserByHandle = async (
     } catch (error) {
         console.error("Error getting user:", error);
         return res.status(500).json({ success: false, error: "Failed to fetch user" });
+    }
+};
+
+// ... existing imports ...
+
+export const getWeeklyTopUsers = async (
+    req: Request<{}, {}, {}, { limit: string; tag?: string }>,
+    res: Response<ApiResponse<TopTrendingUser[]>>,
+) => {
+    try {
+        const limit = req.query.limit;
+        const tag = req.query?.tag;
+
+        const limitNumber = checkNaN(limit, 5);
+
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+        let strictPostWhereCondition: Prisma.PostWhereInput = { createdAt: { gte: oneWeekAgo } };
+        if (tag) {
+            strictPostWhereCondition = {
+                ...strictPostWhereCondition,
+                tags: { some: { tag: { name: tag } } },
+            };
+        }
+
+        const rawTopUsers = await prisma.user.findMany({
+            where: { posts: { some: strictPostWhereCondition } },
+            orderBy: { posts: { _count: "desc" } },
+            select: {
+                id: true,
+                username: true,
+                avatar: true,
+                handle: true,
+                _count: { select: { followers: true, posts: { where: strictPostWhereCondition } } },
+            },
+            take: limitNumber,
+        });
+
+        if (rawTopUsers.length < limitNumber) {
+            let softPostWhereCondition: Prisma.PostWhereInput = {};
+            if (tag) {
+                softPostWhereCondition = {
+                    ...softPostWhereCondition,
+                    tags: { some: { tag: { name: tag } } },
+                };
+            }
+
+            const rawSoftTopUsers = await prisma.user.findMany({
+                where: { posts: { some: softPostWhereCondition } },
+                orderBy: { posts: { _count: "desc" } },
+                select: {
+                    id: true,
+                    username: true,
+                    avatar: true,
+                    handle: true,
+                    _count: {
+                        select: { followers: true, posts: { where: softPostWhereCondition } },
+                    },
+                },
+                take: limitNumber,
+            });
+
+            return res
+                .status(200)
+                .json({ success: true, data: rawSoftTopUsers.map(parseWeeklyTopUser) });
+        }
+
+        return res.status(200).json({ success: true, data: rawTopUsers.map(parseWeeklyTopUser) });
+    } catch (error) {
+        console.error("Error fetching weekly top users: ", error);
+        return res.status(500).json({ success: false, error: "Failed to fetch weekly top users" });
     }
 };

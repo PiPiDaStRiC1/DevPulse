@@ -1,7 +1,15 @@
 import { prisma } from "@/helpers";
 import { Prisma } from "@prisma/client";
 import { postCreateSchema } from "@shared/schemas";
-import { parsePost, buildPostsQuery, countReadTime, generateExcerpt, createSlug } from "@/utils";
+import {
+    parsePost,
+    buildPostsQuery,
+    countReadTime,
+    generateExcerpt,
+    createSlug,
+    checkNaN,
+    parseWeeklyTopPost,
+} from "@/utils";
 import type { Response, Request } from "express";
 import type {
     Post,
@@ -12,6 +20,7 @@ import type {
     FeedPostsFilter,
     RelatedPost,
     FeedPostsSort,
+    TopTrendingPost,
 } from "@shared/types";
 import type { PrismaPost } from "@/types";
 
@@ -379,5 +388,61 @@ export const getRelatedPosts = async (
     } catch (error) {
         console.error("Error fetching related posts: ", error);
         return res.status(500).json({ success: false, error: "Failed to fetch related posts" });
+    }
+};
+
+export const getWeeklyTopPosts = async (
+    req: Request<{}, {}, {}, { limit: string; tag?: string }>,
+    res: Response<ApiResponse<TopTrendingPost[]>>,
+) => {
+    try {
+        const limit = req.query.limit;
+        const tag = req.query?.tag;
+
+        const limitNumber = checkNaN(limit, 5);
+
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+        let strictWhereCondition: Prisma.PostWhereInput = { createdAt: { gte: oneWeekAgo } };
+        if (tag) {
+            strictWhereCondition = {
+                ...strictWhereCondition,
+                tags: { some: { tag: { name: tag } } },
+            };
+        }
+
+        const rawTopPosts = await prisma.post.findMany({
+            where: strictWhereCondition,
+            orderBy: { likes: { _count: "desc" } },
+            select: { id: true, title: true, _count: { select: { likes: true } } },
+            take: limitNumber,
+        });
+
+        if (rawTopPosts.length < limitNumber) {
+            let softWhereCondition: Prisma.PostWhereInput = {};
+            if (tag) {
+                softWhereCondition = {
+                    ...softWhereCondition,
+                    tags: { some: { tag: { name: tag } } },
+                };
+            }
+
+            const rawSoftTopPosts = await prisma.post.findMany({
+                where: softWhereCondition,
+                orderBy: { createdAt: "desc" },
+                select: { id: true, title: true, _count: { select: { likes: true } } },
+                take: limitNumber,
+            });
+
+            return res
+                .status(200)
+                .json({ success: true, data: rawSoftTopPosts.map(parseWeeklyTopPost) });
+        }
+
+        return res.status(200).json({ success: true, data: rawTopPosts.map(parseWeeklyTopPost) });
+    } catch (error) {
+        console.error("Error fetching weekly top posts: ", error);
+        return res.status(500).json({ success: false, error: "Failed to fetch weekly top posts" });
     }
 };

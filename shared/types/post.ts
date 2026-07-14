@@ -36,6 +36,8 @@ export interface RelatedPost {
     readTime: number;
 }
 
+export type TopTrendingPost = Pick<Post, "id" | "title" | "likes">;
+
 export type PostDTO = Omit<Post, "id" | "readTime" | "comments" | "createdAt" | "excerpt"> & {
     comments: Comment[];
 };

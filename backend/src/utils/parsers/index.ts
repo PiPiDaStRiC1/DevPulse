@@ -5,3 +5,4 @@ export * from "./parseRelatedPost";
 export * from "./parseTopicTag";
 export * from "./parseUser";
 export * from "./parseTrendingPost";
+export * from "./parseWeeklyTopPost";

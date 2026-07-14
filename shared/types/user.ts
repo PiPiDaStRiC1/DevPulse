@@ -17,6 +17,11 @@ export interface User {
     createdAt: Date;
 }
 
+export type TopTrendingUser = Pick<
+    User,
+    "id" | "username" | "avatar" | "handle" | "followers" | "posts"
+>;
+
 export interface SuggestedUser extends User {
     mutualFollowers: number;
 }
