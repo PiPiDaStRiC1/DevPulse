@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { ErrorAlert, Preloader, TopicsList, TrendingPostsList } from "@/components";
+import { ErrorAlert, TopicsList, TrendingPostsList } from "@/components";
 import { Search, Delete } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
 import { SearchCard } from "@/components";
 
@@ -11,15 +11,18 @@ export const Explore = () => {
     const isSearching = uiQuery.trim() !== "";
     const {
         data: posts,
-        isLoading,
+        isFetching,
         isError,
     } = useQuery({
         queryKey: ["exploreSummaryPosts", query],
         queryFn: () => apiClient.getAllSummaryPosts(query),
         enabled: isSearching,
+        placeholderData: keepPreviousData,
     });
 
     useEffect(() => {
+        if (!uiQuery.trim()) return;
+
         const timer = setTimeout(() => {
             setQuery(uiQuery);
         }, 500);
@@ -33,7 +36,13 @@ export const Explore = () => {
                 <div
                     className={`card flex items-center gap-3 px-4 py-3 ${uiQuery.trim() ? "!shadow-none !transform-none" : ""}`}
                 >
-                    <Search size={18} className="text-muted shrink-0" />
+                    {!isFetching ? (
+                        <Search size={20} className="text-muted shrink-0" />
+                    ) : (
+                        <div className="bg-bg">
+                            <div className="w-5 h-5 border-2 border-t-white rounded-full animate-spin" />
+                        </div>
+                    )}
                     <input
                         type="text"
                         value={uiQuery}
@@ -52,9 +61,7 @@ export const Explore = () => {
                 </div>
                 {isSearching && (
                     <div className="card max-h-70 flex flex-col gap-0 overflow-auto">
-                        {isLoading ? (
-                            <Preloader />
-                        ) : isError ? (
+                        {isError ? (
                             <ErrorAlert />
                         ) : posts && posts.length > 0 ? (
                             posts.map((post, index) => (

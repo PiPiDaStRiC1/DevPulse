@@ -14,7 +14,7 @@ export const TrendingList = () => {
     });
 
     return (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2">
             {isLoading ? (
                 <Preloader />
             ) : isError ? (
@@ -22,7 +22,10 @@ export const TrendingList = () => {
             ) : (
                 trendingPosts &&
                 trendingPosts.map((post) => (
-                    <div key={post.id} className="flex flex-col gap-0.2 cursor-pointer text-muted">
+                    <div
+                        key={post.id}
+                        className="group rounded-[var(--radius)] border-2 border-ink-soft bg-bg p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-ink hover:shadow-[var(--ink)]"
+                    >
                         <p className="text-text-base font-bold">{post.title}</p>
                         <p className="text-[13px] mt-0.5">
                             Author:{" "}
@@ -36,4 +39,4 @@ export const TrendingList = () => {
             )}
         </div>
     );
-};
+};;
