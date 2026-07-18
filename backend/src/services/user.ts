@@ -256,8 +256,6 @@ export const getOneUserByHandle = async (
     }
 };
 
-// ... existing imports ...
-
 export const getWeeklyTopUsers = async (
     req: Request<{}, {}, {}, { limit: string; tag?: string }>,
     res: Response<ApiResponse<TopTrendingUser[]>>,

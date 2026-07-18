@@ -6,7 +6,7 @@ export function checkNaN(
 ): number {
     const limitNumber = Number(limit);
 
-    if (isNaN(limitNumber) || limitNumber <= 0) {
+    if (isNaN(limitNumber)) {
         return defaultValue;
     }
 

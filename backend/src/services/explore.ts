@@ -1,17 +1,32 @@
 import { prisma } from "@/helpers";
-import { parseTopicTag, parseTrendingPost, calculateTrendingScore } from "@/utils";
+import { parseTopicTag, parseTrendingPost, calculateTrendingScore, checkNaN } from "@/utils";
 import type { Response, Request } from "express";
-import type { ApiResponse, TrendingPost } from "@shared/types";
+import type { ApiResponse, TopicsResponse, TrendingPost } from "@shared/types";
 import type { TopicTag } from "@shared/types";
 
-export const getTopics = async (_req: Request, res: Response<ApiResponse<TopicTag[]>>) => {
+export const getTopics = async (
+    req: Request<{}, {}, {}, { limit?: string; offset?: string }>,
+    res: Response<TopicsResponse>,
+) => {
     try {
-        const topics = await prisma.tag.findMany({
+        const { limit, offset } = req.query;
+
+        const limitNumber = checkNaN(limit, 5);
+        const offsetNumber = checkNaN(offset, 0);
+
+        const data = await prisma.tag.findMany({
             orderBy: { createdAt: "desc" },
             include: { _count: { select: { tags: true } } },
+            take: limitNumber + 1,
+            skip: offsetNumber,
         });
 
-        return res.status(200).json({ success: true, data: topics.map(parseTopicTag) });
+        const hasMore = data.length > limitNumber;
+        const topics = hasMore ? data.slice(0, limitNumber) : data;
+
+        return res
+            .status(200)
+            .json({ success: true, data: { hasMore, data: topics.map(parseTopicTag) } });
     } catch (error) {
         return res.status(500).json({ success: false, error: "Failed to fetch topics" });
     }

@@ -1,28 +1,29 @@
 import { genericFetch } from "@/lib/utils";
 import { getAuthToken } from "@/lib/store";
 import type { RegisterSchema, LoginSchema } from "@shared/schemas";
-import type {
-    ApiResponse,
-    Post,
-    AuthResponse,
-    MeResponse,
-    RefreshResponse,
-    User,
-    Chat,
-    ChatDTO,
-    Message,
-    Comment,
-    MessageDTO,
-    PostDTO,
-    CommentDTO,
-    FeedPostsFilter,
-    RelatedPost,
-    Bookmark,
-    TopicTag,
-    TrendingPost,
-    FeedPostsSort,
-    TopTrendingPost,
-    TopTrendingUser,
+import {
+    type ApiResponse,
+    type Post,
+    type AuthResponse,
+    type MeResponse,
+    type RefreshResponse,
+    type User,
+    type Chat,
+    type ChatDTO,
+    type Message,
+    type Comment,
+    type MessageDTO,
+    type PostDTO,
+    type CommentDTO,
+    type FeedPostsFilter,
+    type RelatedPost,
+    type Bookmark,
+    type TopicTag,
+    type TrendingPost,
+    type FeedPostsSort,
+    type TopTrendingPost,
+    type TopTrendingUser,
+    type TopicsResponse,
 } from "@shared/types";
 
 const API_URL = import.meta.env["VITE_API_URL"];
@@ -452,10 +453,14 @@ export const apiClient = {
             );
         }
     },
-    async getAllTopics() {
+    async getAllTopics(limit: number, offset: number) {
         try {
-            const response = await genericFetch<ApiResponse<TopicTag[]>>(
-                `${API_URL}/explore/topics`,
+            const queryOptions = new URLSearchParams();
+            queryOptions.append("limit", limit.toString());
+            queryOptions.append("offset", offset.toString());
+
+            const response = await genericFetch<TopicsResponse>(
+                `${API_URL}/explore/topics?${queryOptions.toString()}`,
             );
             if (!response.success) {
                 throw new Error(response.error);

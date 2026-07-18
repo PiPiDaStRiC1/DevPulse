@@ -1,4 +1,4 @@
-import type { User } from "./index";
+import type { TopicTag, User } from "./index";
 
 interface ApiResponseSuccess<T> {
     success: true;
@@ -34,3 +34,4 @@ export type Acknowledgement<T = never> =
           ? AcknowledgementResponseCorrect
           : AcknowledgementResponseCorrectWithData<T>);
 export type ChatOnlineAcknowledgement = Acknowledgement<{ isUserOnline: boolean }>;
+export type TopicsResponse = ApiResponse<{ hasMore: boolean; data: TopicTag[] }>;

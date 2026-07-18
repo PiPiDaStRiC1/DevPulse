@@ -4,3 +4,4 @@ export * from "./TopicsList";
 export * from "./TrendingPostsList";
 export * from "./TrendingPostCard";
 export * from "./TrendingPostCardSkeleton";
+export * from "./SearchCard";
