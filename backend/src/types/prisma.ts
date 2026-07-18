@@ -27,6 +27,16 @@ export type PrismaPost = Prisma.PostGetPayload<{
     };
 }>;
 
+export type PrismaSummaryPost = Prisma.PostGetPayload<{
+    select: {
+        id: true;
+        title: true;
+        author: { select: { username: true; avatar: true; handle: true } };
+        createdAt: true;
+        _count: { select: { likes: true; bookmarks: true; comments: true } };
+    };
+}>;
+
 export type PrismaBookmark = Prisma.BookmarkGetPayload<{
     select: {
         id: true;

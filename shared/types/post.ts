@@ -28,6 +28,16 @@ export interface Post {
     codeSnippet: CodeSnippet | null;
 }
 
+export interface SummaryPost {
+    id: number;
+    title: string;
+    likes: number;
+    bookmarks: number;
+    comments: number;
+    author: Pick<User, "username" | "avatar" | "handle">;
+    createdAt: Date;
+}
+    
 export interface RelatedPost {
     id: number;
     title: string;

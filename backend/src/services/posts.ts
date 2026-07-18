@@ -21,8 +21,10 @@ import type {
     RelatedPost,
     FeedPostsSort,
     TopTrendingPost,
+    SummaryPost,
 } from "@shared/types";
 import type { PrismaPost } from "@/types";
+import { parseSummaryPost } from "@/utils/parsers/parseSummaryPost";
 
 export const getPosts = async (
     req: Request<{}, {}, {}, { filter: FeedPostsFilter; sort?: FeedPostsSort; tag?: string }>,
@@ -36,7 +38,6 @@ export const getPosts = async (
 
         const query = buildPostsQuery(filter, sort, tag, currentUserId);
 
-        // change with exact type checking
         const posts = (await prisma.post.findMany(query)) as PrismaPost[];
 
         return res
@@ -45,6 +46,43 @@ export const getPosts = async (
     } catch (error) {
         console.error("Error getting all posts: ", error);
         return res.status(500).json({ success: false, error: "Failed to fetch posts" });
+    }
+};
+
+export const getSummaryPosts = async (
+    req: Request<{}, {}, {}, { query: string }>,
+    res: Response<ApiResponse<SummaryPost[]>>,
+) => {
+    try {
+        const query = req.query.query;
+
+        if (!query?.trim()) {
+            return res.status(400).json({ success: false, error: "Query cannot be empty" });
+        }
+
+        const summaryPosts = await prisma.post.findMany({
+            where: {
+                OR: [
+                    { title: { contains: query } },
+                    { tags: { some: { tag: { name: { contains: query } } } } },
+                    { author: { username: { contains: query } } },
+                    { author: { handle: { contains: query } } },
+                ],
+            },
+            orderBy: { title: "asc" },
+            select: {
+                id: true,
+                title: true,
+                author: { select: { username: true, avatar: true, handle: true } },
+                createdAt: true,
+                _count: { select: { likes: true, bookmarks: true, comments: true } },
+            },
+        });
+
+        return res.status(200).json({ success: true, data: summaryPosts.map(parseSummaryPost) });
+    } catch (error) {
+        console.error("Error getting summary posts: ", error);
+        return res.status(500).json({ success: false, error: "Failed to fetch summary posts" });
     }
 };
 

@@ -12,12 +12,14 @@ import {
     deleteBookmarkPost,
     getRelatedPosts,
     getWeeklyTopPosts,
+    getSummaryPosts,
 } from "@/services";
 
 const postsRouter = Router();
 
 postsRouter.get("/", optionalAuth, getPosts);
 postsRouter.post("/", verifyJWT, postPost);
+postsRouter.get("/summary", getSummaryPosts);
 postsRouter.get("/weekly-top", getWeeklyTopPosts);
 postsRouter.get("/:id", optionalAuth, getOnePost);
 postsRouter.post("/:id/like", verifyJWT, postLikePost);

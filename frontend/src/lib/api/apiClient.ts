@@ -24,6 +24,7 @@ import {
     type TopTrendingPost,
     type TopTrendingUser,
     type TopicsResponse,
+    type SummaryPost,
 } from "@shared/types";
 
 const API_URL = import.meta.env["VITE_API_URL"];
@@ -157,6 +158,24 @@ export const apiClient = {
             const response = await genericFetch<ApiResponse<Post[]>>(
                 `${API_URL}/posts?${queryOptions.toString()}`,
                 { headers: { ...JWTheaders() } },
+            );
+            if (!response.success) {
+                throw new Error(response.error);
+            }
+
+            return response.data;
+        } catch (error) {
+            throw new Error(error instanceof Error ? error.message : "Failed to fetch posts");
+        }
+    },
+    async getAllSummaryPosts(query: string) {
+        try {
+            if (!query.trim()) {
+                throw new Error("Query cannot be empty");
+            }
+
+            const response = await genericFetch<ApiResponse<SummaryPost[]>>(
+                `${API_URL}/posts/summary?query=${query}`,
             );
             if (!response.success) {
                 throw new Error(response.error);

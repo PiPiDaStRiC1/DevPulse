@@ -60,8 +60,7 @@ export const getTrendingPosts = async (
 ) => {
     try {
         const { limit } = req.query;
-        const limitNumber = Number(limit);
-        const take = isNaN(limitNumber) ? 5 : limitNumber;
+        const limitNumber = checkNaN(limit, 5);
 
         const trendingPosts = await prisma.post.findMany({
             select: {
@@ -91,7 +90,7 @@ export const getTrendingPosts = async (
                 );
                 return scoreB - scoreA;
             })
-            .slice(0, take);
+            .slice(0, limitNumber);
 
         return res.status(200).json({ success: true, data: sortedAndSlicedTrendingPosts });
     } catch (error) {
