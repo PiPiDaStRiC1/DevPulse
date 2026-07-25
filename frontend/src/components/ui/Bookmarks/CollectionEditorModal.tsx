@@ -102,19 +102,19 @@ export const CollectionEditorModal = ({
                     <div className="flex gap-2">
                         <button
                             type="button"
-                            onClick={onClose}
-                            className="cursor-pointer btn-outline justify-center"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="button"
                             onClick={() => onSave({ name: name.trim(), note: note.trim() })}
                             disabled={!name.trim() || !note.trim()}
                             className="cursor-pointer btn-solid justify-center disabled:opacity-50"
                         >
                             {isCreateMode ? <Plus size={14} /> : <Pencil size={14} />}
                             {isCreateMode ? "Create" : "Save changes"}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="cursor-pointer btn-outline justify-center"
+                        >
+                            Cancel
                         </button>
                     </div>
                 </div>

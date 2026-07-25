@@ -39,4 +39,5 @@ export const TrendingList = () => {
             )}
         </div>
     );
-};;
+};
+

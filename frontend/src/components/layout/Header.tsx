@@ -2,9 +2,11 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import { Logo } from "@/components";
 import { navLinks } from "@/lib/constants";
 import { LogIn, User, PenLine } from "lucide-react";
-import { useSession } from "@/hooks";
+import { Moon, Sun } from "lucide-react";
+import { useSession, useTheme } from "@/hooks";
 
 export const Header = () => {
+    const { theme, handleChangeTheme } = useTheme();
     const location = useLocation();
     const { isAuthenticated, isHydrated } = useSession();
 
@@ -26,6 +28,13 @@ export const Header = () => {
                     );
                 })}
             </nav>
+            <button
+                onClick={handleChangeTheme}
+                className={`${theme === "light" ? "bg-ink text-white" : "text-ink"} cursor-pointer flex border-2 border-ink p-2 rounded-[var(--radius)]`}
+                style={{ boxShadow: "2px 2px 0 var(--ink)" }}
+            >
+                {theme === "light" ? <Moon size={20} /> : <Sun size={20} />}
+            </button>
             {!isHydrated ? (
                 <div className="animate-pulse bg-[var(--ink-soft)] px-20 py-5" />
             ) : isAuthenticated ? (

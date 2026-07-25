@@ -1,20 +1,29 @@
 @import "tailwindcss";
 
-:root {
-  --bg:           #f5f2eb; 
-  --surface:      #fffef8;   
+:root,
+[data-theme="light"] {
+  --bg:           #f5f2eb;
+  --surface:      #fffef8;
 
   --ink:          #1a2e1a;
   --ink-middle:   rgb(223, 233, 222);
-  --ink-soft:     #c2d4c0; 
+  --ink-soft:     #c2d4c0;
 
   --text:         #1a2e1a;
   --text-danger:  #dc2626;
-  --muted:        #5c7a58;   
-  --subtle:       #8fab89;  
+  --muted:        #5c7a58;
+  --subtle:       #8fab89;
 
   --accent:       #1a2e1a;
   --accent-fg:    #fffef8;
+
+  --panel:        #efebe0;
+  --panel-strong: #f0ede3;
+  --link:         #1b5e20;
+  --link-hover:   #124019;
+  --scrollbar-track: var(--bg);
+  --scrollbar-thumb: #b8ceaf;
+  --scrollbar-thumb-hover: #7a9e74;
 
   --av-purple:    #7c5cbf;
   --av-blue:      #2563eb;
@@ -25,10 +34,47 @@
 
   --font:         "Space Grotesk", system-ui, sans-serif;
 
-  --radius:       6px;     
+  --radius:       6px;
 
   --shadow-card:       3px 3px 0 var(--ink);
-  --shadow-card-hover: 6px 6px 0 var(--ink);  
+  --shadow-card-hover: 6px 6px 0 var(--ink);
+  --shadow-btn:        2px 2px 0 var(--ink);
+  --shadow-btn-hover:  3px 3px 0 var(--ink);
+}
+
+[data-theme="dark"] {
+  --bg:           #101811;
+  --surface:      #182418;
+
+  --ink:          #f3efe6;
+  --ink-middle:   #2b382c;
+  --ink-soft:     #4e5d4e;
+
+  --text:         #f3efe6;
+  --text-danger:  #f87171;
+  --muted:        #b1bbab;
+  --subtle:       #83917d;
+
+  --accent:       #f3efe6;
+  --accent-fg:    #101811;
+
+  --panel:        #1f2b20;
+  --panel-strong: #263327;
+  --link:         #b7ddb0;
+  --link-hover:   #e6f0df;
+  --scrollbar-track: #101811;
+  --scrollbar-thumb: #3f5140;
+  --scrollbar-thumb-hover: #617463;
+
+  --av-purple:    #9b7ae6;
+  --av-blue:      #6ea0ff;
+  --av-green:     #57d39b;
+  --av-orange:    #ffa55c;
+  --av-pink:      #f08ab9;
+  --av-teal:      #3dc5ba;
+
+  --shadow-card:       3px 3px 0 var(--ink);
+  --shadow-card-hover: 6px 6px 0 var(--ink);
   --shadow-btn:        2px 2px 0 var(--ink);
   --shadow-btn-hover:  3px 3px 0 var(--ink);
 }
@@ -54,11 +100,17 @@
   --font-sans: var(--font);
 }
 
-html { scroll-behavior: smooth; } */
+html { scroll-behavior: smooth; }
 
-/* Override browser native outline on inputs/textareas — Tailwind utilities
-   live in @layer utilities which yields to unlayered styles, so we need this
-   explicit rule outside any layer to win the cascade. */
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
 input:focus-visible,
 textarea:focus-visible {
   outline: none;
@@ -75,9 +127,9 @@ body {
 }
 
 ::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: #b8ceaf; border-radius: 99px; }
-::-webkit-scrollbar-thumb:hover { background: #7a9e74; }
+::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
 
 .card {
   background: var(--surface);
@@ -208,7 +260,7 @@ body {
 .tag-badge:hover { background: var(--ink-middle); color: var(--text); }
 
 .code-block {
-  background: #f0ede3;
+  background: var(--panel-strong);
   border: 2px solid var(--ink);
   border-radius: var(--radius);
   overflow-x: auto;
@@ -274,14 +326,14 @@ body {
 }
 
 .preview-markdown a {
-  color: #1b5e20;
+  color: var(--link);
   font-weight: 600;
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
 .preview-markdown a:hover {
-  color: #124019;
+  color: var(--link-hover);
 }
 
 .preview-markdown ul,
@@ -307,7 +359,7 @@ body {
   margin: 1em 0;
   padding: 0.7em 0.9em;
   border-left: 4px solid var(--ink);
-  background: #f0ede3;
+  background: var(--panel-strong);
   border-radius: 0 var(--radius) var(--radius) 0;
   color: var(--muted);
 }
@@ -321,7 +373,7 @@ body {
 .preview-markdown code {
   font-family: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
   font-size: 0.86em;
-  background: #f0ede3;
+  background: var(--panel-strong);
   border: 1px solid var(--ink-soft);
   border-radius: 4px;
   padding: 0.12em 0.35em;
@@ -329,7 +381,7 @@ body {
 
 .preview-markdown pre {
   margin: 1em 0;
-  background: #f0ede3;
+  background: var(--panel-strong);
   border: 2px solid var(--ink);
   border-radius: var(--radius);
   padding: 0.9em 1em;
@@ -369,6 +421,6 @@ body {
 }
 
 .preview-markdown th {
-  background: #efebe0;
+  background: var(--panel);
   font-weight: 700;
 }

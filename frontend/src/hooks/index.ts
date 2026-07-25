@@ -11,3 +11,4 @@ export * from "./useTypingStatus";
 export * from "./useTogglePostStats";
 export * from "./usePostComments";
 export * from "./useCopyToClipboard";
+export * from "./useTheme";

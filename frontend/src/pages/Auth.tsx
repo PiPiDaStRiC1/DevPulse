@@ -18,7 +18,7 @@ export const Auth = () => {
     return (
         <div className="min-h-[calc(100vh-49px)] -my-9 bg-bg flex overflow-hidden">
             <div className="hidden lg:flex flex-col gap-20 bg-[var(--surface)] border border-subtle text-ink p-12">
-                <Logo theme="dark" size="lg" />
+                <Logo size="lg" />
 
                 <div className="flex flex-col gap-6">
                     <h1 className="text-4xl font-bold leading-[1.15] tracking-tight">
